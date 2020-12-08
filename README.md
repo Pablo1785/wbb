@@ -1,0 +1,2 @@
+# wbb
+Wirtualny Bank Bitcoinów
