@@ -6,9 +6,14 @@ class SignUpApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        title: 'Wirtualny Bank Bitcoinów- zarejestruj się',
+        theme: ThemeData(
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
       routes: {
         '/': (context) => SignUpScreen(),
         '/welcome': (context) => WelcomeScreen(),
+
       },
     );
   }

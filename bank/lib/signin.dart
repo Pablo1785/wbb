@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'logged_in.dart';
+
 void main() => runApp(SignInApp());
 
 class SignInApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        title: 'Wirtualny Bank Bitcoinów- zaloguj',
+        theme: ThemeData(
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
       routes: {
         '/': (context) => SignInScreen(),
-        '/welcome': (context) => WelcomeScreen(),
       },
     );
   }
@@ -37,7 +42,8 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('Konto zostało utworzone', style: Theme.of(context).textTheme.headline2),
+        child: Text('Zalogowano', style: Theme.of(context).textTheme.headline2),
+
       ),
     );
   }
@@ -51,7 +57,6 @@ class SignIpForm extends StatefulWidget {
 class _SignIpFormState extends State<SignIpForm> {
   final _usernameTextController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _emailTextController = TextEditingController();
 
   double _formProgress = 0;
 
@@ -60,7 +65,6 @@ class _SignIpFormState extends State<SignIpForm> {
     var controllers = [
       _usernameTextController,
       _passwordController,
-      _emailTextController
     ];
 
     for (var controller in controllers) {
@@ -75,7 +79,7 @@ class _SignIpFormState extends State<SignIpForm> {
   }
 
   void _showWelcomeScreen() {
-    Navigator.of(context).pushNamed('/welcome');
+    runApp(LoggedInApp());
   }
 
   @override
@@ -116,6 +120,8 @@ class _SignIpFormState extends State<SignIpForm> {
             onPressed: _formProgress == 1 ? _showWelcomeScreen : null,
             child: Text('Zaloguj'),
           ),
+
+
         ],
       ),
     );
@@ -151,14 +157,14 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
         tween: ColorTween(begin: Colors.red, end: Colors.orange),
         weight: 1,
       ),
+     // TweenSequenceItem(
+       // tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
+       // weight: 1,
+      //),
       TweenSequenceItem(
-        tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
+        tween: ColorTween(begin: Colors.yellow, end: Colors.green),
         weight: 1,
       ),
- //     TweenSequenceItem(
-   //     tween: ColorTween(begin: Colors.yellow, end: Colors.green),
-     //   weight: 1,
-      //),
     ]);
 
     _colorAnimation = _controller.drive(colorTween);
