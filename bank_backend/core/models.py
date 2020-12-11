@@ -7,7 +7,8 @@ from django.dispatch import receiver
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
     private_key = models.CharField(max_length=52)  # WIF format
     wallet_address = models.CharField(max_length=34)
 
@@ -16,6 +17,7 @@ class Profile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
@@ -60,4 +62,3 @@ class BitcoinTransaction(models.Model):
     target_address = models.CharField(max_length=34)
     amount = models.DecimalField(max_digits=22, decimal_places=9)
     miner_fee = models.DecimalField(max_digits=22, decimal_places=9)
-
