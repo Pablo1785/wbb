@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'main.dart';
 
 void main() => runApp(LoggedInApp());
 
+String auth_token;
+
 class LoggedInApp extends StatelessWidget {
+  
   @override
   Widget build(BuildContext context) {
+	  auth_token = ModalRoute.of(context).settings.arguments;
+	  
     return MaterialApp(
       title: 'Wirtualny Bank Bitcoinów',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+	  routes: {
+        '/': (context) => HomePage(),
+        '/main': (context) => HomeApp(),
+      },
     );
   }
 }
@@ -123,7 +133,14 @@ class _HomePageState extends State<HomePage> {
                     width: screenSize.width / 50,
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+						http.post(
+							'http://localhost:8000/auth/token/logout',
+							headers: <String, String>{
+								'Authorization': 'Token ${auth_token}',
+							});
+						Navigator.of(context).pushNamed('/main');
+					},
                     child: Text('Wyloguj',
                         style: GoogleFonts.montserrat(
                             fontSize: 15,
@@ -347,7 +364,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SelectableText(
-                    '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
+                    //'1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
+					auth_token,
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 30,
