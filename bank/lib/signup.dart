@@ -17,7 +17,7 @@ class SignUpApp extends StatelessWidget {
       routes: {
         '/': (context) => SignUpScreen(),
         '/welcome': (context) => WelcomeScreen(),
-		'/signedin': (context) => SignInScreen(),
+		'/signedin': (context) => SignInApp(),
       },
     );
   }
