@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import 'signin.dart';
 
 void main() => runApp(SignUpApp());
 
@@ -13,7 +17,7 @@ class SignUpApp extends StatelessWidget {
       routes: {
         '/': (context) => SignUpScreen(),
         '/welcome': (context) => WelcomeScreen(),
-
+		'/signedin': (context) => SignInScreen(),
       },
     );
   }
@@ -36,12 +40,44 @@ class SignUpScreen extends StatelessWidget {
   }
 }
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
+  WelcomeScreen({Key key}) : super(key: key);
+  
+  @override
+  _WelcomeScreenState createState() {
+    return _WelcomeScreenState();
+  }
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  //Future<Album> futureAlbum = createAlbum("uzytkownik","haslouzytkownika","uzytkownik@email.pl");
+  
   @override
   Widget build(BuildContext context) {
+	Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
+	
     return Scaffold(
       body: Center(
-        child: Text('Konto zostało utworzone', style: Theme.of(context).textTheme.headline2),
+        child: 
+		
+		FutureBuilder<Album>(
+                  future: futureAlbum,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+						Timer(const Duration(seconds: 5), () {
+						Navigator.of(context).pushNamed('/signedin');});
+							
+                      return Text("Założono konto użytkownika: ${snapshot.data.username}", style: Theme.of(context).textTheme.headline2);
+                    } else if (snapshot.hasError) {
+						Timer(const Duration(seconds: 5), () {
+						Navigator.of(context).pushNamed('/');});
+						
+                      return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+                    }
+
+                    return CircularProgressIndicator();
+                  },
+                ),
       ),
     );
   }
@@ -78,8 +114,9 @@ class _SignUpFormState extends State<SignUpForm> {
     });
   }
 
-  void _showWelcomeScreen() {
-    Navigator.of(context).pushNamed('/welcome');
+  void _showWelcomeScreen(String username, String password, String email) {
+	Future<Album> futureAlbum = createAlbum(username,password,email);
+    Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
   }
 
   @override
@@ -123,7 +160,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 return states.contains(MaterialState.disabled) ? null : Colors.blue;
               }),
             ),
-            onPressed: _formProgress == 1 ? _showWelcomeScreen : null,
+			onPressed: _formProgress == 1 ? (){_showWelcomeScreen(_usernameTextController.text, _passwordController.text, _emailTextController.text);} : null,
             child: Text('Utwórz konto'),
           ),
         ],
@@ -189,6 +226,43 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
         valueColor: _colorAnimation,
         backgroundColor: _colorAnimation.value.withOpacity(0.4),
       ),
+    );
+  }
+}
+
+//Sending data to server and getting response:
+Future<Album> createAlbum(String username, String password, String email) async {
+  final http.Response response = await http.post(
+    'http://localhost:8000/auth/users/',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'username': username,
+	  'password': password,
+	  'email': email,
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    return Album.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
+  }
+}
+
+class Album {
+  final int id;
+  final String username;
+  final String email;
+
+  Album({this.id, this.username, this.email});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
+      id: json['id'],
+	  username: json['username'],
+      email: json['email'],
     );
   }
 }
