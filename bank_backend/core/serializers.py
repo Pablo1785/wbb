@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Profile, SubAccount, BankDeposit, Transaction, BitcoinTransaction
+from django.contrib.auth.models import User
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -8,6 +9,20 @@ class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(
         read_only=True, source="user.first_name")
     last_name = serializers.CharField(read_only=True, source="user.last_name")
+
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],        
+            last_name=validated_data['last_name']
+        )
+        user.set_password(validated_data['password'])
+        user.profile.private_key = validated_data['private_key']
+        user.profile.wallet_address = validated_data['wallet_address']
+        user.save()
+        return user
+
 
     class Meta:
         model = Profile

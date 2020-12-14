@@ -1,11 +1,16 @@
-from django.urls import path
-from .views import ProfileView, SubAccountView, BankDepositView, TransactionView, BitcoinTransactionView
+from core import views
+from django.conf.urls import url
 
 
 urlpatterns = [
-    path('profile', ProfileView.as_view()),
-    path('subaccount', SubAccountView.as_view()),
-    path('deposit', BankDepositView.as_view()),
-    path('transaction', TransactionView.as_view()),
-    path('btctransaction', BitcoinTransactionView.as_view()),
+    url(r'^profile/$', views.ProfileListView.as_view()),
+    url(r'^profile/(?P<pk>[0-9]+)/$', views.ProfileDetailView.as_view()),
+    url(r'^subacc/$', views.SubAccountListView.as_view()),
+    url(r'^subacc/(?P<pk>[0-9]+)/$', views.SubAccountDetailView.as_view()),
+    url(r'^deposit/$', views.BankDepositListView.as_view()),
+    url(r'^deposit/(?P<pk>[0-9]+)/$', views.BankDepositDetailView.as_view()),
+    url(r'^trans/$', views.TransactionListView.as_view()),
+    url(r'^trans/(?P<pk>[0-9]+)/$', views.TransactionDetailView.as_view()),
+    url(r'^btctrans/$', views.BitcoinTransactionListView.as_view()),
+    url(r'^btctrans/(?P<pk>[0-9]+)/$', views.BitcoinTransactionDetailView.as_view()),
 ]
