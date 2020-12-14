@@ -13,7 +13,11 @@ class HomeApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+	  routes: {
+        '/': (context) => HomePage(),
+        '/signin': (context) => SignInApp(),
+		'/signup': (context) => SignUpApp(),
+      },
     );
   }
 }
@@ -60,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 InkWell(
-                  onTap: () {runApp(SignInApp());},
+                  onTap: () {Navigator.of(context).pushNamed('/signin');},
                   child: Text(
                       'Zaloguj się',
                       style: GoogleFonts.montserrat(
@@ -74,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                   width: screenSize.width / 50,
                 ),
                 InkWell(
-                  onTap: () {runApp(SignUpApp());},
+                  onTap: () {Navigator.of(context).pushNamed('/signup');},
                   child: Text(
                       'Zarejestruj się',
                       style: GoogleFonts.montserrat(
