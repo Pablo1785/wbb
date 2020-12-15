@@ -1,63 +1,64 @@
-from .serializers import ProfileSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer, BitcoinTransactionSerializer
-from .models import Profile, SubAccount, BankDeposit, Transaction, BitcoinTransaction
+from .serializers import UserSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer, BitcoinTransactionSerializer
+from .models import SubAccount, BankDeposit, Transaction, BitcoinTransaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from django.contrib.auth.models import User
 
 # Create your views here.
 
 
-class ProfileListView(APIView):
+class UserListView(APIView):
     """
-    List all profiles, or create a new profile.
+    List all users and profiles, or create a new user with profile.
     """
 
     def get(self, request, format=None):
-        profiles = Profile.objects.all()
-        serializer = ProfileSerializer(profiles, many=True)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = ProfileSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        profile = self.get_object(pk)
-        profile.delete()
+        user = self.get_object(pk)
+        user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ProfileDetailView(APIView):
+class UserDetailView(APIView):
     """
-    Retrieve, update or delete a profile instance.
+    Retrieve, update or delete an user instance.
     """
 
     def get_object(self, pk):
         try:
-            return Profile.objects.get(pk=pk)
-        except Profile.DoesNotExist:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
-        profile = self.get_object(pk)
-        profile = ProfileSerializer(profile)
-        return Response(profile.data)
+        user = self.get_object(pk)
+        user = UserSerializer(user)
+        return Response(user.data)
 
     def put(self, request, pk, format=None):
-        profile = self.get_object(pk)
-        serializer = ProfileSerializer(profile, data=request.data)
+        user = self.get_object(pk)
+        serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        profile = self.get_object(pk)
-        profile.delete()
+        user = self.get_object(pk)
+        user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

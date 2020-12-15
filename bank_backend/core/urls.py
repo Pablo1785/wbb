@@ -3,8 +3,8 @@ from django.conf.urls import url
 
 
 urlpatterns = [
-    url(r'^profile/$', views.ProfileListView.as_view()),
-    url(r'^profile/(?P<pk>[0-9]+)/$', views.ProfileDetailView.as_view()),
+    url(r'^user/$', views.UserListView.as_view()),
+    url(r'^user/(?P<pk>[0-9]+)/$', views.UserDetailView.as_view()),
     url(r'^subacc/$', views.SubAccountListView.as_view()),
     url(r'^subacc/(?P<pk>[0-9]+)/$', views.SubAccountDetailView.as_view()),
     url(r'^deposit/$', views.BankDepositListView.as_view()),
