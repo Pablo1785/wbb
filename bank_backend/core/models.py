@@ -7,7 +7,7 @@ from django.dispatch import receiver
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(
+    owner = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
     private_key = models.CharField(max_length=52)  # WIF format
     wallet_address = models.CharField(max_length=34)
@@ -16,7 +16,7 @@ class Profile(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        Profile.objects.create(owner=instance)
 
 
 @receiver(post_save, sender=User)
@@ -26,7 +26,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 class SubAccount(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=22, decimal_places=9)
+    balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
     currency = models.CharField(max_length=3)
     sub_address = models.CharField(max_length=32)
     deposit_status = models.BooleanField(default=False)
