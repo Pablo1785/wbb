@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
+String auth_token;
+
 class Menu extends StatelessWidget {
-
-	Menu({
-    Key key,
-	this.auth_token
-  }) : super(key: key);
-
-  final String auth_token;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +92,7 @@ class Menu extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () {Navigator.of(context).pushNamed('/settings');},
                     child: Text('Ustawienia',
                         style: GoogleFonts.montserrat(
                             fontSize: 15,

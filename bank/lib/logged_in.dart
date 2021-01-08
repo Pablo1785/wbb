@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'main.dart';
+import 'settings.dart';
 import 'globals.dart';
 
 void main() => runApp(LoggedInApp());
-
-String auth_token;
 
 class LoggedInApp extends StatelessWidget {
   
@@ -22,6 +21,7 @@ class LoggedInApp extends StatelessWidget {
 	  routes: {
         '/': (context) => HomePage(),
         '/main': (context) => HomeApp(),
+		'/settings': (context) => SettingsApp(),
       },
     );
   }
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
         //extendBodyBehindAppBar: true,
         appBar: PreferredSize(
           preferredSize: Size(screenSize.width, 1000),
-          child: Menu(auth_token: auth_token),
+          child: Menu(),
         ),
         body: Center(
           child: Container(
