@@ -3,6 +3,7 @@ import 'package:bank/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'globals.dart';
 
 void main() => runApp(HomeApp());
 
@@ -37,51 +38,7 @@ class _HomePageState extends State<HomePage> {
         //extendBodyBehindAppBar: true,
         appBar: PreferredSize(
           preferredSize: Size(screenSize.width, 1000),
-          child: Container(
-            color: Colors.blue,
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Text('WBB',
-                      style: GoogleFonts.montserrat(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white)),
-                  //SizedBox(width: screenSize.width / 50),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [],
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushNamed('/signin');
-                    },
-                    child: Text('Zaloguj się',
-                        style: GoogleFonts.montserrat(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white)),
-                  ),
-                  SizedBox(
-                    width: screenSize.width / 50,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushNamed('/signup');
-                    },
-                    child: Text('Zarejestruj się',
-                        style: GoogleFonts.montserrat(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white)),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          child: MenuNotLogged(),
         ),
         body: Scrollbar(
             child: SingleChildScrollView(
