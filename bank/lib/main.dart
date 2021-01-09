@@ -3,6 +3,8 @@ import 'package:bank/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'contact.dart';
+
 void main() => runApp(HomeApp());
 
 class HomeApp extends StatelessWidget {
@@ -13,10 +15,11 @@ class HomeApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-	  routes: {
+      routes: {
         '/': (context) => HomePage(),
         '/signin': (context) => SignInApp(),
-		'/signup': (context) => SignUpApp(),
+        '/signup': (context) => SignUpApp(),
+        '/contact': (context) => ContactApp(),
       },
     );
   }
@@ -34,66 +37,64 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       //extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size(screenSize.width, 1000),
-        child: Container(
-          color: Colors.blue,
-          child: Padding(
+      appBar: AppBar(
+        //  preferredSize: Size(screenSize.width, 1000),
+        title: const Text('Wbb'),
+        actions: [
+          Padding(
             padding: EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Text(
-                    'WBB',
+            child: Center(
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).pushNamed('/signin');
+                },
+                child: Text('Zaloguj się',
                     style: GoogleFonts.montserrat(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white
-                    )
-                ),
-                //SizedBox(width: screenSize.width / 50),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-
-
-
-
-
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {Navigator.of(context).pushNamed('/signin');},
-                  child: Text(
-                      'Zaloguj się',
-                      style: GoogleFonts.montserrat(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white
-                      )
-                  ),
-                ),
-                SizedBox(
-                  width: screenSize.width / 50,
-                ),
-                InkWell(
-                  onTap: () {Navigator.of(context).pushNamed('/signup');},
-                  child: Text(
-                      'Zarejestruj się',
-                      style: GoogleFonts.montserrat(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white
-                      )
-                  ),
-                ),
-              ],
+                        color: Colors.white)),
+              ),
             ),
           ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).pushNamed('/signup');
+                },
+                child: Text('Zarejestruj się',
+                    style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white)),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).pushNamed('/contact');
+                },
+                child: Text('kontakt',
+                    style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text(
+          'Witamy w naszym banku Bitcoinów!',
+          style: TextStyle(fontSize: 30),
         ),
       ),
-
+      backgroundColor: Colors.grey[200],
     );
   }
 }
