@@ -16,11 +16,14 @@ class Menu extends StatelessWidget {
               padding: EdgeInsets.all(20),
               child: Row(
                 children: [
-                  Text('WBB',
+				  InkWell(
+					onTap: () {Navigator.of(context).pushNamed('/loggedin');},
+					child: Text('WBB',
                       style: GoogleFonts.montserrat(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                           color: Colors.white)),
+				  ),
                   //SizedBox(width: screenSize.width / 50),
                   Expanded(
                     child: Row(
@@ -135,11 +138,14 @@ class MenuNotLogged extends StatelessWidget{
               padding: EdgeInsets.all(20),
               child: Row(
                 children: [
-                  Text('WBB',
+				InkWell(
+					onTap: () {Navigator.of(context).pushNamed('/home');},
+					child: Text('WBB',
                       style: GoogleFonts.montserrat(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                           color: Colors.white)),
+				  ),
                   //SizedBox(width: screenSize.width / 50),
                   Expanded(
                     child: Row(

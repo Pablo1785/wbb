@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'main.dart';
+import 'logged_in.dart';
 import 'globals.dart';
 
 void main() => runApp(SettingsApp());
@@ -19,6 +20,7 @@ class SettingsApp extends StatelessWidget {
         '/': (context) => SettingsPage(),
         '/main': (context) => HomeApp(),
         '/settings': (context) => SettingsApp(),
+		'/loggedin': (context) => LoggedInApp(),
       },
     );
   }

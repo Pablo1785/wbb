@@ -11,7 +11,6 @@ class LoggedInApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-	  auth_token = ModalRoute.of(context).settings.arguments;
 	  
     return MaterialApp(
       title: 'Wirtualny Bank Bitcoinów',
@@ -22,6 +21,7 @@ class LoggedInApp extends StatelessWidget {
         '/': (context) => HomePage(),
         '/main': (context) => HomeApp(),
 		'/settings': (context) => SettingsApp(),
+		'/loggedin': (context) => LoggedInApp(),
       },
     );
   }

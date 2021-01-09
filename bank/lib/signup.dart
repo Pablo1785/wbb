@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'signin.dart';
+import 'main.dart';
+import 'globals.dart';
 
 void main() => runApp(SignUpApp());
 
@@ -17,7 +19,9 @@ class SignUpApp extends StatelessWidget {
       routes: {
         '/': (context) => SignUpScreen(),
         '/welcome': (context) => WelcomeScreen(),
-		'/signedin': (context) => SignInApp(),
+		'/signin': (context) => SignInApp(),
+		'/signup': (context) => SignUpApp(),
+		'/home': (context) => HomeApp(),
       },
     );
   }
@@ -26,8 +30,14 @@ class SignUpApp extends StatelessWidget {
 class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+	  var screenSize = MediaQuery.of(context).size;
+	  
     return Scaffold(
       backgroundColor: Colors.black38,
+	  appBar: PreferredSize(
+          preferredSize: Size(screenSize.width, 1000),
+          child: MenuNotLogged(),
+        ),
       body: Center(
         child: SizedBox(
           width: 400,
@@ -65,7 +75,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
 						Timer(const Duration(seconds: 5), () {
-						Navigator.of(context).pushNamed('/signedin');});
+						Navigator.of(context).pushNamed('/signin');});
 							
                       return Text("Założono konto użytkownika: ${snapshot.data.username}", style: Theme.of(context).textTheme.headline2);
                     } else if (snapshot.hasError) {
