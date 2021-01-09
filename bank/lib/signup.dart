@@ -15,6 +15,7 @@ class SignUpApp extends StatelessWidget {
         title: 'Wirtualny Bank Bitcoinów- zarejestruj się',
         theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
+		brightness: light_theme ? Brightness.light : Brightness.dark,
         ),
       routes: {
         '/': (context) => SignUpScreen(),

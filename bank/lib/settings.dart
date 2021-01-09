@@ -15,6 +15,7 @@ class SettingsApp extends StatelessWidget {
       title: 'Wirtualny Bank Bitcoinów',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
+		brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
         '/': (context) => SettingsPage(),

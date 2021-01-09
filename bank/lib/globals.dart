@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 String auth_token;
+bool light_theme = true;
 
 class Menu extends StatelessWidget {
 

@@ -16,6 +16,7 @@ class SignInApp extends StatelessWidget {
         title: 'Wirtualny Bank Bitcoinów- zaloguj',
         theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
+		brightness: light_theme ? Brightness.light : Brightness.dark,
         ),
       routes: {
         '/': (context) => SignInScreen(),
@@ -128,6 +129,7 @@ class _SignIpFormState extends State<SignIpForm> {
 
   void _showWelcomeScreen(String username, String password) {
     Future<Album> futureAlbum = createAlbum(username,password);
+	// get and set user theme from backend
     Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
   }
 
