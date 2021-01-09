@@ -46,7 +46,7 @@ class BankDeposit(models.Model):
 class Transaction(models.Model):
     account = models.ForeignKey(SubAccount, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=22, decimal_places=9)
-    currency = models.CharField(max_length=3)
+    currency = models.CharField(max_length=3, choices=(('EUR', 'Euro'), ('BTC', 'Bitcoin')))
     source_address = models.CharField(max_length=32)
     target_address = models.CharField(max_length=32)
     timestamp = models.DateTimeField()
