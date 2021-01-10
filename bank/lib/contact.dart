@@ -2,51 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
-import 'logged_in.dart';
-import 'signup.dart';
 import 'main.dart';
-import 'globals.dart';
+import 'signin.dart';
 
-void main() => runApp(SignInApp());
+void main() => runApp(ContactApp());
 
-class SignInApp extends StatelessWidget {
+class ContactApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Wirtualny Bank Bitcoinów- zaloguj',
+      title: 'Wirtualny Bank Bitcoinów- kontakt',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-		brightness: light_theme ? Brightness.light : Brightness.dark,
-        ),
+      ),
       routes: {
-        '/': (context) => SignInScreen(),
-		'/welcome': (context) => WelcomeScreen(),
-		'/loggedin': (context) => LoggedInApp(),
-		'/signin': (context) => SignInApp(),
-        '/signup': (context) => SignUpApp(),
-		'/home': (context) => HomeApp(),
+        '/': (context) => ContactScreen(),
       },
     );
   }
 }
 
-class SignInScreen extends StatelessWidget {
+class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-	  var screenSize = MediaQuery.of(context).size;
-	  
     return Scaffold(
       backgroundColor: Colors.black38,
-	  appBar: PreferredSize(
-          preferredSize: Size(screenSize.width, 1000),
-          child: MenuNotLogged(),
-        ),
       body: Center(
         child: SizedBox(
           width: 400,
-          //height: 400,
           child: Card(
-            child: SignIpForm(),
+            child: ContactForm(),
           ),
         ),
       ),
@@ -54,65 +39,20 @@ class SignInScreen extends StatelessWidget {
   }
 }
 
-class WelcomeScreen extends StatefulWidget {
-  WelcomeScreen({Key key}) : super(key: key);
-
+class ContactForm extends StatefulWidget {
   @override
-  _WelcomeScreenState createState() {
-    return _WelcomeScreenState();
-  }
+  _ContactFormState createState() => _ContactFormState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
-  @override
-  Widget build(BuildContext context) {
-    Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
-
-    return Scaffold(
-      body: Center(
-      child: 		
-		FutureBuilder<Album>(
-		  future: futureAlbum,
-		  builder: (context, snapshot) {
-			if (snapshot.hasData) {
-				Timer(const Duration(seconds: 3), () {
-				//Navigator.of(context).pushNamed('/loggedin', arguments: snapshot.data.auth_token);}); //auth_token is now global
-				auth_token = snapshot.data.auth_token;
-				Navigator.of(context).pushNamed('/loggedin');});
-					
-			  return Text("Zalogowano, token: ${snapshot.data.auth_token}", style: Theme.of(context).textTheme.headline2);
-			} else if (snapshot.hasError) {
-				Timer(const Duration(seconds: 5), () {
-				Navigator.of(context).pushNamed('/');});
-				
-			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
-			}
-
-			return CircularProgressIndicator();
-		  },
-		),
-      ),
-    );
-  }
-}
-
-class SignIpForm extends StatefulWidget {
-  @override
-  _SignIpFormState createState() => _SignIpFormState();
-}
-
-class _SignIpFormState extends State<SignIpForm> {
-  final _usernameTextController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _ContactFormState extends State<ContactForm> {
+  final _messageController = TextEditingController();
+  final _emailTextController = TextEditingController();
 
   double _formProgress = 0;
 
   void _updateFormProgress() {
     var progress = 0.0;
-    var controllers = [
-      _usernameTextController,
-      _passwordController,
-    ];
+    var controllers = [_messageController, _emailTextController];
 
     for (var controller in controllers) {
       if (controller.value.text.isNotEmpty) {
@@ -125,12 +65,6 @@ class _SignIpFormState extends State<SignIpForm> {
     });
   }
 
-  void _showWelcomeScreen(String username, String password) {
-    Future<Album> futureAlbum = createAlbum(username,password);
-	// get and set user theme from backend
-    Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -139,20 +73,20 @@ class _SignIpFormState extends State<SignIpForm> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedProgressIndicator(value: _formProgress),
-          Text('Zaloguj się', style: Theme.of(context).textTheme.headline4),
+          Text('Skontaktuj się z nami',
+              style: Theme.of(context).textTheme.headline4),
           Padding(
             padding: EdgeInsets.all(8.0),
             child: TextFormField(
-              controller: _usernameTextController,
-              decoration: InputDecoration(hintText: 'Nazwa użytkownika'),
+              controller: _messageController,
+              decoration: InputDecoration(hintText: 'Wiadomość'),
             ),
           ),
           Padding(
             padding: EdgeInsets.all(8.0),
             child: TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(hintText: 'Hasło'),
-              obscureText: true,
+              controller: _emailTextController,
+              decoration: InputDecoration(hintText: 'Adres e-mail'),
             ),
           ),
           TextButton(
@@ -167,21 +101,25 @@ class _SignIpFormState extends State<SignIpForm> {
                   MaterialStateColor.resolveWith((Set<MaterialState> states) {
                 return states.contains(MaterialState.disabled)
                     ? null
-                    : Colors.blue;
+                    : Colors.black;
               }),
             ),
             onPressed: _formProgress == 1
                 ? () {
                     _showWelcomeScreen(
-                        _usernameTextController.text, _passwordController.text);
+                        _messageController.text, _emailTextController.text);
                   }
                 : null,
-            child: Text('Zaloguj'),
+            child: Text('Wyślij'),
           ),
         ],
       ),
     );
   }
+}
+
+void _showWelcomeScreen(String message, String email) {
+  HomeApp();
 }
 
 class AnimatedProgressIndicator extends StatefulWidget {
@@ -210,13 +148,13 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 
     var colorTween = TweenSequence([
       TweenSequenceItem(
-        tween: ColorTween(begin: Colors.red, end: Colors.orange),
+        tween: ColorTween(begin: Colors.red, end: Colors.black),
         weight: 1,
       ),
-      // TweenSequenceItem(
-      // tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
-      // weight: 1,
-      //),
+      TweenSequenceItem(
+        tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
+        weight: 1,
+      ),
       TweenSequenceItem(
         tween: ColorTween(begin: Colors.yellow, end: Colors.green),
         weight: 1,
@@ -246,33 +184,39 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 }
 
 //Sending data to server and getting response:
-Future<Album> createAlbum(String username, String password) async {
+Future<Album> createAlbum(
+    String username, String password, String email) async {
   final http.Response response = await http.post(
-    'http://127.0.0.1:8080/auth/token/login',
+    'http://127.0.0.1:8080/auth/users/',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
       'username': username,
       'password': password,
+      'email': email,
     }),
   );
 
-  if (response.statusCode == 200) {
+  if (response.statusCode == 201) {
     return Album.fromJson(jsonDecode(response.body));
   } else {
-    throw Exception('Błąd przy logowaniu.\n\n${response.body}');
+    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
   }
 }
 
 class Album {
-  final String auth_token;
+  final int id;
+  final String username;
+  final String email;
 
-  Album({this.auth_token});
+  Album({this.id, this.username, this.email});
 
   factory Album.fromJson(Map<String, dynamic> json) {
     return Album(
-      auth_token: json['auth_token'],
+      id: json['id'],
+      username: json['username'],
+      email: json['email'],
     );
   }
 }

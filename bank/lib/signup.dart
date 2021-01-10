@@ -12,8 +12,8 @@ class SignUpApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Wirtualny Bank Bitcoinów- zarejestruj się',
-        theme: ThemeData(
+      title: 'Wirtualny Bank Bitcoinów- zarejestruj się',
+      theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
 		brightness: light_theme ? Brightness.light : Brightness.dark,
         ),
@@ -53,7 +53,7 @@ class SignUpScreen extends StatelessWidget {
 
 class WelcomeScreen extends StatefulWidget {
   WelcomeScreen({Key key}) : super(key: key);
-  
+
   @override
   _WelcomeScreenState createState() {
     return _WelcomeScreenState();
@@ -62,15 +62,14 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   //Future<Album> futureAlbum = createAlbum("uzytkownik","haslouzytkownika","uzytkownik@email.pl");
-  
+
   @override
   Widget build(BuildContext context) {
-	Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
-	
+    Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
       body: Center(
-        child: 
-		
+        child: 		
 		FutureBuilder<Album>(
                   future: futureAlbum,
                   builder: (context, snapshot) {
@@ -126,7 +125,7 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   void _showWelcomeScreen(String username, String password, String email) {
-	Future<Album> futureAlbum = createAlbum(username,password,email);
+    Future<Album> futureAlbum = createAlbum(username, password, email);
     Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
   }
 
@@ -152,7 +151,6 @@ class _SignUpFormState extends State<SignUpForm> {
               controller: _passwordController,
               decoration: InputDecoration(hintText: 'Hasło'),
               obscureText: true,
-
             ),
           ),
           Padding(
@@ -164,14 +162,25 @@ class _SignUpFormState extends State<SignUpForm> {
           ),
           TextButton(
             style: ButtonStyle(
-              foregroundColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                return states.contains(MaterialState.disabled) ? null : Colors.white;
+              foregroundColor:
+                  MaterialStateColor.resolveWith((Set<MaterialState> states) {
+                return states.contains(MaterialState.disabled)
+                    ? null
+                    : Colors.white;
               }),
-              backgroundColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                return states.contains(MaterialState.disabled) ? null : Colors.blue;
+              backgroundColor:
+                  MaterialStateColor.resolveWith((Set<MaterialState> states) {
+                return states.contains(MaterialState.disabled)
+                    ? null
+                    : Colors.black;
               }),
             ),
-			onPressed: _formProgress == 1 ? (){_showWelcomeScreen(_usernameTextController.text, _passwordController.text, _emailTextController.text);} : null,
+            onPressed: _formProgress == 1
+                ? () {
+                    _showWelcomeScreen(_usernameTextController.text,
+                        _passwordController.text, _emailTextController.text);
+                  }
+                : null,
             child: Text('Utwórz konto'),
           ),
         ],
@@ -206,7 +215,7 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 
     var colorTween = TweenSequence([
       TweenSequenceItem(
-        tween: ColorTween(begin: Colors.red, end: Colors.orange),
+        tween: ColorTween(begin: Colors.red, end: Colors.black),
         weight: 1,
       ),
       TweenSequenceItem(
@@ -242,16 +251,17 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 }
 
 //Sending data to server and getting response:
-Future<Album> createAlbum(String username, String password, String email) async {
+Future<Album> createAlbum(
+    String username, String password, String email) async {
   final http.Response response = await http.post(
-    'http://localhost:8000/auth/users/',
+    'http://127.0.0.1:8080/auth/users/',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
       'username': username,
-	  'password': password,
-	  'email': email,
+      'password': password,
+      'email': email,
     }),
   );
 
@@ -272,7 +282,7 @@ class Album {
   factory Album.fromJson(Map<String, dynamic> json) {
     return Album(
       id: json['id'],
-	  username: json['username'],
+      username: json['username'],
       email: json['email'],
     );
   }

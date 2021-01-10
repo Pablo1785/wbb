@@ -11,6 +11,4 @@ urlpatterns = [
     url(r'^deposit/(?P<pk>[0-9]+)/$', views.BankDepositDetailView.as_view()),
     url(r'^trans/$', views.TransactionListView.as_view()),
     url(r'^trans/(?P<pk>[0-9]+)/$', views.TransactionDetailView.as_view()),
-    url(r'^btctrans/$', views.BitcoinTransactionListView.as_view()),
-    url(r'^btctrans/(?P<pk>[0-9]+)/$', views.BitcoinTransactionDetailView.as_view()),
 ]

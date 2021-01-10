@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'contact.dart';
 import 'main.dart';
 import 'settings.dart';
 import 'transfer.dart';
@@ -9,22 +10,22 @@ import 'globals.dart';
 void main() => runApp(LoggedInApp());
 
 class LoggedInApp extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
-	  
+
     return MaterialApp(
       title: 'Wirtualny Bank Bitcoinów',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
 		brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
-	  routes: {
+      routes: {
         '/': (context) => HomePage(),
         '/main': (context) => HomeApp(),
-		'/settings': (context) => SettingsApp(),
-		'/loggedin': (context) => LoggedInApp(),
-		'/transfer': (context) => TransferApp(),
+        '/contact': (context) => ContactApp(),
+		    '/settings': (context) => SettingsApp(),
+		    '/loggedin': (context) => LoggedInApp(),
+		    '/transfer': (context) => TransferApp(),
       },
     );
   }
@@ -259,7 +260,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SelectableText(
                     //'1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
-					auth_token,
+                    auth_token,
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 30,

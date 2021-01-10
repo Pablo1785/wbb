@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'globals.dart';
 
+import 'contact.dart';
+
 void main() => runApp(HomeApp());
 
 class HomeApp extends StatelessWidget {
@@ -20,6 +22,7 @@ class HomeApp extends StatelessWidget {
         '/': (context) => HomePage(),
         '/signin': (context) => SignInApp(),
         '/signup': (context) => SignUpApp(),
+        '/contact': (context) => ContactApp(),
       },
     );
   }
