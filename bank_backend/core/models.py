@@ -57,6 +57,7 @@ class Transaction(models.Model):
     target = models.ForeignKey(SubAccount, on_delete=models.PROTECT)
 
     amount = models.DecimalField(max_digits=22, decimal_places=9)
+
     currency = models.CharField(max_length=3)
     send_time = models.DateTimeField()
     confirmation_time = models.DateTimeField()
