@@ -10,14 +10,14 @@ class SignInApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Wirtualny Bank Bitcoinów- zaloguj',
-        theme: ThemeData(
+      title: 'Wirtualny Bank Bitcoinów- zaloguj',
+      theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
+      ),
       routes: {
         '/': (context) => SignInScreen(),
-		'/welcome': (context) => WelcomeScreen(),
-		'/loggedin': (context) => LoggedInApp(),
+        '/welcome': (context) => WelcomeScreen(),
+        '/loggedin': (context) => LoggedInApp(),
       },
     );
   }
@@ -43,41 +43,43 @@ class SignInScreen extends StatelessWidget {
 
 class WelcomeScreen extends StatefulWidget {
   WelcomeScreen({Key key}) : super(key: key);
-  
+
   @override
   _WelcomeScreenState createState() {
     return _WelcomeScreenState();
   }
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen>{
+class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
-	Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
-	  
+    Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
       body: Center(
-        child: 
-		
-		FutureBuilder<Album>(
-		  future: futureAlbum,
-		  builder: (context, snapshot) {
-			if (snapshot.hasData) {
-				Timer(const Duration(seconds: 3), () {
-				Navigator.of(context).pushNamed('/loggedin', arguments: snapshot.data.auth_token);});
-					
-			  return Text("Zalogowano, token: ${snapshot.data.auth_token}", style: Theme.of(context).textTheme.headline2);
-			} else if (snapshot.hasError) {
-				Timer(const Duration(seconds: 5), () {
-				Navigator.of(context).pushNamed('/');});
-				
-			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
-			}
+        child: FutureBuilder<Album>(
+          future: futureAlbum,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Timer(const Duration(seconds: 3), () {
+                Navigator.of(context).pushNamed('/loggedin',
+                    arguments: snapshot.data.auth_token);
+              });
 
-			return CircularProgressIndicator();
-		  },
-		),
+              return Text("Zalogowano, token: ${snapshot.data.auth_token}",
+                  style: Theme.of(context).textTheme.headline2);
+            } else if (snapshot.hasError) {
+              Timer(const Duration(seconds: 5), () {
+                Navigator.of(context).pushNamed('/');
+              });
 
+              return Text("${snapshot.error}",
+                  style: Theme.of(context).textTheme.headline2);
+            }
+
+            return CircularProgressIndicator();
+          },
+        ),
       ),
     );
   }
@@ -113,7 +115,7 @@ class _SignIpFormState extends State<SignIpForm> {
   }
 
   void _showWelcomeScreen(String username, String password) {
-    Future<Album> futureAlbum = createAlbum(username,password);
+    Future<Album> futureAlbum = createAlbum(username, password);
     Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
   }
 
@@ -139,24 +141,31 @@ class _SignIpFormState extends State<SignIpForm> {
               controller: _passwordController,
               decoration: InputDecoration(hintText: 'Hasło'),
               obscureText: true,
-
             ),
           ),
-
           TextButton(
             style: ButtonStyle(
-              foregroundColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                return states.contains(MaterialState.disabled) ? null : Colors.white;
+              foregroundColor:
+                  MaterialStateColor.resolveWith((Set<MaterialState> states) {
+                return states.contains(MaterialState.disabled)
+                    ? null
+                    : Colors.white;
               }),
-              backgroundColor: MaterialStateColor.resolveWith((Set<MaterialState> states) {
-                return states.contains(MaterialState.disabled) ? null : Colors.blue;
+              backgroundColor:
+                  MaterialStateColor.resolveWith((Set<MaterialState> states) {
+                return states.contains(MaterialState.disabled)
+                    ? null
+                    : Colors.blue;
               }),
             ),
-            onPressed: _formProgress == 1 ? (){_showWelcomeScreen(_usernameTextController.text, _passwordController.text);} : null,
+            onPressed: _formProgress == 1
+                ? () {
+                    _showWelcomeScreen(
+                        _usernameTextController.text, _passwordController.text);
+                  }
+                : null,
             child: Text('Zaloguj'),
           ),
-
-
         ],
       ),
     );
@@ -192,9 +201,9 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
         tween: ColorTween(begin: Colors.red, end: Colors.orange),
         weight: 1,
       ),
-     // TweenSequenceItem(
-       // tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
-       // weight: 1,
+      // TweenSequenceItem(
+      // tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
+      // weight: 1,
       //),
       TweenSequenceItem(
         tween: ColorTween(begin: Colors.yellow, end: Colors.green),
@@ -227,13 +236,13 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 //Sending data to server and getting response:
 Future<Album> createAlbum(String username, String password) async {
   final http.Response response = await http.post(
-    'http://localhost:8000/auth/token/login',
+    'http://127.0.0.1:8080/auth/token/login',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
       'username': username,
-	  'password': password,
+      'password': password,
     }),
   );
 

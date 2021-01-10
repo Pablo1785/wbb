@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'contact.dart';
 import 'main.dart';
 
 void main() => runApp(LoggedInApp());
@@ -8,19 +9,19 @@ void main() => runApp(LoggedInApp());
 String auth_token;
 
 class LoggedInApp extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
-	  auth_token = ModalRoute.of(context).settings.arguments;
-	  
+    auth_token = ModalRoute.of(context).settings.arguments;
+
     return MaterialApp(
       title: 'Wirtualny Bank Bitcoinów',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-	  routes: {
+      routes: {
         '/': (context) => HomePage(),
         '/main': (context) => HomeApp(),
+        '/contact': (context) => ContactApp(),
       },
     );
   }
@@ -46,7 +47,7 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.all(20),
               child: Row(
                 children: [
-                  Text('WBB',
+                  Text('Wirtualny Bank Bitcoinów',
                       style: GoogleFonts.montserrat(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white)),
                         ),
-                        SizedBox(width: screenSize.width / 50),
+                        SizedBox(width: screenSize.width / 20),
                         InkWell(
                           onTap: () {},
                           child: Text('Lokata',
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white)),
                         ),
-                        SizedBox(width: screenSize.width / 50),
+                        SizedBox(width: screenSize.width / 20),
                         InkWell(
                           onTap: () {},
                           child: Text('Rachunki',
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white)),
                         ),
-                        SizedBox(width: screenSize.width / 50),
+                        SizedBox(width: screenSize.width / 20),
                         InkWell(
                           onTap: () {},
                           child: Text('Odbiorcy',
@@ -91,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white)),
                         ),
-                        SizedBox(width: screenSize.width / 50),
+                        SizedBox(width: screenSize.width / 20),
                         InkWell(
                           onTap: () {},
                           child: Text('Historia',
@@ -100,24 +101,18 @@ class _HomePageState extends State<HomePage> {
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white)),
                         ),
-                        SizedBox(width: screenSize.width / 50),
+                        SizedBox(width: screenSize.width / 20),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.of(context).pushNamed('/contact');
+                          },
                           child: Text('Kontakt',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white)),
                         ),
-                        SizedBox(width: screenSize.width / 50),
-                        InkWell(
-                          onTap: () {},
-                          child: Text('Zdarzenia',
-                              style: GoogleFonts.montserrat(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white)),
-                        ),
+                        SizedBox(width: screenSize.width / 20),
                       ],
                     ),
                   ),
@@ -134,13 +129,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                   InkWell(
                     onTap: () {
-						http.post(
-							'http://localhost:8000/auth/token/logout',
-							headers: <String, String>{
-								'Authorization': 'Token ${auth_token}',
-							});
-						Navigator.of(context).pushNamed('/main');
-					},
+                      http.post('http://localhost:8000/auth/token/logout',
+                          headers: <String, String>{
+                            'Authorization': 'Token ${auth_token}',
+                          });
+                      Navigator.of(context).pushNamed('/main');
+                    },
                     child: Text('Wyloguj',
                         style: GoogleFonts.montserrat(
                             fontSize: 15,
@@ -365,7 +359,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SelectableText(
                     //'1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
-					auth_token,
+                    auth_token,
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 30,
