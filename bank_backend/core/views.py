@@ -1,5 +1,5 @@
-from .serializers import UserSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer, BitcoinTransactionSerializer
-from .models import SubAccount, BankDeposit, Transaction, BitcoinTransaction
+from .serializers import UserSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer
+from .models import SubAccount, BankDeposit, Transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -215,56 +215,3 @@ class TransactionDetailView(APIView):
         transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-class BitcoinTransactionListView(APIView):
-    """
-    List all bitcoin transactions, or create a new bitcoin transaction.
-    """
-
-    def get(self, request, format=None):
-        btc_transactions = BitcoinTransaction.objects.all()
-        serializer = BitcoinTransactionSerializer(btc_transactions, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = BitcoinTransactionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        btc_transaction = self.get_object(pk)
-        btc_transaction.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class BitcoinTransactionDetailView(APIView):
-    """
-    Retrieve, update or delete a bitcoin transaction instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return BitcoinTransaction.objects.get(pk=pk)
-        except BitcoinTransaction.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        btc_transaction = self.get_object(pk)
-        btc_transaction = BitcoinTransactionSerializer(btc_transaction)
-        return Response(btc_transaction.data)
-
-    def put(self, request, pk, format=None):
-        btc_transaction = self.get_object(pk)
-        serializer = BitcoinTransactionSerializer(
-            btc_transaction, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        transaction = self.get_object(pk)
-        transaction.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

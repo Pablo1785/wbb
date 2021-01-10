@@ -36,7 +36,7 @@ class SubAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubAccount
         fields = ('id', 'owner', 'balance', 'currency',
-                  'sub_address', 'deposit_status')
+                  'sub_address')
 
 
 class BankDepositSerializer(serializers.ModelSerializer):
@@ -49,12 +49,7 @@ class BankDepositSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ('account', 'amount', 'currency', 'source_address',
-                  'target_address', 'timestamp', 'send_time', 'confirmation_time', 'title')
+        fields = ('source',
+                  'target', 'amount', 'currency',  'send_time', 'confirmation_time', 'title', 'fee', 'transaction_hash')
 
 
-class BitcoinTransactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BitcoinTransaction
-        fields = ('account', 'source_address',
-                  'target_address', 'amount', 'miner_fee')
