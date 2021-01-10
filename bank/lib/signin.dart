@@ -3,6 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'logged_in.dart';
+import 'signup.dart';
+import 'main.dart';
+import 'globals.dart';
 
 void main() => runApp(SignInApp());
 
@@ -13,11 +16,15 @@ class SignInApp extends StatelessWidget {
       title: 'Wirtualny Bank Bitcoinów- zaloguj',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+		brightness: light_theme ? Brightness.light : Brightness.dark,
+        ),
       routes: {
         '/': (context) => SignInScreen(),
-        '/welcome': (context) => WelcomeScreen(),
-        '/loggedin': (context) => LoggedInApp(),
+		'/welcome': (context) => WelcomeScreen(),
+		'/loggedin': (context) => LoggedInApp(),
+		'/signin': (context) => SignInApp(),
+        '/signup': (context) => SignUpApp(),
+		'/home': (context) => HomeApp(),
       },
     );
   }
@@ -26,8 +33,14 @@ class SignInApp extends StatelessWidget {
 class SignInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+	  var screenSize = MediaQuery.of(context).size;
+	  
     return Scaffold(
       backgroundColor: Colors.black38,
+	  appBar: PreferredSize(
+          preferredSize: Size(screenSize.width, 1000),
+          child: MenuNotLogged(),
+        ),
       body: Center(
         child: SizedBox(
           width: 400,
@@ -57,29 +70,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     return Scaffold(
       body: Center(
-        child: FutureBuilder<Album>(
-          future: futureAlbum,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              Timer(const Duration(seconds: 3), () {
-                Navigator.of(context).pushNamed('/loggedin',
-                    arguments: snapshot.data.auth_token);
-              });
+      child: 		
+		FutureBuilder<Album>(
+		  future: futureAlbum,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+				Timer(const Duration(seconds: 3), () {
+				//Navigator.of(context).pushNamed('/loggedin', arguments: snapshot.data.auth_token);}); //auth_token is now global
+				auth_token = snapshot.data.auth_token;
+				Navigator.of(context).pushNamed('/loggedin');});
+					
+			  return Text("Zalogowano, token: ${snapshot.data.auth_token}", style: Theme.of(context).textTheme.headline2);
+			} else if (snapshot.hasError) {
+				Timer(const Duration(seconds: 5), () {
+				Navigator.of(context).pushNamed('/');});
+				
+			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			}
 
-              return Text("Zalogowano, token: ${snapshot.data.auth_token}",
-                  style: Theme.of(context).textTheme.headline2);
-            } else if (snapshot.hasError) {
-              Timer(const Duration(seconds: 5), () {
-                Navigator.of(context).pushNamed('/');
-              });
-
-              return Text("${snapshot.error}",
-                  style: Theme.of(context).textTheme.headline2);
-            }
-
-            return CircularProgressIndicator();
-          },
-        ),
+			return CircularProgressIndicator();
+		  },
+		),
       ),
     );
   }
@@ -115,7 +126,8 @@ class _SignIpFormState extends State<SignIpForm> {
   }
 
   void _showWelcomeScreen(String username, String password) {
-    Future<Album> futureAlbum = createAlbum(username, password);
+    Future<Album> futureAlbum = createAlbum(username,password);
+	// get and set user theme from backend
     Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
   }
 
