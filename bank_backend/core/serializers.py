@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, SubAccount, BankDeposit, Transaction, BitcoinTransaction
+from .models import Profile, SubAccount, BankDeposit, Transaction
 from django.contrib.auth.models import User
 
 
@@ -28,14 +28,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name',
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',
                   'private_key', 'wallet_address')
 
 
 class SubAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubAccount
-        fields = ('id', 'owner', 'balance', 'currency',
+        fields = ('owner', 'balance', 'currency',
                   'sub_address')
 
 
