@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'logged_in.dart';
 import 'signup.dart';
+import 'contact.dart';
 import 'main.dart';
 import 'globals.dart';
 
@@ -25,6 +26,7 @@ class SignInApp extends StatelessWidget {
 		'/signin': (context) => SignInApp(),
         '/signup': (context) => SignUpApp(),
 		'/home': (context) => HomeApp(),
+		'/contact': (context) => ContactApp(),
       },
     );
   }
@@ -248,7 +250,7 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 //Sending data to server and getting response:
 Future<Album> createAlbum(String username, String password) async {
   final http.Response response = await http.post(
-    'http://127.0.0.1:8080/auth/token/login',
+    'http://127.0.0.1:8000/auth/token/login',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

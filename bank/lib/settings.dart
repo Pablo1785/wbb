@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
+import 'contact.dart';
 import 'main.dart';
 import 'logged_in.dart';
 import 'transfer.dart';
@@ -24,6 +25,7 @@ class SettingsApp extends StatelessWidget {
         '/settings': (context) => SettingsApp(),
 		'/loggedin': (context) => LoggedInApp(),
 		'/transfer': (context) => TransferApp(),
+		'/contact': (context) => ContactApp(),
       },
     );
   }

@@ -76,7 +76,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/contact');},
                           child: Text('Kontakt',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
@@ -153,6 +153,17 @@ class MenuNotLogged extends StatelessWidget{
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [],
                     ),
+                  ),
+				InkWell(
+				  onTap: () {Navigator.of(context).pushNamed('/contact');},
+				  child: Text('Kontakt',
+					  style: GoogleFonts.montserrat(
+						  fontSize: 15,
+						  fontWeight: FontWeight.w500,
+						  color: Colors.white)),
+				),
+				  SizedBox(
+                    width: screenSize.width / 50,
                   ),
                   InkWell(
                     onTap: () {

@@ -23,9 +23,9 @@ class LoggedInApp extends StatelessWidget {
         '/': (context) => HomePage(),
         '/main': (context) => HomeApp(),
         '/contact': (context) => ContactApp(),
-		    '/settings': (context) => SettingsApp(),
-		    '/loggedin': (context) => LoggedInApp(),
-		    '/transfer': (context) => TransferApp(),
+		'/settings': (context) => SettingsApp(),
+		'/loggedin': (context) => LoggedInApp(),
+		'/transfer': (context) => TransferApp(),
       },
     );
   }

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'main.dart';
+import 'contact.dart';
 import 'logged_in.dart';
 import 'settings.dart';
 import 'globals.dart';
@@ -25,6 +26,7 @@ class TransferApp extends StatelessWidget {
         '/settings': (context) => SettingsApp(),
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
+		'/contact': (context) => ContactApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
       supportedLocales: [
