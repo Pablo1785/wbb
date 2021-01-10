@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
       //extendBodyBehindAppBar: true,
       appBar: AppBar(
         //  preferredSize: Size(screenSize.width, 1000),
-        title: const Text('Wbb'),
+        title: const Text('Witrualny Bank Bitcoinów'),
         actions: [
           Padding(
             padding: EdgeInsets.all(20),
@@ -88,9 +88,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: const Center(
+      body: Center(
         child: Text(
-          'Witamy w naszym banku Bitcoinów!',
+          'Witamy w naszym banku Bitcoinów! ',
           style: TextStyle(fontSize: 30),
         ),
       ),

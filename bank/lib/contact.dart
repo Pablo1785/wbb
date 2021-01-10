@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'main.dart';
 import 'signin.dart';
 
 void main() => runApp(ContactApp());
@@ -103,13 +104,22 @@ class _ContactFormState extends State<ContactForm> {
                     : Colors.black;
               }),
             ),
-            onPressed: _formProgress == 1 ? () {} : null,
+            onPressed: _formProgress == 1
+                ? () {
+                    _showWelcomeScreen(
+                        _messageController.text, _emailTextController.text);
+                  }
+                : null,
             child: Text('Wyślij'),
           ),
         ],
       ),
     );
   }
+}
+
+void _showWelcomeScreen(String message, String email) {
+  HomeApp();
 }
 
 class AnimatedProgressIndicator extends StatefulWidget {
