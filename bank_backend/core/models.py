@@ -25,14 +25,21 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class SubAccount(models.Model):
+    sub_address = models.CharField(max_length=32, primary_key=True)
+
+    # Having a Profile object you can access its SubAccounts with Profile.subaccount_set.all()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
     balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
     currency = models.CharField(max_length=3)
-    sub_address = models.CharField(max_length=32)
-    deposit_status = models.BooleanField(default=False)
+    
 
 
 class BankDeposit(models.Model):
+
+    # Having a SubAccount object you can access its BankDeposit info with SubAccount.bankdeposit; 
+    # CAREFUL! Accessing BankDeposit of a SubAccount that is not a deposit will throw ObjectDoesNotExist! This is intended behaviour!
+    # Accessing SubAccount.bankdeposit throws ObjectDoesNotExist, which tells us this is not a Deposit account
     account = models.OneToOneField(
         SubAccount, on_delete=models.CASCADE, primary_key=True)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=3)
@@ -44,21 +51,17 @@ class BankDeposit(models.Model):
 
 
 class Transaction(models.Model):
-    account = models.ForeignKey(SubAccount, on_delete=models.CASCADE)
+
+    # Having a SubAccount objects you can access its related transactions with SubAccount.transaction_set.all()
+    source = models.ForeignKey(SubAccount, on_delete=models.PROTECT)
+    target = models.ForeignKey(SubAccount, on_delete=models.PROTECT)
+
     amount = models.DecimalField(max_digits=22, decimal_places=9)
-    currency = models.CharField(max_length=3, choices=(('EUR', 'Euro'), ('BTC', 'Bitcoin')))
-    source_address = models.CharField(max_length=32)
-    target_address = models.CharField(max_length=32)
-    timestamp = models.DateTimeField()
+
+    currency = models.CharField(max_length=3)
     send_time = models.DateTimeField()
     confirmation_time = models.DateTimeField()
     title = models.CharField(max_length=256)
+    fee = models.DecimalField(max_digits=22, decimal_places=15)  # Nullable, miner/bank fee for the transaction
+    transaction_hash = models.CharField(max_lenth=256)  # Nullable, blockchain ID of the transaction
 
-
-class BitcoinTransaction(models.Model):
-    account = models.OneToOneField(
-        Transaction, on_delete=models.CASCADE, primary_key=True)
-    source_address = models.CharField(max_length=34)
-    target_address = models.CharField(max_length=34)
-    amount = models.DecimalField(max_digits=22, decimal_places=9)
-    miner_fee = models.DecimalField(max_digits=22, decimal_places=9)
