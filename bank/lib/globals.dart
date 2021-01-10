@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
-String auth_token;
+String auth_token = "empty";
 bool light_theme = true;
 
 class Menu extends StatelessWidget {
@@ -31,7 +31,7 @@ class Menu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/transfer');},
                           child: Text('Przelew',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,

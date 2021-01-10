@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'main.dart';
 import 'settings.dart';
+import 'transfer.dart';
 import 'globals.dart';
 
 void main() => runApp(LoggedInApp());
@@ -23,6 +24,7 @@ class LoggedInApp extends StatelessWidget {
         '/main': (context) => HomeApp(),
 		'/settings': (context) => SettingsApp(),
 		'/loggedin': (context) => LoggedInApp(),
+		'/transfer': (context) => TransferApp(),
       },
     );
   }
