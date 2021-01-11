@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'globals.dart';
-
 import 'contact.dart';
 
-void main() => runApp(HomeApp());
+void main() => runApp(MainApp());
 
-class HomeApp extends StatelessWidget {
+class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,21 +18,22 @@ class HomeApp extends StatelessWidget {
 		brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
-        '/': (context) => HomePage(),
+        '/': (context) => MainPage(),
         '/signin': (context) => SignInApp(),
         '/signup': (context) => SignUpApp(),
+		'/main': (context) => MainApp(),
         '/contact': (context) => ContactApp(),
       },
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class MainPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;

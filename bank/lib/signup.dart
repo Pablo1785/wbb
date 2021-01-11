@@ -23,7 +23,7 @@ class SignUpApp extends StatelessWidget {
         '/welcome': (context) => WelcomeScreen(),
 		'/signin': (context) => SignInApp(),
 		'/signup': (context) => SignUpApp(),
-		'/home': (context) => HomeApp(),
+		'/main': (context) => MainApp(),
 		'/contact': (context) => ContactApp(),
       },
     );

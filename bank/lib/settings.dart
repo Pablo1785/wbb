@@ -22,7 +22,7 @@ class SettingsApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => SettingsPage(),
-        '/main': (context) => HomeApp(),
+        '/main': (context) => MainApp(),
         '/settings': (context) => SettingsApp(),
 		'/loggedin': (context) => LoggedInApp(),
 		'/transfer': (context) => TransferApp(),
