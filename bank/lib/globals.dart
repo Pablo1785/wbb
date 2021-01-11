@@ -40,7 +40,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/deposit');},
                           child: Text('Lokata',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,

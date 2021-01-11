@@ -6,6 +6,7 @@ import 'contact.dart';
 import 'main.dart';
 import 'logged_in.dart';
 import 'transfer.dart';
+import 'deposit.dart';
 import 'globals.dart';
 
 void main() => runApp(SettingsApp());
@@ -25,6 +26,7 @@ class SettingsApp extends StatelessWidget {
         '/settings': (context) => SettingsApp(),
 		'/loggedin': (context) => LoggedInApp(),
 		'/transfer': (context) => TransferApp(),
+		'/deposit': (context) => DepositApp(),
 		'/contact': (context) => ContactApp(),
       },
     );
