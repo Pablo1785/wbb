@@ -7,6 +7,7 @@ import 'main.dart';
 import 'logged_in.dart';
 import 'settings.dart';
 import 'transfer.dart';
+import 'contact.dart';
 import 'globals.dart';
 
 void main() => runApp(DepositApp());
@@ -22,11 +23,12 @@ class DepositApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => DepositPage(),
-        '/main': (context) => HomeApp(),
+        '/main': (context) => MainApp(),
         '/settings': (context) => SettingsApp(),
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
         '/deposit': (context) => DepositApp(),
+        '/contact': (context) => ContactApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
       supportedLocales: [

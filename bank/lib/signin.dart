@@ -25,7 +25,7 @@ class SignInApp extends StatelessWidget {
 		'/loggedin': (context) => LoggedInApp(),
 		'/signin': (context) => SignInApp(),
         '/signup': (context) => SignUpApp(),
-		'/home': (context) => HomeApp(),
+		'/main': (context) => MainApp(),
 		'/contact': (context) => ContactApp(),
       },
     );

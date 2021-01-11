@@ -113,6 +113,7 @@ class Menu extends StatelessWidget {
 							headers: <String, String>{
 								'Authorization': 'Token ${auth_token}',
 							});
+						auth_token = "empty";
 						Navigator.of(context).pushNamed('/main');
 					},
                     child: Text('Wyloguj',
@@ -140,7 +141,7 @@ class MenuNotLogged extends StatelessWidget{
               child: Row(
                 children: [
 				InkWell(
-					onTap: () {Navigator.of(context).pushNamed('/home');},
+					onTap: () {Navigator.of(context).pushNamed('/main');},
 					child: Text('WBB',
                       style: GoogleFonts.montserrat(
                           fontSize: 15,

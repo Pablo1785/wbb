@@ -23,7 +23,7 @@ class TransferApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => TransferPage(),
-        '/main': (context) => HomeApp(),
+        '/main': (context) => MainApp(),
         '/settings': (context) => SettingsApp(),
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),

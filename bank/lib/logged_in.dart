@@ -21,8 +21,8 @@ class LoggedInApp extends StatelessWidget {
 		brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
-        '/': (context) => HomePage(),
-        '/main': (context) => HomeApp(),
+        '/': (context) => LoggedInPage(),
+		'/main': (context) => MainApp(),
         '/contact': (context) => ContactApp(),
 		'/settings': (context) => SettingsApp(),
 		'/loggedin': (context) => LoggedInApp(),
@@ -33,12 +33,12 @@ class LoggedInApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
+class LoggedInPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _LoggedInPageState createState() => _LoggedInPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _LoggedInPageState extends State<LoggedInPage> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;

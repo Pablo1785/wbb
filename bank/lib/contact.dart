@@ -3,7 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'main.dart';
+import 'logged_in.dart';
+import 'settings.dart';
+import 'transfer.dart';
+import 'deposit.dart';
+import 'contact.dart';
 import 'signin.dart';
+import 'signup.dart';
+import 'globals.dart';
 
 void main() => runApp(ContactApp());
 
@@ -17,6 +24,14 @@ class ContactApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => ContactScreen(),
+        '/main': (context) => MainApp(),
+        '/settings': (context) => SettingsApp(),
+        '/loggedin': (context) => LoggedInApp(),
+        '/transfer': (context) => TransferApp(),
+        '/deposit': (context) => DepositApp(),
+		'/contact': (context) => ContactApp(),
+        '/signin': (context) => SignInApp(),
+        '/signup': (context) => SignUpApp(),
       },
     );
   }
@@ -25,8 +40,14 @@ class ContactApp extends StatelessWidget {
 class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+	  var screenSize = MediaQuery.of(context).size;
+	  
     return Scaffold(
       backgroundColor: Colors.black38,
+	  appBar: PreferredSize(
+	  preferredSize: Size(screenSize.width, 1000),
+	  child: auth_token == "empty" ? MenuNotLogged() : Menu(),
+	),
       body: Center(
         child: SizedBox(
           width: 400,
@@ -116,10 +137,14 @@ class _ContactFormState extends State<ContactForm> {
       ),
     );
   }
+  
+  void _showWelcomeScreen(String message, String email) {
+  if (auth_token == "empty")
+	  Navigator.of(context).pushNamed('/main');
+  else
+	  Navigator.of(context).pushNamed('/loggedin');
 }
 
-void _showWelcomeScreen(String message, String email) {
-  HomeApp();
 }
 
 class AnimatedProgressIndicator extends StatefulWidget {
