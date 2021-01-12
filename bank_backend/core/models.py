@@ -25,7 +25,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class SubAccount(models.Model):
-    sub_address = models.CharField(max_length=32, primary_key=True)
+    sub_address = models.CharField(max_length=32, unique=True)
 
     # Having a Profile object you can access its SubAccounts with Profile.subaccount_set.all()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -52,16 +52,16 @@ class BankDeposit(models.Model):
 
 class Transaction(models.Model):
 
-    # Having a SubAccount objects you can access its related transactions with SubAccount.transaction_set.all()
-    source = models.ForeignKey(SubAccount, on_delete=models.PROTECT)
-    target = models.ForeignKey(SubAccount, on_delete=models.PROTECT)
+    # Having a SubAccount objects you can access its related transactions with SubAccount.(outgoing/incoming)_set.all()
+    source = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing', blank=True, null=True)
+    target = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming', blank=True, null=True)
 
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
     currency = models.CharField(max_length=3)
     send_time = models.DateTimeField()
-    confirmation_time = models.DateTimeField()
+    confirmation_time = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=256)
-    fee = models.DecimalField(max_digits=22, decimal_places=15)  # Nullable, miner/bank fee for the transaction
-    transaction_hash = models.CharField(max_lenth=256)  # Nullable, blockchain ID of the transaction
+    fee = models.DecimalField(max_digits=22, decimal_places=15, blank=True, null=True)  # Nullable, miner/bank fee for the transaction
+    transaction_hash = models.CharField(max_length=256, blank=True, null=True)  # Nullable, blockchain ID of the transaction
 

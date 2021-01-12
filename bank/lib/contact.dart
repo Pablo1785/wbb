@@ -3,7 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'main.dart';
+import 'logged_in.dart';
+import 'settings.dart';
+import 'transfer.dart';
+import 'deposit.dart';
+import 'contact.dart';
 import 'signin.dart';
+import 'signup.dart';
+import 'globals.dart';
 
 void main() => runApp(ContactApp());
 
@@ -17,6 +24,14 @@ class ContactApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => ContactScreen(),
+        '/main': (context) => MainApp(),
+        '/settings': (context) => SettingsApp(),
+        '/loggedin': (context) => LoggedInApp(),
+        '/transfer': (context) => TransferApp(),
+        '/deposit': (context) => DepositApp(),
+		'/contact': (context) => ContactApp(),
+        '/signin': (context) => SignInApp(),
+        '/signup': (context) => SignUpApp(),
       },
     );
   }
@@ -25,8 +40,14 @@ class ContactApp extends StatelessWidget {
 class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+	  var screenSize = MediaQuery.of(context).size;
+	  
     return Scaffold(
       backgroundColor: Colors.black38,
+	  appBar: PreferredSize(
+	  preferredSize: Size(screenSize.width, 1000),
+	  child: auth_token == "empty" ? MenuNotLogged() : Menu(),
+	),
       body: Center(
         child: SizedBox(
           width: 400,
@@ -116,10 +137,14 @@ class _ContactFormState extends State<ContactForm> {
       ),
     );
   }
+  
+  void _showWelcomeScreen(String message, String email) {
+  if (auth_token == "empty")
+	  Navigator.of(context).pushNamed('/main');
+  else
+	  Navigator.of(context).pushNamed('/loggedin');
 }
 
-void _showWelcomeScreen(String message, String email) {
-  HomeApp();
 }
 
 class AnimatedProgressIndicator extends StatefulWidget {
@@ -179,44 +204,6 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
         valueColor: _colorAnimation,
         backgroundColor: _colorAnimation.value.withOpacity(0.4),
       ),
-    );
-  }
-}
-
-//Sending data to server and getting response:
-Future<Album> createAlbum(
-    String username, String password, String email) async {
-  final http.Response response = await http.post(
-    'http://127.0.0.1:8080/auth/users/',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'username': username,
-      'password': password,
-      'email': email,
-    }),
-  );
-
-  if (response.statusCode == 201) {
-    return Album.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
-  }
-}
-
-class Album {
-  final int id;
-  final String username;
-  final String email;
-
-  Album({this.id, this.username, this.email});
-
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      id: json['id'],
-      username: json['username'],
-      email: json['email'],
     );
   }
 }

@@ -4,15 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'main.dart';
-import 'contact.dart';
 import 'logged_in.dart';
 import 'settings.dart';
-import 'deposit.dart';
+import 'transfer.dart';
+import 'contact.dart';
 import 'globals.dart';
 
-void main() => runApp(TransferApp());
+void main() => runApp(DepositApp());
 
-class TransferApp extends StatelessWidget {
+class DepositApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,13 +22,13 @@ class TransferApp extends StatelessWidget {
         brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
-        '/': (context) => TransferPage(),
+        '/': (context) => DepositPage(),
         '/main': (context) => MainApp(),
         '/settings': (context) => SettingsApp(),
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
-		'/deposit': (context) => DepositApp(),
-		'/contact': (context) => ContactApp(),
+        '/deposit': (context) => DepositApp(),
+        '/contact': (context) => ContactApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
       supportedLocales: [
@@ -38,12 +38,12 @@ class TransferApp extends StatelessWidget {
   }
 }
 
-class TransferPage extends StatefulWidget {
+class DepositPage extends StatefulWidget {
   @override
-  _TransferPageState createState() => _TransferPageState();
+  _DepositPageState createState() => _DepositPageState();
 }
 
-class _TransferPageState extends State<TransferPage> {
+class _DepositPageState extends State<DepositPage> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -54,39 +54,73 @@ class _TransferPageState extends State<TransferPage> {
           preferredSize: Size(screenSize.width, 1000),
           child: Menu(),
         ),
-        body: FormTransfer());
+        body: FormDeposit());
   }
 }
 
-class Transfer {
+class Deposit {
   static const String Amount = 'amount';
-  static const String TargetAddress = 'targetAddress';
   static const String Title = 'title';
-  static const String TimeStamp = 'timestamp';
   static const String Account = 'account';
-  static const String Fee = 'fee';
+  static const String TimeStamp = 'start_date';
+  static const String Id = 'id';
 
   var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
-  double _currentSliderValue = 20;
+  int choice = 1;
 
   var data = new Map();
 
+  Map D1 = {
+    "interest_rate": '3,2%',
+    "deposit_period": '3 dni',
+    "capitalization_period": '1 dzień',
+  };
+
+  Map D2 = {
+    "interest_rate": '3,8%',
+    "deposit_period": '6 dni',
+    "capitalization_period": '1 dzień',
+  };
+
+  Map D3 = {
+    "interest_rate": '4,2%',
+    "deposit_period": '14 dni',
+    "capitalization_period": '1 dzień',
+  };
+
+  var deposit_options = new List();
+
+  Deposit() {
+    read();
+  }
+
+  // read data from backend and fill the map
+  read() {
+    print('reading available deposit options from backend');
+    deposit_options.add(D1);
+    deposit_options.add(D2);
+    deposit_options.add(D3);
+
+    for (var i = 0; i < deposit_options.length; i++) {
+      print(deposit_options[i]);
+    }
+  }
+
   // send data to backend
   send() {
-    print('sending transfer data to backend');
+    print('sending deposit data to backend');
     data.forEach((k, v) => print('${k}: ${v}'));
   }
 }
 
-class FormTransfer extends StatefulWidget {
+class FormDeposit extends StatefulWidget {
   @override
-  _FormTransferState createState() => _FormTransferState();
+  _FormDepositState createState() => _FormDepositState();
 }
 
-class _FormTransferState extends State<FormTransfer> {
+class _FormDepositState extends State<FormDeposit> {
   final _formKey = GlobalKey<FormState>();
-  final _transfer = Transfer();
-  bool type_btc = true;
+  final _deposit = Deposit();
   var txtDate = TextEditingController();
   var txtTime = TextEditingController();
   DateTime selectedDate = DateTime.now();
@@ -113,7 +147,7 @@ class _FormTransferState extends State<FormTransfer> {
                             Container(
                               padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
                               child: Text(
-                                'Typ przelewu',
+                                'Typ lokaty',
                                 style: TextStyle(
                                   fontSize: 24,
                                   color: Colors.black,
@@ -122,127 +156,7 @@ class _FormTransferState extends State<FormTransfer> {
                                 ),
                               ),
                             ),
-                            Row(children: [
-                              Container(
-                                  height: 80,
-                                  // margin: EdgeInsets.only(left: 200, right: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 16.0),
-                                  child: RaisedButton(
-                                      color: type_btc
-                                          ? Colors.blue
-                                          : Theme.of(context).buttonColor,
-                                      onPressed: () {
-                                        setState(() => type_btc = !type_btc);
-                                      },
-                                      child: Text(
-                                        'Na adres BTC',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'HelveticaNeue',
-                                        ),
-                                      ))),
-                              Container(
-                                  height: 80,
-                                  // margin: EdgeInsets.only(left: 200, right: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 16.0),
-                                  child: RaisedButton(
-                                      color: type_btc
-                                          ? Theme.of(context).buttonColor
-                                          : Colors.blue,
-                                      onPressed: () {
-                                        setState(() => type_btc = !type_btc);
-                                      },
-                                      child: Text(
-                                        'Na adres e-mail',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'HelveticaNeue',
-                                        ),
-                                      ))),
-                            ]),
-                            Container(
-                              padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
-                              child: Text(
-                                'Dane odbiorcy',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'HelveticaNeue',
-                                ),
-                              ),
-                            ),
-                            (() {
-                              if (type_btc) {
-                                return TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Adres BTC',
-                                    hintText: 'wpisz adres BTC odbiorcy',
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.always,
-                                    labelStyle: TextStyle(
-                                      fontSize: 24,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'HelveticaNeue',
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return 'Proszę wprowadzić poprawny adres BTC.';
-                                    }
-                                  },
-                                  onSaved: (val) => setState(() => _transfer
-                                      .data[Transfer.TargetAddress] = val),
-                                );
-                              } else {
-                                return TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Adres e-mail',
-                                    hintText: 'wpisz adres e-mail odbiorcy',
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.always,
-                                    labelStyle: TextStyle(
-                                      fontSize: 24,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'HelveticaNeue',
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return 'Proszę wprowadzić poprawny adres email.';
-                                    }
-                                  },
-                                  onSaved: (val) => setState(() => _transfer
-                                      .data[Transfer.TargetAddress] = val),
-                                );
-                              }
-                            }()),
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: 'Tytuł',
-                                hintText:
-                                    'wpisz tytuł (zostanie zignorowany przy przelewie zewnętrznym)',
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.always,
-                                labelStyle: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'HelveticaNeue',
-                                ),
-                              ),
-                              validator: (value) {},
-                              onSaved: (val) => setState(
-                                  () => _transfer.data[Transfer.Title] = val),
-                            ),
+                            DepositButtons(deposit: _deposit),
                             Container(
                               padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
                               child: Text(
@@ -254,6 +168,27 @@ class _FormTransferState extends State<FormTransfer> {
                                   fontFamily: 'HelveticaNeue',
                                 ),
                               ),
+                            ),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                labelText: 'Nazwa',
+                                hintText: 'wpisz nazwę lokaty',
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelStyle: TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'HelveticaNeue',
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Proszę wprowadzić poprawną nazwę.';
+                                }
+                              },
+                              onSaved: (val) => setState(
+                                  () => _deposit.data[Deposit.Title] = val),
                             ),
                             TextFormField(
                               decoration: InputDecoration(
@@ -274,13 +209,13 @@ class _FormTransferState extends State<FormTransfer> {
                                 }
                               },
                               onSaved: (val) => setState(
-                                  () => _transfer.data[Transfer.Amount] = val),
+                                  () => _deposit.data[Deposit.Amount] = val),
                             ),
-                            DropDownList(transfer: _transfer),
+                            DropDownList(deposit: _deposit),
                             Container(
                               padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
                               child: Text(
-                                'Czas przelewu',
+                                'Czas rozpoczęcia lokaty',
                                 style: TextStyle(
                                   fontSize: 24,
                                   color: Colors.black,
@@ -314,7 +249,7 @@ class _FormTransferState extends State<FormTransfer> {
                                 }
                               },
                               onSaved: (val) => setState(() =>
-                                  _transfer.data[Transfer.TimeStamp] =
+                                  _deposit.data[Deposit.TimeStamp] =
                                       txtDate.text + " " + txtTime.text),
                             ),
                             TextFormField(
@@ -342,22 +277,12 @@ class _FormTransferState extends State<FormTransfer> {
                                 }
                               },
                               onSaved: (val) => setState(() =>
-                                  _transfer.data[Transfer.TimeStamp] =
+                                  _deposit.data[Deposit.TimeStamp] =
                                       txtDate.text + " " + txtTime.text),
                             ),
-                            Container(
-                              padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
-                              child: Text(
-                                'Regulowanie fee',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'HelveticaNeue',
-                                ),
-                              ),
+                            SizedBox(
+                              height: 50,
                             ),
-                            FeeSlider(transfer: _transfer),
                             Container(
                                 height: 80,
                                 // margin: EdgeInsets.only(left: 200, right: 200),
@@ -445,14 +370,14 @@ class _FormTransferState extends State<FormTransfer> {
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Czy na pewno chcesz wysłać przelew?',
+                      child: Text('Czy na pewno chcesz utworzyć lokatę?',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                          'W zależności od ustawień może być konieczne potwierdzenie operacji na mailu',
+                          'Jeżeli wybrano termin w przyszłości, pamiętaj aby zapewnić wystarczające środki.',
                           style: TextStyle(fontSize: 14)),
                     ),
                     Padding(
@@ -465,10 +390,8 @@ class _FormTransferState extends State<FormTransfer> {
                                 color: Colors.red,
                                 onPressed: () {
                                   Navigator.of(context).pop();
-                                  _transfer.data[Transfer.Fee] = _transfer
-                                      ._currentSliderValue
-                                      .toStringAsFixed(2);
-                                  _transfer.send();
+                                  _deposit.data[Deposit.Id] = _deposit.choice;
+                                  _deposit.send();
                                   showPopup2(context);
                                 },
                               ),
@@ -532,31 +455,31 @@ class _FormTransferState extends State<FormTransfer> {
 
 class DropDownList extends StatefulWidget {
   DropDownList({
-    this.transfer,
+    this.deposit,
   });
 
-  final Transfer transfer;
+  final Deposit deposit;
 
   @override
-  _DropDownListState createState() => _DropDownListState(transfer: transfer);
+  _DropDownListState createState() => _DropDownListState(deposit: deposit);
 }
 
 class _DropDownListState extends State<DropDownList> {
   String dropdownValue;
 
   _DropDownListState({
-    this.transfer,
+    this.deposit,
   });
 
-  final Transfer transfer;
+  final Deposit deposit;
 
   @override
   Widget build(BuildContext context) {
-    dropdownValue = transfer.account_names[0];
+    dropdownValue = deposit.account_names[0];
 
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
-        labelText: 'Konto',
+        labelText: 'Z Konta',
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: TextStyle(
           fontSize: 24,
@@ -570,7 +493,7 @@ class _DropDownListState extends State<DropDownList> {
           return 'Proszę wybrać poprawne konto.';
         }
       },
-      onSaved: (val) => setState(() => transfer.data[Transfer.Account] = val),
+      onSaved: (val) => setState(() => deposit.data[Deposit.Account] = val),
       value: dropdownValue,
       icon: Icon(Icons.arrow_downward),
       iconSize: 24,
@@ -580,7 +503,7 @@ class _DropDownListState extends State<DropDownList> {
         });
       },
       items:
-          transfer.account_names.map<DropdownMenuItem<String>>((String value) {
+          deposit.account_names.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -590,37 +513,51 @@ class _DropDownListState extends State<DropDownList> {
   }
 }
 
-class FeeSlider extends StatefulWidget {
-  FeeSlider({Key key, this.transfer}) : super(key: key);
+class DepositButtons extends StatefulWidget {
+  DepositButtons({Key key, this.deposit}) : super(key: key);
 
-  final Transfer transfer;
+  final Deposit deposit;
 
   @override
-  _FeeSliderState createState() => _FeeSliderState(transfer: transfer);
+  _DepositButtonsState createState() => _DepositButtonsState(deposit: deposit);
 }
 
-class _FeeSliderState extends State<FeeSlider> {
-  _FeeSliderState({this.transfer});
+class _DepositButtonsState extends State<DepositButtons> {
+  _DepositButtonsState({this.deposit});
 
-  final Transfer transfer;
+  final Deposit deposit;
 
   @override
   Widget build(BuildContext context) {
-    return Slider(
-      value: transfer._currentSliderValue,
-      min: 0,
-      max: 100,
-      divisions: 5,
-      label: transfer._currentSliderValue.round().toString() +
-          'BTC' +
-          ', szacowany czas: ' +
-          (1 / transfer._currentSliderValue).toStringAsFixed(2) +
-          ' h',
-      onChanged: (double value) {
-        setState(() {
-          transfer._currentSliderValue = value;
-        });
-      },
-    );
+    return Row(children: fillRow());
+  }
+
+  List<Widget> fillRow() {
+    List<Widget> options = new List();
+
+    for (var i = 0; i < deposit.deposit_options.length; i++) {
+      options.add(Container(
+          height: 80,
+          // margin: EdgeInsets.only(left: 200, right: 200),
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+          child: RaisedButton(
+              color: deposit.choice == i
+                  ? Colors.blue
+                  : Theme.of(context).buttonColor,
+              onPressed: () {
+                setState(() => deposit.choice = i);
+              },
+              child: Text(
+                '${deposit.deposit_options[i]["interest_rate"]} (czas: ${deposit.deposit_options[i]["deposit_period"]}) (kapitalizacja: ${deposit.deposit_options[i]["capitalization_period"]})',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'HelveticaNeue',
+                ),
+              ))));
+    }
+
+    return options;
   }
 }

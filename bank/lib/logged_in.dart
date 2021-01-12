@@ -5,6 +5,7 @@ import 'contact.dart';
 import 'main.dart';
 import 'settings.dart';
 import 'transfer.dart';
+import 'deposit.dart';
 import 'globals.dart';
 
 void main() => runApp(LoggedInApp());
@@ -20,23 +21,24 @@ class LoggedInApp extends StatelessWidget {
 		brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
-        '/': (context) => HomePage(),
-        '/main': (context) => HomeApp(),
+        '/': (context) => LoggedInPage(),
+		'/main': (context) => MainApp(),
         '/contact': (context) => ContactApp(),
-		    '/settings': (context) => SettingsApp(),
-		    '/loggedin': (context) => LoggedInApp(),
-		    '/transfer': (context) => TransferApp(),
+		'/settings': (context) => SettingsApp(),
+		'/loggedin': (context) => LoggedInApp(),
+		'/transfer': (context) => TransferApp(),
+		'/deposit': (context) => DepositApp(),
       },
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class LoggedInPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _LoggedInPageState createState() => _LoggedInPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _LoggedInPageState extends State<LoggedInPage> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;

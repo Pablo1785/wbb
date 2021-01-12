@@ -40,7 +40,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/deposit');},
                           child: Text('Lokata',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
@@ -76,7 +76,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/contact');},
                           child: Text('Kontakt',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
@@ -113,6 +113,7 @@ class Menu extends StatelessWidget {
 							headers: <String, String>{
 								'Authorization': 'Token ${auth_token}',
 							});
+						auth_token = "empty";
 						Navigator.of(context).pushNamed('/main');
 					},
                     child: Text('Wyloguj',
@@ -140,7 +141,7 @@ class MenuNotLogged extends StatelessWidget{
               child: Row(
                 children: [
 				InkWell(
-					onTap: () {Navigator.of(context).pushNamed('/home');},
+					onTap: () {Navigator.of(context).pushNamed('/main');},
 					child: Text('WBB',
                       style: GoogleFonts.montserrat(
                           fontSize: 15,
@@ -153,6 +154,17 @@ class MenuNotLogged extends StatelessWidget{
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [],
                     ),
+                  ),
+				InkWell(
+				  onTap: () {Navigator.of(context).pushNamed('/contact');},
+				  child: Text('Kontakt',
+					  style: GoogleFonts.montserrat(
+						  fontSize: 15,
+						  fontWeight: FontWeight.w500,
+						  color: Colors.white)),
+				),
+				  SizedBox(
+                    width: screenSize.width / 50,
                   ),
                   InkWell(
                     onTap: () {
