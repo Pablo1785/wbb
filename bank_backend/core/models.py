@@ -80,7 +80,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
     currency = models.CharField(max_length=3)
-    send_time = models.DateTimeField()
+    send_time = models.DateTimeField(auto_now=True)
     confirmation_time = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=256)
     fee = models.DecimalField(max_digits=22, decimal_places=15, blank=True, null=True)  # Nullable, miner/bank fee for the transaction

@@ -89,7 +89,7 @@ class SubAccountDetailView(APIView):
 
     def get_object(self, request):
         try:
-            return SubAccount.objects.get(pk=pk)
+            return SubAccount.objects.get(sub_address=request["sub_address"])
         except SubAccount.DoesNotExist:
             raise Http404
 
@@ -176,6 +176,12 @@ class TransactionListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
+        try:
+            request.data["source"] = SubAccount.objects.get(sub_address=request.data["source"]).id
+            request.data["target"] = SubAccount.objects.get(sub_address=request.data["target"]).id
+        except KeyError:
+            raise Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
+
         serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
