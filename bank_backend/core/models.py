@@ -2,8 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.crypto import get_random_string
 
-# Create your models here.
+DEFAULT_SLUG_LENGTH = 15
 
 
 class Profile(models.Model):
@@ -25,14 +26,34 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class SubAccount(models.Model):
-    sub_address = models.CharField(max_length=32, unique=True)
+    sub_address = models.SlugField(max_length=DEFAULT_SLUG_LENGTH, default='')
 
     # Having a Profile object you can access its SubAccounts with Profile.subaccount_set.all()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
     currency = models.CharField(max_length=3)
-    
+
+    def save(self, *args, **kwargs):
+        """ Add Slug creating/checking to save method. """
+        slug_save(self) # call slug_save, listed below
+        super(SubAccount, self).save(*args, **kwargs)
+
+
+def slug_save(obj):
+    """ A function to generate a DEFAULT_SLUG_LENGTH character slug and see if it has been used and contains naughty words."""
+    if not obj.sub_address: # if there isn't a slug
+        obj.sub_address = get_random_string(DEFAULT_SLUG_LENGTH, allowed_chars="0123456789") # create one
+        slug_is_wrong = True  
+        while slug_is_wrong: # keep checking until we have a valid slug
+            slug_is_wrong = False
+            other_objs_with_slug = type(obj).objects.filter(sub_address=obj.sub_address)
+            if len(other_objs_with_slug) > 0:
+                # if any other objects have current slug
+                slug_is_wrong = True
+            if slug_is_wrong:
+                # create another slug and check it again
+                obj.sub_address = get_random_string(DEFAULT_SLUG_LENGTH, allowed_chars="0123456789")
 
 
 class BankDeposit(models.Model):
