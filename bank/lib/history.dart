@@ -312,8 +312,10 @@ class TransferDataTable extends StatefulWidget {
 
 class _TransferDataTableState extends State<TransferDataTable>{
   int _rowsPerPage = 5;
-  int _sortColumnIndex = -1;
-  bool _sortAscending = true;
+  //int _sortColumnIndex = -1;
+  int _sortColumnIndex = 3;
+  bool _sortAscending = false;
+  var _sortField;
   _TransferDataSource _transferDataSource;
   
   	bool incoming_selected = true;
@@ -327,13 +329,16 @@ class _TransferDataTableState extends State<TransferDataTable>{
     _transferDataSource._sort<T>(getField, ascending);
 
     setState(() {
-      if (columnIndex == null) {
-        _sortColumnIndex = -1;
-      } else {
-        _sortColumnIndex = columnIndex;
-      }
+
+      _sortColumnIndex = columnIndex;
       _sortAscending = ascending;
+	  _sortField = getField;
     });
+  }
+
+  void _sort_previous()
+  {
+    _transferDataSource._sort(_sortField, _sortAscending);
   }
   
   void _filter()
@@ -349,6 +354,7 @@ class _TransferDataTableState extends State<TransferDataTable>{
   @override
   void initState() {
 	  _transferDataSource = _TransferDataSource(context);
+	  _sort<String>((d) => d.timestamp, _sortColumnIndex, _sortAscending);
   }
 
   @override
@@ -367,7 +373,7 @@ class _TransferDataTableState extends State<TransferDataTable>{
 			  FilterChip(
               label: Text('Przychodzące'),
               selected: incoming_selected,
-              onSelected: (bool value) {    setState(() {incoming_selected = value; _filter();});},
+              onSelected: (bool value) {    setState(() {incoming_selected = value; _filter(); _sort_previous();});},
             ),
 							  SizedBox(
                     width: 50,
@@ -375,7 +381,7 @@ class _TransferDataTableState extends State<TransferDataTable>{
 			  FilterChip(
               label: Text('Wychodzące'),
               selected: outcoming_selected,
-              onSelected: (bool value) {setState(() {outcoming_selected = value; _filter();});},
+              onSelected: (bool value) {setState(() {outcoming_selected = value; _filter(); _sort_previous();});},
             ),
 			  ]
 			  ),
@@ -428,7 +434,8 @@ class _TransferDataTableState extends State<TransferDataTable>{
                 });
               },
               sortColumnIndex:
-                  _sortColumnIndex == -1 ? null : _sortColumnIndex,
+                  //_sortColumnIndex == -1 ? null : _sortColumnIndex,
+				  _sortColumnIndex,
               sortAscending: _sortAscending,
               columns: [
                 DataColumn(
