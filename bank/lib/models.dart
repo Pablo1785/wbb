@@ -3,15 +3,15 @@ import 'dart:async';
 import 'dart:convert';
 
 // Model ALL dataclasses like this one, so they can easily be deserialized from http responses
-class Album {
-  final int id;
-  final String username;
-  final String email;
+class SubAccount {
+  final String sub_address;
+  final double balance;
+  final String currency;
 
-  Album({this.id, this.username, this.email});
+  SubAccount({this.id, this.username, this.email});
 
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
+  factory SubAccount.fromJson(Map<String, dynamic> json) {
+    return SubAccount(
       id: json['id'],
       username: json['username'],
       email: json['email'],
@@ -20,7 +20,7 @@ class Album {
 }
 
 //Sending data to server and getting response:
-Future<Album> createAlbum(
+Future<SubAccount> createSubAccount(
     String username, String password, String email) async {
   final http.Response response = await http.post(
     'http://127.0.0.1:8080/auth/users/',
@@ -35,7 +35,7 @@ Future<Album> createAlbum(
   );
 
   if (response.statusCode == 201) {
-    return Album.fromJson(jsonDecode(response.body));
+    return SubAccount.fromJson(jsonDecode(response.body));
   } else {
     throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
   }

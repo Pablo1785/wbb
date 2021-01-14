@@ -3,6 +3,7 @@ from .models import SubAccount, BankDeposit, Transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
 from django.contrib.auth.models import User
 
@@ -61,7 +62,7 @@ class SubAccountListView(APIView):
     """
     List all subaccounts, or create a new subaccount.
     """
-
+    
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.all()
         serializer = SubAccountSerializer(subaccounts, many=True)
