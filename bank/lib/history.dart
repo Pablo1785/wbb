@@ -9,6 +9,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/services.dart';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'main.dart';
 import 'logged_in.dart';
 import 'settings.dart';
@@ -370,8 +371,9 @@ class _TransferDataTableState extends State<TransferDataTable>{
 			final image = await rootBundle.load("images/logo_small.png");
   
   final _transfers = _transferDataSource.get_selected();
+  final _names = _transferDataSource.get_names();
   final List<List<String>> _transfersStrings = new List();
-  _transfersStrings.add(['Tytuł', 'Kwota', 'Saldo po operacji', 'Data zlecenia', 'ID', 'Tracking', 'Adres']);
+  _transfersStrings.add(_names);
   
   for(final transfer in _transfers)
 	  _transfersStrings.add([transfer.title, transfer.amount.toString(), transfer.balance.toString(), transfer.timestamp, transfer.id.toString(), transfer.tracking, transfer.address]);
@@ -401,6 +403,24 @@ pw.Image(pw.ImageProxy(imageE)),
 
   }
   
+  Uint8List generate_csv()
+  {
+  final _transfers = _transferDataSource.get_selected();
+  final _names = _transferDataSource.get_names();
+  
+  String result = "";
+  
+  for(final name in _names)
+	  result += '${name},';
+  
+  result = result.substring(0, result.length - 1); // remove trailing ,
+  
+  for(final transfer in _transfers)
+	  result += '\n${transfer.title},${transfer.amount},${transfer.balance},${transfer.timestamp},${transfer.id},${transfer.tracking},${transfer.address}';
+  
+  return utf8.encode(result);
+  }
+  
   void show_pdf(Uint8List bytes)
   {
     final blob = html.Blob([bytes], 'application/pdf');
@@ -413,6 +433,28 @@ pw.Image(pw.ImageProxy(imageE)),
 	  
 		Uint8List bytes = await generate_pdf();
 		show_pdf(bytes);
+  }
+
+  void show_csv(Uint8List bytes)
+  {
+	final blob = html.Blob([bytes]);
+	final url = html.Url.createObjectUrlFromBlob(blob);
+	final anchor = html.document.createElement('a') as html.AnchorElement
+	  ..href = url
+	  ..style.display = 'none'
+	  ..download = 'historia_transakcji.csv';
+	html.document.body.children.add(anchor);
+
+	anchor.click();
+
+	html.document.body.children.remove(anchor);
+	html.Url.revokeObjectUrl(url);  
+  }
+  
+  void export_to_csv(){
+	  
+		Uint8List bytes = generate_csv();
+		show_csv(bytes);
   }
   
   @override
@@ -469,7 +511,11 @@ pw.Image(pw.ImageProxy(imageE)),
 				  	if (_get_selected_count() == 0)
 					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Należy najpierw wybrać przelewy do eksportu.'),),);
 				  else
-					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Pomyślnie wygenerowano CSV.'),),);
+				  {
+					  export_to_csv();
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Trwa generowanie CSV.'),),);
+				  }
+					  
 				  
 			  },
 			  icon: Icon(Icons.assignment_returned),
@@ -660,6 +706,8 @@ class _TransferDataSource extends DataTableSource {
 		
 		return result;
 	}
+	
+	List<String> get_names() => ['Tytuł', 'Kwota', 'Saldo po operacji', 'Data zlecenia', 'ID', 'Tracking', 'Adres'];
 
   int _selectedCount = 0;
 
