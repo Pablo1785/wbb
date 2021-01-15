@@ -28,8 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'first_name', 'last_name',
-                  'private_key', 'wallet_address')
+        fields = ('username', 'email', 'first_name', 'last_name', 'private_key', 'wallet_address')
 
 
 class SubAccountSerializer(serializers.ModelSerializer):
@@ -47,6 +46,31 @@ class BankDepositSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    
+    def validate(self, data):
+        """
+        Make sure transaction is possible.
+        data["source"] and data["target"] should be SubAccount objects.
+        """
+        # Ensure source and target accounts exist
+        try:
+            source_acc = data["source"]
+            target_acc = data["target"]
+        except SubAccount.DoesNotExist:
+            raise serializers.ValidationError
+        
+        # Ensure both accounts use the same currency and Transaction has the correct currency
+        if not (source_acc.currency == target_acc.currency):
+            raise serializers.ValidationError
+
+        # Ensure sender has enough money
+        if float(data["amount"]) > source_acc.balance:
+            raise serializers.ValidationError
+        
+        # OK
+        return data
+            
+
     class Meta:
         model = Transaction
         fields = ('source',

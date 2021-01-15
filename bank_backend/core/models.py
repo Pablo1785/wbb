@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.crypto import get_random_string
+from datetime import timedelta
 
-# Create your models here.
+DEFAULT_SLUG_LENGTH = 15
 
 
 class Profile(models.Model):
@@ -25,14 +27,34 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class SubAccount(models.Model):
-    sub_address = models.CharField(max_length=32, unique=True)
+    sub_address = models.SlugField(max_length=DEFAULT_SLUG_LENGTH, default='')
 
     # Having a Profile object you can access its SubAccounts with Profile.subaccount_set.all()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
     currency = models.CharField(max_length=3)
-    
+
+    def save(self, *args, **kwargs):
+        """ Add Slug creating/checking to save method. """
+        slug_save(self) # call slug_save, listed below
+        super(SubAccount, self).save(*args, **kwargs)
+
+
+def slug_save(obj):
+    """ A function to generate a DEFAULT_SLUG_LENGTH character slug and see if it has been used and contains naughty words."""
+    if not obj.sub_address: # if there isn't a slug
+        obj.sub_address = get_random_string(DEFAULT_SLUG_LENGTH, allowed_chars="0123456789") # create one
+        slug_is_wrong = True  
+        while slug_is_wrong: # keep checking until we have a valid slug
+            slug_is_wrong = False
+            other_objs_with_slug = type(obj).objects.filter(sub_address=obj.sub_address)
+            if len(other_objs_with_slug) > 0:
+                # if any other objects have current slug
+                slug_is_wrong = True
+            if slug_is_wrong:
+                # create another slug and check it again
+                obj.sub_address = get_random_string(DEFAULT_SLUG_LENGTH, allowed_chars="0123456789")
 
 
 class BankDeposit(models.Model):
@@ -42,11 +64,11 @@ class BankDeposit(models.Model):
     # Accessing SubAccount.bankdeposit throws ObjectDoesNotExist, which tells us this is not a Deposit account
     account = models.OneToOneField(
         SubAccount, on_delete=models.CASCADE, primary_key=True)
-    interest_rate = models.DecimalField(max_digits=5, decimal_places=3)
-    start_date = models.DateTimeField()
-    deposit_period = models.DurationField()
-    capitalization_period = models.DurationField()
-    last_capitalization = models.DateTimeField()
+    interest_rate = models.DecimalField(default=0.314, max_digits=5, decimal_places=3)  # Always present, set to default
+    start_date = models.DateTimeField(auto_now=True)  # Always present, set to default
+    deposit_period = models.DurationField(default=timedelta(seconds=35))  # Always present, set to default
+    capitalization_period = models.DurationField(blank=True, null=True)  # Capitalization is optional
+    last_capitalization = models.DateTimeField(blank=True, null=True)    # Capitalization is optional
     title = models.CharField(max_length=256)
 
 
@@ -59,7 +81,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
     currency = models.CharField(max_length=3)
-    send_time = models.DateTimeField()
+    send_time = models.DateTimeField(auto_now=True)
     confirmation_time = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=256)
     fee = models.DecimalField(max_digits=22, decimal_places=15, blank=True, null=True)  # Nullable, miner/bank fee for the transaction
