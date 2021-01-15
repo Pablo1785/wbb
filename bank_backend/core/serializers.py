@@ -28,8 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'first_name', 'last_name',
-                  'private_key', 'wallet_address')
+        fields = ('username', 'email', 'first_name', 'last_name', 'private_key', 'wallet_address')
 
 
 class SubAccountSerializer(serializers.ModelSerializer):

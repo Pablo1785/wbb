@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
+from datetime import timedelta
 
 DEFAULT_SLUG_LENGTH = 15
 
@@ -63,11 +64,11 @@ class BankDeposit(models.Model):
     # Accessing SubAccount.bankdeposit throws ObjectDoesNotExist, which tells us this is not a Deposit account
     account = models.OneToOneField(
         SubAccount, on_delete=models.CASCADE, primary_key=True)
-    interest_rate = models.DecimalField(max_digits=5, decimal_places=3)
-    start_date = models.DateTimeField()
-    deposit_period = models.DurationField()
-    capitalization_period = models.DurationField()
-    last_capitalization = models.DateTimeField()
+    interest_rate = models.DecimalField(default=0.314, max_digits=5, decimal_places=3)  # Always present, set to default
+    start_date = models.DateTimeField(auto_now=True)  # Always present, set to default
+    deposit_period = models.DurationField(default=timedelta(seconds=35))  # Always present, set to default
+    capitalization_period = models.DurationField(blank=True, null=True)  # Capitalization is optional
+    last_capitalization = models.DateTimeField(blank=True, null=True)    # Capitalization is optional
     title = models.CharField(max_length=256)
 
 
