@@ -14,12 +14,13 @@ import 'main.dart';
 import 'logged_in.dart';
 import 'settings.dart';
 import 'transfer.dart';
+import 'deposit.dart';
 import 'contact.dart';
 import 'globals.dart';
 
-void main() => runApp(DepositApp());
+void main() => runApp(HistoryApp());
 
-class DepositApp extends StatelessWidget {
+class HistoryApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,12 +30,13 @@ class DepositApp extends StatelessWidget {
         brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
-        '/': (context) => DepositPage(),
+        '/': (context) => HistoryPage(),
         '/main': (context) => MainApp(),
         '/settings': (context) => SettingsApp(),
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
         '/deposit': (context) => DepositApp(),
+		'/history': (context) => HistoryApp(),
         '/contact': (context) => ContactApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
@@ -45,12 +47,12 @@ class DepositApp extends StatelessWidget {
   }
 }
 
-class DepositPage extends StatefulWidget {
+class HistoryPage extends StatefulWidget {
   @override
-  _DepositPageState createState() => _DepositPageState();
+  _HistoryPageState createState() => _HistoryPageState();
 }
 
-class _DepositPageState extends State<DepositPage> {
+class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -61,77 +63,16 @@ class _DepositPageState extends State<DepositPage> {
           preferredSize: Size(screenSize.width, 1000),
           child: Menu(),
         ),
-        body: FormDeposit());
+        body: FormHistory());
   }
 }
 
-class Deposit {
-  static const String Amount = 'amount';
-  static const String Title = 'title';
-  static const String Account = 'account';
-  static const String TimeStamp = 'start_date';
-  static const String Id = 'id';
-
-  var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
-  int choice = 1;
-
-  var data = new Map();
-
-  Map D1 = {
-    "interest_rate": '3,2%',
-    "deposit_period": '3 dni',
-    "capitalization_period": '1 dzień',
-  };
-
-  Map D2 = {
-    "interest_rate": '3,8%',
-    "deposit_period": '6 dni',
-    "capitalization_period": '1 dzień',
-  };
-
-  Map D3 = {
-    "interest_rate": '4,2%',
-    "deposit_period": '14 dni',
-    "capitalization_period": '1 dzień',
-  };
-
-  var deposit_options = new List();
-
-  Deposit() {
-    read();
-  }
-
-  // read data from backend and fill the map
-  read() {
-    print('reading available deposit options from backend');
-    deposit_options.add(D1);
-    deposit_options.add(D2);
-    deposit_options.add(D3);
-
-    for (var i = 0; i < deposit_options.length; i++) {
-      print(deposit_options[i]);
-    }
-  }
-
-  // send data to backend
-  send() {
-    print('sending deposit data to backend');
-    data.forEach((k, v) => print('${k}: ${v}'));
-  }
-}
-
-class FormDeposit extends StatefulWidget {
+class FormHistory extends StatefulWidget {
   @override
-  _FormDepositState createState() => _FormDepositState();
+  _FormHistoryState createState() => _FormHistoryState();
 }
 
-class _FormDepositState extends State<FormDeposit> {
-  final _formKey = GlobalKey<FormState>();
-  final _deposit = Deposit();
-  var txtDate = TextEditingController();
-  var txtTime = TextEditingController();
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
+class _FormHistoryState extends State<FormHistory> {
 
   @override
   Widget build(BuildContext context) {
@@ -146,9 +87,7 @@ class _FormDepositState extends State<FormDeposit> {
               padding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Builder(
-                  builder: (context) => Form(
-                      key: _formKey,
-                      child: Column(
+                  builder: (context) => Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Container(
@@ -167,7 +106,6 @@ class _FormDepositState extends State<FormDeposit> {
 							  height: 500,
                               child: TransferDataTable(),
                             ),
-							//DataTableDemo(),
                             Container(
                               padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
                               child: Text(
@@ -180,133 +118,12 @@ class _FormDepositState extends State<FormDeposit> {
                                 ),
                               ),
                             ),
-							//DataTableDemo(),
                           ])))),
         ),
       ),
-    ));
-  }
-
-  _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 10)),
-      locale: const Locale("pl", "PL"),
     );
-    if (picked != null) {
-      selectedDate = picked;
-      txtDate.text =
-          "${selectedDate.year.toString()}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-    }
   }
 
-  _selectTime(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
-    if (picked != null) {
-      selectedTime = picked;
-      txtTime.text = selectedTime.format(context);
-    }
-  }
-
-  void showPopup(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Stack(
-              overflow: Overflow.visible,
-              children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Czy na pewno chcesz utworzyć lokatę?',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                          'Jeżeli wybrano termin w przyszłości, pamiętaj aby zapewnić wystarczające środki.',
-                          style: TextStyle(fontSize: 14)),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              RaisedButton(
-                                child: Text("Potwierdź"),
-                                color: Colors.red,
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  _deposit.data[Deposit.Id] = _deposit.choice;
-                                  _deposit.send();
-                                  showPopup2(context);
-                                },
-                              ),
-                              RaisedButton(
-                                child: Text("Anuluj"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ]))
-                  ],
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
-  void showPopup2(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Stack(
-              overflow: Overflow.visible,
-              children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Rezultat',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: SelectableText('Miejsce na rezultat',
-                          style: TextStyle(fontSize: 14)),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              RaisedButton(
-                                child: Text("Zamknij okno"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ]))
-                  ],
-                ),
-              ],
-            ),
-          );
-        });
-  }
 }
 
 class TransferDataTable extends StatefulWidget {
@@ -319,7 +136,9 @@ class TransferDataTable extends StatefulWidget {
 class _TransferDataTableState extends State<TransferDataTable>{
   int _rowsPerPage = 5;
   int _sortColumnIndex = -1;
-  //int _sortColumnIndex = 3;
+  //int _sortColumnIndex = 3; // indicator should be turned off initially, it is related to a bug in flutter
+  //https://stackoverflow.com/questions/51293492/confusion-over-datatables-sort-direction-arrows
+  
   bool _sortAscending = false;
   var _sortField;
   _TransferDataSource _transferDataSource;
@@ -549,7 +368,7 @@ pw.Image(pw.ImageProxy(imageE)),
               },
               sortColumnIndex:
                   _sortColumnIndex == -1 ? null : _sortColumnIndex,
-				  //_sortColumnIndex,
+				  //_sortColumnIndex, // has to be turned_off initially, related to a bug
               sortAscending: _sortAscending,
               columns: [
                 DataColumn(
