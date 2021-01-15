@@ -118,6 +118,10 @@ class _FormHistoryState extends State<FormHistory> {
                                 ),
                               ),
                             ),
+							 Container(
+							  height: 500,
+                              child: DepositDataTable(),
+                            ),
                           ])))),
         ),
       ),
@@ -142,6 +146,7 @@ class _TransferDataTableState extends State<TransferDataTable>{
   bool _sortAscending = false;
   var _sortField;
   _TransferDataSource _transferDataSource;
+  var _names; // names of columns
   
   	bool incoming_selected = true;
 	bool outcoming_selected = true;
@@ -190,7 +195,6 @@ class _TransferDataTableState extends State<TransferDataTable>{
 			final image = await rootBundle.load("images/logo_small.png");
   
   final _transfers = _transferDataSource.get_selected();
-  final _names = _transferDataSource.get_names();
   final List<List<String>> _transfersStrings = new List();
   _transfersStrings.add(_names);
   
@@ -225,7 +229,6 @@ pw.Image(pw.ImageProxy(imageE)),
   Uint8List generate_csv()
   {
   final _transfers = _transferDataSource.get_selected();
-  final _names = _transferDataSource.get_names();
   
   String result = "";
   
@@ -279,6 +282,7 @@ pw.Image(pw.ImageProxy(imageE)),
   @override
   void initState() {
 	  _transferDataSource = _TransferDataSource(context);
+	  _names = _transferDataSource.get_names();
 	  _sort<String>((d) => d.timestamp, _sortColumnIndex, _sortAscending);
   }
 
@@ -372,41 +376,41 @@ pw.Image(pw.ImageProxy(imageE)),
               sortAscending: _sortAscending,
               columns: [
                 DataColumn(
-                  label: Text('Tytuł'),
+                  label: Text(_names[0]),
                   onSort: (columnIndex, ascending) =>
                       _sort<String>((d) => d.title, columnIndex, ascending),
                 ),
                 DataColumn(
-                  label: Text('Kwota'),
+                  label: Text(_names[1]),
                   numeric: true,
                   onSort: (columnIndex, ascending) =>
                       _sort<num>((d) => d.amount, columnIndex, ascending),
                 ),
                 DataColumn(
-                  label: Text('Saldo po operacji'),
+                  label: Text(_names[2]),
                   numeric: true,
                   onSort: (columnIndex, ascending) =>
                       _sort<num>((d) => d.balance, columnIndex, ascending),
                 ),
                 DataColumn(
-                  label: Text('Data zlecenia'),
+                  label: Text(_names[3]),
                   numeric: true,
                   onSort: (columnIndex, ascending) =>
                       _sort<String>((d) => d.timestamp, columnIndex, ascending),
                 ),
 				DataColumn(
-                  label: Text('ID'),
+                  label: Text(_names[4]),
                   numeric: true,
                   onSort: (columnIndex, ascending) =>
                       _sort<num>((d) => d.id, columnIndex, ascending),
                 ),
                 DataColumn(
-                  label: Text('Tracking'),
+                  label: Text(_names[5]),
                   onSort: (columnIndex, ascending) =>
                       _sort<String>((d) => d.tracking, columnIndex, ascending),
                 ),
                 DataColumn(
-                  label: Text('Adres'),
+                  label: Text(_names[6]),
                   onSort: (columnIndex, ascending) =>
                       _sort<String>((d) => d.address, columnIndex, ascending),
                 ),
@@ -570,6 +574,546 @@ class _TransferDataSource extends DataTableSource {
 
   @override
   int get rowCount => _transfers_filtered.length;
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get selectedRowCount => _selectedCount;
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class DepositDataTable extends StatefulWidget {
+  const DepositDataTable();
+
+  @override
+  _DepositDataTableState createState() => _DepositDataTableState();
+}
+
+class _DepositDataTableState extends State<DepositDataTable>{
+  int _rowsPerPage = 5;
+  int _sortColumnIndex = -1;
+  //int _sortColumnIndex = 3; // indicator should be turned off initially, it is related to a bug in flutter
+  //https://stackoverflow.com/questions/51293492/confusion-over-datatables-sort-direction-arrows
+  
+  bool _sortAscending = false;
+  var _sortField;
+  _DepositDataSource _depositDataSource;
+  var _names; // names of columns
+
+  void _sort<T>(
+    Comparable<T> Function(_Deposit d) getField,
+    int columnIndex,
+    bool ascending,
+  ) {
+    _depositDataSource._sort<T>(getField, ascending);
+
+    setState(() {
+
+      _sortColumnIndex = columnIndex;
+      _sortAscending = ascending;
+	  _sortField = getField;
+    });
+  }
+
+  void _sort_previous()
+  {
+    _depositDataSource._sort(_sortField, _sortAscending);
+  }
+  
+  int _get_selected_count()
+  {
+	  return _depositDataSource.selectedRowCount;
+  }
+  
+  Future<Uint8List> generate_pdf() async{
+
+	  var pdf_theme = pw.ThemeData.withFont( // have to load custom font to support polish characters
+  base: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Regular.ttf")),
+  bold: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Bold.ttf")),
+  italic: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Italic.ttf")),
+  boldItalic: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Bolditalic.ttf")),  
+);
+
+	  	  final pdf = pw.Document(theme: pdf_theme);
+		  
+			final image = await rootBundle.load("images/logo_small.png");
+  
+  final _deposits = _depositDataSource.get_selected();
+  final List<List<String>> _depositsStrings = new List();
+  _depositsStrings.add(_names);
+  
+  for(final deposit in _deposits)
+	  _depositsStrings.add([deposit.title, deposit.amount.toString(), deposit.id.toString(), deposit.interest_rate.toString(), deposit.account, deposit.start_date, deposit.deposit_period, deposit.capitalization_period, deposit.last_capitalization]);
+  
+final imageE = PdfImage.file(
+  pdf.document,
+  bytes: image.buffer.asUint8List(),
+);
+
+pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat(double.infinity, double.infinity, marginAll: 2.0 * PdfPageFormat.cm),
+      build: (pw.Context context) {
+        return pw.Column(children:[
+		  
+		  
+		  pw.Text("Historia lokat", style: pw.TextStyle(
+                              fontSize: 20, fontWeight: pw.FontWeight.bold)),
+pw.Image(pw.ImageProxy(imageE)),
+							  pw.Table.fromTextArray(context: context, headerAlignment: pw.Alignment.center,data:
+							  _depositsStrings
+							  ),
+							  ]);
+
+      }));
+	  
+	  return pdf.save();
+
+  }
+  
+  Uint8List generate_csv()
+  {
+  final _deposits = _depositDataSource.get_selected();
+  
+  String result = "";
+  
+  for(final name in _names)
+	  result += '${name},';
+  
+  result = result.substring(0, result.length - 1); // remove trailing ,
+  
+  for(final deposit in _deposits)
+	  result += '\n${deposit.title},${deposit.amount},${deposit.id},${deposit.interest_rate},${deposit.account},${deposit.start_date},${deposit.deposit_period},${deposit.capitalization_period},${deposit.last_capitalization}';
+  
+  return utf8.encode(result);
+  }
+  
+  void show_pdf(Uint8List bytes)
+  {
+    final blob = html.Blob([bytes], 'application/pdf');
+	
+	                final url = html.Url.createObjectUrlFromBlob(blob);
+                html.window.open(url, "_blank");	  
+  }
+  
+  void export_to_pdf() async{
+	  
+		Uint8List bytes = await generate_pdf();
+		show_pdf(bytes);
+  }
+
+  void show_csv(Uint8List bytes)
+  {
+	final blob = html.Blob([bytes]);
+	final url = html.Url.createObjectUrlFromBlob(blob);
+	final anchor = html.document.createElement('a') as html.AnchorElement
+	  ..href = url
+	  ..style.display = 'none'
+	  ..download = 'historia_lokat.csv';
+	html.document.body.children.add(anchor);
+
+	anchor.click();
+
+	html.document.body.children.remove(anchor);
+	html.Url.revokeObjectUrl(url);  
+  }
+  
+  void export_to_csv(){
+	  
+		Uint8List bytes = generate_csv();
+		show_csv(bytes);
+  }
+  
+  @override
+  void initState() {
+	  _depositDataSource = _DepositDataSource(context);
+	  _names = _depositDataSource.get_names();
+	  _sort<String>((d) => d.start_date, _sortColumnIndex, _sortAscending);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scrollbar(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            PaginatedDataTable(
+              header: Row(children:[
+			  Text('Historia lokat'),
+			  				  SizedBox(
+                    width: 50,
+                  ),
+			  ]
+			  ),
+			  actions: [
+
+			  IconButton(
+			  onPressed: () {
+				  
+				  Navigator.of(context).pushNamed('/deposit');
+
+			  },
+			  icon: Icon(Icons.settings_backup_restore),
+			  tooltip: 'Utwórz nową'
+			  ),
+			  
+			  IconButton(
+			  onPressed: () {
+				  
+				  if (_get_selected_count() != 1)
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Należy wybrać dokładnie jedną lokatę do zamknięcia.'),),);
+					
+					if (_get_selected_count() == 1)
+						showPopup(context);
+
+			  },
+			  icon: Icon(Icons.cancel),
+			  tooltip: 'Zamknij lokatę'
+			  ),
+
+			  IconButton(
+			  onPressed: () {
+				  
+				  	if (_get_selected_count() == 0)
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Należy najpierw wybrać lokaty do eksportu.'),),);
+				  else
+				  {
+					  export_to_csv();
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Trwa generowanie CSV.'),),);
+				  }
+					  
+				  
+			  },
+			  icon: Icon(Icons.assignment_returned),
+			  tooltip: 'Eksport do CSV'
+			  ),
+			  
+			  IconButton(
+			  onPressed: () {
+				  
+				 if (_get_selected_count() == 0)
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Należy najpierw wybrać lokaty do eksportu.'),),);
+				  else
+				  {
+					  export_to_pdf();
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Trwa generowanie PDF.'),),);					  
+				  }
+
+				  
+			  },
+			  icon: Icon(Icons.save_alt),
+			  tooltip: 'Eksport do PDF'
+			  ),
+			  
+			  ],
+              rowsPerPage: _rowsPerPage,
+			  availableRowsPerPage: [_rowsPerPage, _rowsPerPage*2,_rowsPerPage*5,_rowsPerPage*10],
+              onRowsPerPageChanged: (value) {
+                setState(() {
+                  _rowsPerPage = value;
+                });
+              },
+              sortColumnIndex:
+                  _sortColumnIndex == -1 ? null : _sortColumnIndex,
+				  //_sortColumnIndex, // has to be turned_off initially, related to a bug
+              sortAscending: _sortAscending,
+              columns: [
+                DataColumn(
+                  label: Text(_names[0]),
+                  onSort: (columnIndex, ascending) =>
+                      _sort<String>((d) => d.title, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[1]),
+                  numeric: true,
+                  onSort: (columnIndex, ascending) =>
+                      _sort<num>((d) => d.amount, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[2]),
+                  numeric: true,
+                  onSort: (columnIndex, ascending) =>
+                      _sort<num>((d) => d.id, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[3]),
+                  numeric: true,
+                  onSort: (columnIndex, ascending) =>
+                      _sort<num>((d) => d.interest_rate, columnIndex, ascending),
+                ),
+				DataColumn(
+                  label: Text(_names[4]),
+                  onSort: (columnIndex, ascending) =>
+                      _sort<String>((d) => d.account, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[5]),
+                  onSort: (columnIndex, ascending) =>
+                      _sort<String>((d) => d.start_date, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[6]),
+                  onSort: (columnIndex, ascending) =>
+                      _sort<String>((d) => d.deposit_period, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[7]),
+                  onSort: (columnIndex, ascending) =>
+                      _sort<String>((d) => d.capitalization_period, columnIndex, ascending),
+                ),
+                DataColumn(
+                  label: Text(_names[8]),
+                  onSort: (columnIndex, ascending) =>
+                      _sort<String>((d) => d.last_capitalization, columnIndex, ascending),
+                ),
+              ],
+              source: _depositDataSource,
+            ),
+          ],
+        ),
+      );
+  }
+  
+  void showPopup(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Stack(
+              overflow: Overflow.visible,
+              children: <Widget>[
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Czy na pewno chcesz zamknąć lokatę?',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                          'Operacja ta spowoduje utratę odsetek.',
+                          style: TextStyle(fontSize: 14)),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              RaisedButton(
+                                child: Text("Potwierdź"),
+                                color: Colors.red,
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  // usunac lokate
+                                  showPopup2(context);
+                                },
+                              ),
+                              RaisedButton(
+                                child: Text("Anuluj"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ]))
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  void showPopup2(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Stack(
+              overflow: Overflow.visible,
+              children: <Widget>[
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Rezultat',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SelectableText('Miejsce na rezultat',
+                          style: TextStyle(fontSize: 14)),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RaisedButton(
+                                child: Text("Zamknij okno"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ]))
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+}
+
+class _Deposit {
+  _Deposit(this.title, this.amount, this.id, this.interest_rate, this.account, this.start_date, this.deposit_period, this.capitalization_period, this.last_capitalization);
+  final String title;
+  final double amount;
+  final int id;
+  final double interest_rate;
+  final String account;
+  final String start_date;
+  final String deposit_period;
+  final String capitalization_period;
+  final String last_capitalization;
+
+  bool selected = false;
+}
+
+class _DepositDataSource extends DataTableSource {
+  _DepositDataSource(this.context) {
+    _deposits = <_Deposit>[
+      _Deposit(
+        'Lokata A',
+        7.14,
+        0,
+        2.8,
+        'Glowne',
+		'2021-12-01',
+		'3 dni',
+		'1 dzien',
+		'2021-14-01'
+      ),
+      _Deposit(
+        'Lokata B',
+        7.14,
+        0,
+        2.8,
+        'Nowe konto',
+		'2021-12-01',
+		'3 dni',
+		'1 dzien',
+		'2021-14-01'
+      ),
+      _Deposit(
+        'Lokata C',
+        7.14,
+        0,
+        2.8,
+        'Konto na specjalne okazje',
+		'2021-12-01',
+		'3 dni',
+		'1 dzien',
+		'2021-14-01'
+      ),
+      _Deposit(
+        'Lokata D',
+        7.14,
+        0,
+        2.8,
+        'Glowne',
+		'2021-12-01',
+		'3 dni',
+		'1 dzien',
+		'2021-14-01'
+      ),
+      _Deposit(
+        'Lokata E',
+        7.14,
+        0,
+        2.8,
+        'Glowne',
+		'2021-12-01',
+		'3 dni',
+		'1 dzien',
+		'2021-14-01'
+      ),
+
+    ];
+  }
+
+  final BuildContext context;
+  List<_Deposit> _deposits;
+
+  void _sort<T>(Comparable<T> Function(_Deposit d) getField, bool ascending) {
+    _deposits.sort((a, b) {
+      final aValue = getField(a);
+      final bValue = getField(b);
+      return ascending
+          ? Comparable.compare(aValue, bValue)
+          : Comparable.compare(bValue, aValue);
+    });
+    notifyListeners();
+  }
+  
+	  
+	List<_Deposit> get_selected(){
+		List<_Deposit> result = new List();
+		
+		for(final deposit in _deposits)
+		{
+			if (deposit.selected == true)
+				result.add(deposit);
+		}
+		
+		return result;
+	}
+	
+	List<String> get_names() => ['Tytuł', 'Kwota', 'Id', 'Oprocentowanie', 'Konto', 'Początek', 'Czas trwania', 'Okres kapitalizacji', 'Ostatnia kapitalizacja'];
+
+  int _selectedCount = 0;
+
+  @override
+  DataRow getRow(int index) {
+    assert(index >= 0);
+    if (index >= _deposits.length) return null;
+    final deposit = _deposits[index];
+	final text_color = Colors.black;
+    return DataRow.byIndex(
+      index: index,
+      selected: deposit.selected,
+      onSelectChanged: (value) {
+        if (deposit.selected != value) {
+          _selectedCount += value ? 1 : -1;
+          assert(_selectedCount >= 0);
+          deposit.selected = value;
+          notifyListeners();
+        }
+      },
+      cells: [
+        DataCell(Text(deposit.title, style: TextStyle(color: text_color))),
+        DataCell(Text(deposit.amount.toString(), style: TextStyle(color: text_color))),
+        DataCell(Text(deposit.id.toString(), style: TextStyle(color: text_color))),
+        DataCell(Text(deposit.interest_rate.toString(), style: TextStyle(color: text_color))),
+        DataCell(Text(deposit.account, style: TextStyle(color: text_color))),
+        DataCell(Text(deposit.start_date, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.deposit_period, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.capitalization_period, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.last_capitalization, style: TextStyle(color: text_color))),
+      ],
+    );
+  }
+
+  @override
+  int get rowCount => _deposits.length;
 
   @override
   bool get isRowCountApproximate => false;
