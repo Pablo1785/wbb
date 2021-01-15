@@ -123,6 +123,11 @@ class BankDepositListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
+        try:
+            request.data["account"] = SubAccount.objects.get(sub_address=request.data["account"]).id
+        except KeyError:
+            return Response("Missing account field", status=status.HTTP_400_BAD_REQUEST)
+
         serializer = BankDepositSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -180,7 +185,7 @@ class TransactionListView(APIView):
             request.data["source"] = SubAccount.objects.get(sub_address=request.data["source"]).id
             request.data["target"] = SubAccount.objects.get(sub_address=request.data["target"]).id
         except KeyError:
-            raise Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
 
         serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
