@@ -4,6 +4,11 @@ import 'package:http/http.dart' as http;
 import 'dart:js' as js;
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:universal_html/html.dart' as html;
+import 'package:flutter/services.dart';
+import 'dart:typed_data';
 import 'main.dart';
 import 'logged_in.dart';
 import 'settings.dart';
@@ -312,8 +317,8 @@ class TransferDataTable extends StatefulWidget {
 
 class _TransferDataTableState extends State<TransferDataTable>{
   int _rowsPerPage = 5;
-  //int _sortColumnIndex = -1;
-  int _sortColumnIndex = 3;
+  int _sortColumnIndex = -1;
+  //int _sortColumnIndex = 3;
   bool _sortAscending = false;
   var _sortField;
   _TransferDataSource _transferDataSource;
@@ -349,6 +354,65 @@ class _TransferDataTableState extends State<TransferDataTable>{
   int _get_selected_count()
   {
 	  return _transferDataSource.selectedRowCount;
+  }
+  
+  Future<Uint8List> generate_pdf() async{
+
+	  var pdf_theme = pw.ThemeData.withFont( // have to load custom font to support polish characters
+  base: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Regular.ttf")),
+  bold: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Bold.ttf")),
+  italic: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Italic.ttf")),
+  boldItalic: pw.Font.ttf(await rootBundle.load("fonts/OpenSans-Bolditalic.ttf")),  
+);
+
+	  	  final pdf = pw.Document(theme: pdf_theme);
+		  
+			final image = await rootBundle.load("images/logo_small.png");
+  
+  final _transfers = _transferDataSource.get_selected();
+  final List<List<String>> _transfersStrings = new List();
+  _transfersStrings.add(['Tytuł', 'Kwota', 'Saldo po operacji', 'Data zlecenia', 'ID', 'Tracking', 'Adres']);
+  
+  for(final transfer in _transfers)
+	  _transfersStrings.add([transfer.title, transfer.amount.toString(), transfer.balance.toString(), transfer.timestamp, transfer.id.toString(), transfer.tracking, transfer.address]);
+  
+final imageE = PdfImage.file(
+  pdf.document,
+  bytes: image.buffer.asUint8List(),
+);
+
+pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat(double.infinity, double.infinity, marginAll: 2.0 * PdfPageFormat.cm),
+      build: (pw.Context context) {
+        return pw.Column(children:[
+		  
+		  
+		  pw.Text("Historia transakcji", style: pw.TextStyle(
+                              fontSize: 20, fontWeight: pw.FontWeight.bold)),
+pw.Image(pw.ImageProxy(imageE)),
+							  pw.Table.fromTextArray(context: context, headerAlignment: pw.Alignment.center,data:
+							  _transfersStrings
+							  ),
+							  ]);
+
+      }));
+	  
+	  return pdf.save();
+
+  }
+  
+  void show_pdf(Uint8List bytes)
+  {
+    final blob = html.Blob([bytes], 'application/pdf');
+	
+	                final url = html.Url.createObjectUrlFromBlob(blob);
+                html.window.open(url, "_blank");	  
+  }
+  
+  void export_to_pdf() async{
+	  
+		Uint8List bytes = await generate_pdf();
+		show_pdf(bytes);
   }
   
   @override
@@ -418,7 +482,11 @@ class _TransferDataTableState extends State<TransferDataTable>{
 				 if (_get_selected_count() == 0)
 					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Należy najpierw wybrać przelewy do eksportu.'),),);
 				  else
-					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Pomyślnie wygenerowano PDF.'),),);
+				  {
+					  export_to_pdf();
+					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Trwa generowanie PDF.'),),);					  
+				  }
+
 				  
 			  },
 			  icon: Icon(Icons.save_alt),
@@ -434,8 +502,8 @@ class _TransferDataTableState extends State<TransferDataTable>{
                 });
               },
               sortColumnIndex:
-                  //_sortColumnIndex == -1 ? null : _sortColumnIndex,
-				  _sortColumnIndex,
+                  _sortColumnIndex == -1 ? null : _sortColumnIndex,
+				  //_sortColumnIndex,
               sortAscending: _sortAscending,
               columns: [
                 DataColumn(
@@ -580,6 +648,18 @@ class _TransferDataSource extends DataTableSource {
 
 	   notifyListeners();
       }
+	  
+	List<_Transfer> get_selected(){
+		List<_Transfer> result = new List();
+		
+		for(final transfer in _transfers_filtered)
+		{
+			if (transfer.selected == true)
+				result.add(transfer);
+		}
+		
+		return result;
+	}
 
   int _selectedCount = 0;
 
@@ -616,16 +696,7 @@ class _TransferDataSource extends DataTableSource {
 			  ),
 			  ),
         DataCell(Text(transfer.address, style: TextStyle(color: text_color))),
-			  //Text(transfer.tracking),	
-		/*
-        DataCell(Text('${transfer.calories}')),
-        DataCell(Text(transfer.fat.toStringAsFixed(1))),
-        DataCell(Text('${transfer.carbs}')),
-        DataCell(Text(transfer.protein.toStringAsFixed(1))),
-        DataCell(Text('${transfer.sodium}')),
-        DataCell(Text('${(transfer.calcium / 100)}')),
-        DataCell(Text('${(transfer.iron / 100)}')),
-		*/
+
       ],
     );
   }
