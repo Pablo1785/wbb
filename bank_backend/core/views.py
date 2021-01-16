@@ -91,7 +91,10 @@ class SubAccountListView(APIView):
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.filter(owner=request.user)
         serializer = SubAccountSerializer(subaccounts, many=True)
-        return Response(serializer.data)
+        modified_data = serializer.data
+        for ordered_dict in modified_data:  # return usernames instead of ids
+            ordered_dict["owner"] = str(request.user)
+        return Response(modified_data)
 
     def post(self, request, format=None):
         request.data['owner'] = request.user.id
@@ -99,7 +102,7 @@ class SubAccountListView(APIView):
         if serializer.is_valid():
             serializer.save()
             modified_data = serializer.data
-            modified_data['owner'] = str(request.user)
+            modified_data['owner'] = str(request.user)  # return username instead of id
             return Response(modified_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
