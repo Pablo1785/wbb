@@ -11,7 +11,7 @@ class SubAccount {
         this.subAddress,
     });
 
-    int owner;
+    String owner;
     String balance;
     String currency;
     String subAddress;
