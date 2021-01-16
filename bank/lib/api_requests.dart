@@ -141,4 +141,64 @@ class Requestor {
           'Błąd przy pobieraniu historii logowania.\n\n${response.body}');
     }
   }
+
+  Future<UserProfile> createUser(
+      String username, String password, String email) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/users/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+        'email': email,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return UserProfile.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
+    }
+  }
+
+  Future<UserProfile> fetchUser(String username) async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/user/$username',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return UserProfile.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy pobieraniu konta.\n\n${response.body}');
+    }
+  }
+
+  Future<UserProfile> updateUser(String username, {String email, String firstname, String lastname}) async {
+    final http.Response response = await http.put(
+      '${this.serverAddress}:${this.serverPort}/api/user/$username',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return UserProfile.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy aktualizacji konta.\n\n${response.body}');
+    }
+  }
 }
