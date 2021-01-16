@@ -1,34 +1,23 @@
 from rest_framework import serializers
-from .models import Profile, SubAccount, BankDeposit, Transaction, LoginRecord
+from .models import Wallet, SubAccount, BankDeposit, Transaction, LoginRecord
 from django.contrib.auth.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    private_key = serializers.CharField(source="profile.private_key")
-    wallet_address = serializers.CharField(source="profile.wallet_address")
-
-    def validate(self, validated_data):
-        validated_data['private_key'] = self.get_initial()['private_key']
-        validated_data['wallet_address'] = self.get_initial()['wallet_address']
-        return validated_data
-
-    def create(self, validated_data):
-        user = User(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        user.profile.private_key = validated_data['private_key']
-        user.profile.wallet_address = validated_data['wallet_address']
-        user.save()
-        return user
-
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'private_key', 'wallet_address')
+        fields = ('username', 'email', 'first_name', 'last_name')
+
+
+class WalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = ('wallet_address',)
+
+class FullWalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = ('owner', 'private_key', 'wallet_address')
 
 
 class SubAccountSerializer(serializers.ModelSerializer):
