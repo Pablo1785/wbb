@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.signals import user_logged_in
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
@@ -87,3 +88,15 @@ class Transaction(models.Model):
     fee = models.DecimalField(max_digits=22, decimal_places=15, blank=True, null=True)  # Nullable, miner/bank fee for the transaction
     transaction_hash = models.CharField(max_length=256, blank=True, null=True)  # Nullable, blockchain ID of the transaction
 
+
+class LoginRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=64)
+    date = models.DateTimeField(auto_now=True)
+    ip_address = models.GenericIPAddressField(null=True)
+
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    LoginRecord.objects.create(user=user, action='user_logged_in', ip_address=ip)

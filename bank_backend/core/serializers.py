@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, SubAccount, BankDeposit, Transaction
+from .models import Profile, SubAccount, BankDeposit, Transaction, LoginRecord
 from django.contrib.auth.models import User
 
 
@@ -77,3 +77,12 @@ class TransactionSerializer(serializers.ModelSerializer):
                   'target', 'amount', 'currency',  'send_time', 'confirmation_time', 'title', 'fee', 'transaction_hash')
 
 
+class LoginRecordSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        return obj.user.username
+
+    class Meta:
+        model = LoginRecord
+        fields = ('user', 'action', 'date', 'ip_address')
