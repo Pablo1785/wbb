@@ -1,3 +1,5 @@
+const String server_port = '8000';
+
 //Sending data to server and getting response:
 Future<UserProfile> createUser(
     String username, String password, String email) async {
