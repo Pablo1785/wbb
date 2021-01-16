@@ -9,7 +9,7 @@ const String server_address = 'http://127.0.0.1';
 //Sending data to server and getting response:
 Future<UserProfile> createUser(
     String username, String password, String email) async {
-  final http.Response response = await http.post(
+  final http.Response response = this.lastResponse = await http.post(
     'http://127.0.0.1:8080/auth/users/',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -33,13 +33,15 @@ class Requestor {
   final String serverAddress;
   final String serverPort;
 
-  // Ths class doesn't handle logging in, it should be initialized with atuhToken and refreshToken on first login
   TokenData tokenData;
+
+  // Last response obtained with one of this Requestor's methods
+  http.Response lastResponse;
 
   Requestor({this.tokenData, this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'});
 
   Future<TokenData> login(String username, String password) async {
-    final http.Response response = await http.post(
+    final http.Response response = this.lastResponse = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/jwt/create',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -60,7 +62,7 @@ class Requestor {
   }
 
   Future<bool> isValidAccessToken() async {
-    final http.Response response = await http.post(
+    final http.Response response = this.lastResponse = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/jwt/verify',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
@@ -76,7 +78,7 @@ class Requestor {
 
   Future<TokenData> refreshAccessToken() async {
     // On success return modified tokenData object, on failure throw "log in again" exception
-    final http.Response response = await http.post(
+    final http.Response response = this.lastResponse = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/jwt/refresh',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -99,7 +101,7 @@ class Requestor {
 
   // Subaccount creation:
   Future<SubAccount> createSubaccount(String currency) async {
-    final http.Response response = await http.post(
+    final http.Response response = this.lastResponse = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -118,7 +120,7 @@ class Requestor {
   }
 
   Future<List<SubAccount>> fetchSubaccounts() async {
-    final http.Response response = await http.post(
+    final http.Response response = this.lastResponse = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -135,7 +137,7 @@ class Requestor {
   }
 
   Future<List<LoginRecord>> fetchLoginRecords() async {
-    final http.Response response = await http.post(
+    final http.Response response = this.lastResponse = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/login_history/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
