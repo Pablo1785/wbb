@@ -98,7 +98,9 @@ class SubAccountListView(APIView):
         serializer = SubAccountSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            modified_data = serializer.data
+            modified_data['owner'] = str(request.user)
+            return Response(modified_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, format=None):
