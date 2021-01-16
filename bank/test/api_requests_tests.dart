@@ -18,4 +18,11 @@ void main() {
     bool validToken = await requestor.isValidAccessToken();
     expect(validToken, true);
   });
+
+  test("", () async {
+    var requestor = Requestor();
+    TokenData td = await requestor.login("UserTest", "wbb12345").catchError((Object error, StackTrace st) => {expect(true, false)});
+
+    
+  });
 }
