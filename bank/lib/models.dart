@@ -205,3 +205,28 @@ class LoginRecord {
         "ip_address": ipAddress == null ? null : ipAddress,
     };
 }
+
+
+class TokenData {
+    TokenData({
+        this.refresh,
+        this.access,
+    });
+
+    String refresh;
+    String access;
+
+    factory TokenData.fromRawJson(String str) => TokenData.fromJson(json.decode(str));
+
+    String toRawJson() => json.encode(toJson());
+
+    factory TokenData.fromJson(Map<String, dynamic> json) => TokenData(
+        refresh: json["refresh"] == null ? null : json["refresh"],
+        access: json["access"] == null ? null : json["access"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "refresh": refresh == null ? null : refresh,
+        "access": access == null ? null : access,
+    };
+}
