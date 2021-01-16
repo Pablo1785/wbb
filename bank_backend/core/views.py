@@ -33,27 +33,27 @@ class UserDetailView(APIView):
     Retrieve, update or delete an user instance.
     """
 
-    def get_object(self, pk):
+    def get_object(self, username):
         try:
-            return User.objects.get(pk=pk)
+            return User.objects.get(username=username)
         except User.DoesNotExist:
             raise Http404
 
-    def get(self, request, format=None):
-        user = self.get_object(request)
+    def get(self, request, username, format=None):
+        user = self.get_object(username)
         user = UserSerializer(user)
         return Response(user.data)
 
-    def put(self, request, format=None):
-        user = self.get_object(request)
+    def put(self, request, username, format=None):
+        user = self.get_object(username)
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, format=None):
-        user = self.get_object(request)
+    def delete(self, request, username, format=None):
+        user = self.get_object(username)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -87,27 +87,27 @@ class SubAccountDetailView(APIView):
     Retrieve, update or delete a subaccount instance.
     """
 
-    def get_object(self, request):
+    def get_object(self, sub_address):
         try:
-            return SubAccount.objects.get(sub_address=request["sub_address"])
+            return SubAccount.objects.get(sub_address=sub_address)
         except SubAccount.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        subaccount = self.get_object(pk)
+    def get(self, request, sub_address, format=None):
+        subaccount = self.get_object(sub_address)
         subaccount = SubAccountSerializer(subaccount)
         return Response(subaccount.data)
 
-    def put(self, request, pk, format=None):
-        subaccount = self.get_object(pk)
+    def put(self, request, sub_address, format=None):
+        subaccount = self.get_object(sub_address)
         serializer = SubAccountSerializer(subaccount, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        subaccount = self.get_object(pk)
+    def delete(self, request, sub_address, format=None):
+        subaccount = self.get_object(sub_address)
         subaccount.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -134,8 +134,8 @@ class BankDepositListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        bank_deposit = self.get_object(pk)
+    def delete(self, request, transaction_hash, format=None):
+        bank_deposit = self.get_object(transaction_hash)
         bank_deposit.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -145,27 +145,28 @@ class BankDepositDetailView(APIView):
     Retrieve, update or delete a bank deposit instance.
     """
 
-    def get_object(self, pk):
+    def get_object(self, sub_address):
         try:
-            return BankDeposit.objects.get(pk=pk)
+            account = SubAccount.objects.get(sub_address=sub_address)
+            return BankDeposit.objects.get(account=account)
         except BankDeposit.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        bank_deposit = self.get_object(pk)
+    def get(self, request, sub_address, format=None):
+        bank_deposit = self.get_object(sub_address)
         bank_deposit = BankDepositSerializer(bank_deposit)
         return Response(bank_deposit.data)
 
-    def put(self, request, pk, format=None):
-        bank_deposit = self.get_object(pk)
+    def put(self, request, sub_address, format=None):
+        bank_deposit = self.get_object(sub_address)
         serializer = BankDepositSerializer(bank_deposit, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        bank_deposit = self.get_object(pk)
+    def delete(self, request, sub_address, format=None):
+        bank_deposit = self.get_object(sub_address)
         bank_deposit.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -193,8 +194,8 @@ class TransactionListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        transaction = self.get_object(pk)
+    def delete(self, request, transaction_hash, format=None):
+        transaction = self.get_object(transaction_hash)
         transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -204,27 +205,27 @@ class TransactionDetailView(APIView):
     Retrieve, update or delete a transaction instance.
     """
 
-    def get_object(self, pk):
+    def get_object(self, transaction_hash):
         try:
-            return Transaction.objects.get(pk=pk)
+            return Transaction.objects.get(transaction_hash=transaction_hash)
         except Transaction.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        transaction = self.get_object(pk)
+    def get(self, request, transaction_hash, format=None):
+        transaction = self.get_object(transaction_hash)
         transaction = TransactionSerializer(transaction)
         return Response(transaction.data)
 
-    def put(self, request, pk, format=None):
-        transaction = self.get_object(pk)
+    def put(self, request, transaction_hash, format=None):
+        transaction = self.get_object(transaction_hash)
         serializer = TransactionSerializer(transaction, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        transaction = self.get_object(pk)
+    def delete(self, request, transaction_hash, format=None):
+        transaction = self.get_object(transaction_hash)
         transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
