@@ -142,19 +142,63 @@ class Requestor {
     }
   }
 
-  Future<UserProfile> createUser(
-      String username, String password, String email) async {
+  Future<Transaction> createTransaction(int source, int target, String amount, String currency, String title, double fee) async {
     final http.Response response = await http.post(
-      '${this.serverAddress}:${this.serverPort}/auth/users/',
+      '${this.serverAddress}:${this.serverPort}/api/trans/',
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8'
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
       },
-      body: jsonEncode(<String, String>{
-        'username': username,
-        'password': password,
-        'email': email,
+      body: jsonEncode(<String, dynamic>{
+        'source': source,
+        'target': target,
+        'amount': amount,
+        'currency': currency,
+        'title': title,
+        'fee': fee,
       }),
     );
+    
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return Transaction.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy tworzeniu transakcji.\n\n${response.body}');
+    }
+  }  
+  
+  Future<List<Transaction>> fetchTransactions() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/trans/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<Transaction>.from(json.decode(response.body).map((model) => Transaction.fromJson(model)));
+    } else {
+      throw Exception('Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
+    }
+  }
+
+  Future<UserProfile> createUser(
+    String username, String password, String email) async {
+  final http.Response response = await http.post(
+    '${this.serverAddress}:${this.serverPort}/auth/users/',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8'
+    },
+    body: jsonEncode(<String, String>{
+      'username': username,
+      'password': password,
+      'email': email,
+    }),
+  );
 
     this.lastResponse = response;
 
@@ -190,7 +234,6 @@ class Requestor {
       firstname == null ? "" : "first_name" : firstname == null ? "" : firstname,
       lastname == null ? "" :"last_name": lastname == null ? "" : lastname,
     };
-    print(body);
     final http.Response response = await http.put(
       '${this.serverAddress}:${this.serverPort}/api/user/$username/',
       headers: <String, String>{
