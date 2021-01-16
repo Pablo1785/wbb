@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 # Create your views here.
 
@@ -64,7 +65,7 @@ class SubAccountListView(APIView):
     """
     
     def get(self, request, format=None):
-        subaccounts = SubAccount.objects.all()
+        subaccounts = SubAccount.objects.filter(owner=request.user)
         serializer = SubAccountSerializer(subaccounts, many=True)
         return Response(serializer.data)
 
@@ -118,7 +119,8 @@ class BankDepositListView(APIView):
     """
 
     def get(self, request, format=None):
-        bank_deposits = BankDeposit.objects.all()
+        subaccounts = SubAccount.objects.filter(owner=request.user)
+        bank_deposits = BankDeposit.objects.filter(account__owner=request.user)
         serializer = BankDepositSerializer(bank_deposits, many=True)
         return Response(serializer.data)
 
@@ -177,7 +179,8 @@ class TransactionListView(APIView):
     """
 
     def get(self, request, format=None):
-        transactions = Transaction.objects.all()
+        user = request.user
+        transactions = Transaction.objects.filter(Q(source__owner=user) | Q(target__owner=user))
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data)
 
