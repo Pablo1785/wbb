@@ -1,10 +1,10 @@
-from .serializers import UserSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer
-from .models import SubAccount, BankDeposit, Transaction
+from .serializers import UserSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer, LoginRecordSerializer
+from .models import SubAccount, BankDeposit, Transaction, LoginRecord
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -231,4 +231,17 @@ class TransactionDetailView(APIView):
         transaction = self.get_object(transaction_hash)
         transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LoginRecordListView(APIView):
+    """
+    List all login_records of given user, they are created and deleted automatically by the server.
+    """
+    
+    def get(self, request, format=None):
+        login_records = LoginRecord.objects.filter(user=request.user.id)
+        if len(login_records) == 0:
+            return HttpResponse('No previous logins to display', status=204)
+        serializer = LoginRecordSerializer(login_records, many=True)
+        return Response(serializer.data)
 

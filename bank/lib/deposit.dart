@@ -7,6 +7,7 @@ import 'main.dart';
 import 'logged_in.dart';
 import 'settings.dart';
 import 'transfer.dart';
+import 'history.dart';
 import 'contact.dart';
 import 'globals.dart';
 
@@ -28,6 +29,7 @@ class DepositApp extends StatelessWidget {
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
         '/deposit': (context) => DepositApp(),
+		'/history': (context) => HistoryApp(),
         '/contact': (context) => ContactApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
