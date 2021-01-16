@@ -120,7 +120,7 @@ class Requestor {
   }
 
   Future<List<SubAccount>> fetchSubaccounts() async {
-    final http.Response response = this.lastResponse = await http.post(
+    final http.Response response = this.lastResponse = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -137,7 +137,7 @@ class Requestor {
   }
 
   Future<List<LoginRecord>> fetchLoginRecords() async {
-    final http.Response response = this.lastResponse = await http.post(
+    final http.Response response = this.lastResponse = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/login_history/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
