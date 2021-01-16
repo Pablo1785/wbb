@@ -11,6 +11,9 @@ import 'contact.dart';
 import 'signin.dart';
 import 'signup.dart';
 import 'history.dart';
+import 'subaccounts.dart';
+import 'receivers.dart';
+import 'security_events.dart';
 import 'globals.dart';
 
 void main() => runApp(ContactApp());
@@ -34,6 +37,9 @@ class ContactApp extends StatelessWidget {
 		'/contact': (context) => ContactApp(),
         '/signin': (context) => SignInApp(),
         '/signup': (context) => SignUpApp(),
+		'/subaccounts': (context) => SubaccountsApp(),
+		'/receivers': (context) => ReceiversApp(),
+		'/securityevents': (context) => SecurityEventsApp(),
       },
     );
   }
