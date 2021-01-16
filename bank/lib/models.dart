@@ -174,3 +174,34 @@ class Transaction {
     };
 }
 
+class LoginRecord {
+    LoginRecord({
+        this.user,
+        this.action,
+        this.date,
+        this.ipAddress,
+    });
+
+    String user;
+    String action;
+    DateTime date;
+    String ipAddress;
+
+    factory LoginRecord.fromRawJson(String str) => LoginRecord.fromJson(json.decode(str));
+
+    String toRawJson() => json.encode(toJson());
+
+    factory LoginRecord.fromJson(Map<String, dynamic> json) => LoginRecord(
+        user: json["user"] == null ? null : json["user"],
+        action: json["action"] == null ? null : json["action"],
+        date: json["date"] == null ? null : DateTime.parse(json["date"]),
+        ipAddress: json["ip_address"] == null ? null : json["ip_address"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "user": user == null ? null : user,
+        "action": action == null ? null : action,
+        "date": date == null ? null : date.toIso8601String(),
+        "ip_address": ipAddress == null ? null : ipAddress,
+    };
+}
