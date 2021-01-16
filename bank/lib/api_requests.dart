@@ -28,41 +28,16 @@ Future<UserProfile> createUser(
   }
 }
 
-class TokenData {
-    TokenData({
-        this.refresh,
-        this.access,
-    });
-
-    String refresh;
-    String access;
-
-    factory TokenData.fromRawJson(String str) => TokenData.fromJson(json.decode(str));
-
-    String toRawJson() => json.encode(toJson());
-
-    factory TokenData.fromJson(Map<String, dynamic> json) => TokenData(
-        refresh: json["refresh"] == null ? null : json["refresh"],
-        access: json["access"] == null ? null : json["access"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "refresh": refresh == null ? null : refresh,
-        "access": access == null ? null : access,
-    };
-}
 
 class Requestor {
   final String serverAddress;
   final String serverPort;
 
   // Ths class doesn't handle logging in, it should be initialized with atuhToken and refreshToken on first login
-  String authToken;
-  String refreshToken;
+  TokenData tokenData;
 
-  Requestor(String authToken, String refreshToken, {this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'}) {
-    this.authToken = authToken;
-    this.refreshToken = refreshToken;
+  Requestor(TokenData tokenData, {this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'}) {
+    this.tokenData = tokenData;
   }
 
   Future<TokenData> login(String username, String password) {
@@ -76,7 +51,7 @@ class Requestor {
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.authToken}'
+        'Authorization': 'JWT ${this.tokenData.access}'
       },
       body: jsonEncode(<String, String>{
         'currency': currency,
@@ -95,7 +70,7 @@ class Requestor {
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.authToken}'
+        'Authorization': 'JWT ${this.tokenData.access}'
       },
     );
 
