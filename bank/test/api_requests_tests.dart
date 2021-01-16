@@ -27,11 +27,19 @@ void main() {
     expect(refreshedTd.access == oldAccess, false);
   });
 
-  test("Should return SubAccount", () async {
+  test("Should return created user's subaccount", () async {
     var requestor = Requestor();
     TokenData td = await requestor.login("UserTest", "wbb12345").catchError((Object error, StackTrace st) => {print(st.toString())});
 
     var sa = await requestor.createSubaccount("BTC");
     expect(sa.owner, "UserTest");
+  });
+
+  test("Should return created user's subaccount", () async {
+    var requestor = Requestor();
+    TokenData td = await requestor.login("UserTest", "wbb12345").catchError((Object error, StackTrace st) => {print(st.toString())});
+
+    var sa = await requestor.fetchSubaccounts();
+    expect(sa is List<SubAccount>, true);
   });
 }
