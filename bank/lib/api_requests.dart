@@ -65,9 +65,9 @@ class Requestor {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
       },
-      body: <String, String>{
+      body: jsonEncode(<String, String>{
         'token': this.tokenData.access,
-      },
+      }),
     );
 
     if (response.statusCode == 200) return true; 
@@ -81,9 +81,9 @@ class Requestor {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: <String, String>{
+      body: jsonEncode(<String, String>{
         'refresh': this.tokenData.refresh,
-      },
+      }),
     );
 
     if (response.statusCode == 200) {
