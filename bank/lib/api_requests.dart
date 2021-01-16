@@ -157,8 +157,7 @@ class Requestor {
     this.lastResponse = response;
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      List<Map<String, dynamic>> results = jsonDecode(response.body);
-      return List.from(results.map((model) => LoginRecord.fromJson(model)));
+      return List<LoginRecord>.from(json.decode(response.body).map((model) => LoginRecord.fromJson(model)));
     } else {
       throw Exception('Błąd przy pobieraniu historii logowania.\n\n${response.body}');
     }
