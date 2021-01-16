@@ -7,68 +7,81 @@ const String server_port = '8000';
 const String server_address = 'http://127.0.0.1';
 
 //Sending data to server and getting response:
-Future<UserProfile> createUser(
-    String username, String password, String email) async {
-  final http.Response response = await http.post(
-    'http://127.0.0.1:8080/auth/users/',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'username': username,
-      'password': password,
-      'email': email,
-    }),
-  );
-
-  if (response.statusCode == 201) {
-    return UserProfile.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
-  }
-}
-
-class TokenData {
-    TokenData({
-        this.refresh,
-        this.access,
-    });
-
-    String refresh;
-    String access;
-
-    factory TokenData.fromRawJson(String str) => TokenData.fromJson(json.decode(str));
-
-    String toRawJson() => json.encode(toJson());
-
-    factory TokenData.fromJson(Map<String, dynamic> json) => TokenData(
-        refresh: json["refresh"] == null ? null : json["refresh"],
-        access: json["access"] == null ? null : json["access"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "refresh": refresh == null ? null : refresh,
-        "access": access == null ? null : access,
-    };
-}
-
 class Requestor {
   final String serverAddress;
   final String serverPort;
 
-  // Ths class doesn't handle logging in, it should be initialized with atuhToken and refreshToken on first login
-  String authToken;
-  String refreshToken;
+  TokenData tokenData;
 
-  Requestor(String authToken, String refreshToken, {this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'}) {
-    this.authToken = authToken;
-    this.refreshToken = refreshToken;
+  // Last response obtained with one of this Requestor's methods
+  http.Response lastResponse;
+
+  Requestor(
+      {this.tokenData,
+      this.serverAddress = 'http://127.0.0.1',
+      this.serverPort = '8000'});
+
+  Future<TokenData> login(String username, String password) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/jwt/create',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      this.tokenData = TokenData.fromJson(jsonDecode(response.body));
+      return this.tokenData;
+    } else {
+      throw Exception('Błąd przy logowaniu.\n\n${response.body}');
+    }
   }
 
-  Future<TokenData> login(String username, String password) {
-    
+  Future<bool> isValidAccessToken() async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/jwt/verify',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<String, String>{
+        'token': this.tokenData.access,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) return true;
+    return false;
   }
 
+  Future<TokenData> refreshAccessToken() async {
+    // On success return modified tokenData object, on failure throw "log in again" exception
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/jwt/refresh',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'refresh': this.tokenData.refresh,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      var tokenData = TokenData.fromJson(jsonDecode(response.body));
+      this.tokenData.access = tokenData.access;
+      return this.tokenData;
+    } else {
+      throw Exception("Tokens expired. Log in again.");
+    }
+  }
 
   // Subaccount creation:
   Future<SubAccount> createSubaccount(String currency) async {
@@ -76,12 +89,14 @@ class Requestor {
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.authToken}'
+        'Authorization': 'JWT ${this.tokenData.access}'
       },
       body: jsonEncode(<String, String>{
         'currency': currency,
       }),
     );
+
+    this.lastResponse = response;
 
     if (response.statusCode == 201) {
       return SubAccount.fromJson(jsonDecode(response.body));
@@ -91,13 +106,15 @@ class Requestor {
   }
 
   Future<List<SubAccount>> fetchSubaccounts() async {
-    final http.Response response = await http.post(
+    final http.Response response = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.authToken}'
+        'Authorization': 'JWT ${this.tokenData.access}'
       },
     );
+
+    this.lastResponse = response;
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       List<Map<String, dynamic>> results = jsonDecode(response.body);
@@ -107,43 +124,23 @@ class Requestor {
     }
   }
 
-  Future<UserProfile> createUser(
-      String username, String password, String email) async {
-    final http.Response response = await http.post(
-      'http://127.0.0.1:8000/auth/users/',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.authToken}'
-      },
-      body: jsonEncode(<String, String>{
-        'username': username,
-        'password': password,
-        'email': email,
-      }),
-    );
-
-    if (response.statusCode == 201) {
-      return UserProfile.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
-    }
-  }
-
-  Future<UserProfile> fetchUser(String username) async {
+  Future<List<LoginRecord>> fetchLoginRecords() async {
     final http.Response response = await http.get(
-      'http://127.0.0.1:8000/api/user/$username',
+      '${this.serverAddress}:${this.serverPort}/api/login_history/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.authToken}'
+        'Authorization': 'JWT ${this.tokenData.access}'
       },
     );
 
-    if (response.statusCode == 201) {
-      return UserProfile.fromJson(jsonDecode(response.body));
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      List<Map<String, dynamic>> results = jsonDecode(response.body);
+      return List.from(results.map((model) => LoginRecord.fromJson(model)));
     } else {
-      throw Exception('Błąd przy pobieraniu konta.\n\n${response.body}');
+      throw Exception(
+          'Błąd przy pobieraniu historii logowania.\n\n${response.body}');
     }
   }
-
 }
-
