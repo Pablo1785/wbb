@@ -8,13 +8,17 @@ import 'contact.dart';
 import 'logged_in.dart';
 import 'settings.dart';
 import 'deposit.dart';
+import 'history.dart';
 import 'globals.dart';
 
 void main() => runApp(TransferApp());
 
+var _previous;
+
 class TransferApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+	  _previous = ModalRoute.of(context).settings.arguments;
     return MaterialApp(
       title: 'Wirtualny Bank Bitcoinów',
       theme: ThemeData(
@@ -28,6 +32,7 @@ class TransferApp extends StatelessWidget {
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
 		'/deposit': (context) => DepositApp(),
+		'/history': (context) => HistoryApp(),
 		'/contact': (context) => ContactApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
@@ -86,14 +91,23 @@ class FormTransfer extends StatefulWidget {
 class _FormTransferState extends State<FormTransfer> {
   final _formKey = GlobalKey<FormState>();
   final _transfer = Transfer();
-  bool type_btc = true;
+  bool type_btc = (_previous == null || ! _previous[2].contains('@'));
   var txtDate = TextEditingController();
   var txtTime = TextEditingController();
+  var txtTitle = TextEditingController();
+  var txtAmount = TextEditingController();
+  var txtAddress = TextEditingController();
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
 
+    @override
+  void initState() {
+	  _initPrevious();	  
+  }
+  
   @override
   Widget build(BuildContext context) {
+	  
     return Scrollbar(
         child: SingleChildScrollView(
       child: Card(
@@ -193,6 +207,7 @@ class _FormTransferState extends State<FormTransfer> {
                                       fontFamily: 'HelveticaNeue',
                                     ),
                                   ),
+								  controller: txtAddress,
                                   validator: (value) {
                                     if (value.isEmpty) {
                                       return 'Proszę wprowadzić poprawny adres BTC.';
@@ -215,6 +230,7 @@ class _FormTransferState extends State<FormTransfer> {
                                       fontFamily: 'HelveticaNeue',
                                     ),
                                   ),
+								  controller: txtAddress,
                                   validator: (value) {
                                     if (value.isEmpty) {
                                       return 'Proszę wprowadzić poprawny adres email.';
@@ -239,6 +255,7 @@ class _FormTransferState extends State<FormTransfer> {
                                   fontFamily: 'HelveticaNeue',
                                 ),
                               ),
+							  controller: txtTitle,
                               validator: (value) {},
                               onSaved: (val) => setState(
                                   () => _transfer.data[Transfer.Title] = val),
@@ -268,6 +285,7 @@ class _FormTransferState extends State<FormTransfer> {
                                   fontFamily: 'HelveticaNeue',
                                 ),
                               ),
+							  controller: txtAmount,
                               validator: (value) {
                                 if (value.isEmpty) {
                                   return 'Proszę wprowadzić poprawną kwotę.';
@@ -406,6 +424,16 @@ class _FormTransferState extends State<FormTransfer> {
     ));
   }
 
+  _initPrevious(){
+	  if (_previous != null)
+	  {
+		txtTitle.text = _previous[0];  
+		txtAmount.text = _previous[1];
+		txtAddress.text = _previous[2];
+	  }
+
+  }
+  
   _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
       context: context,

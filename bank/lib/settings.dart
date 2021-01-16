@@ -7,6 +7,7 @@ import 'main.dart';
 import 'logged_in.dart';
 import 'transfer.dart';
 import 'deposit.dart';
+import 'history.dart';
 import 'globals.dart';
 
 void main() => runApp(SettingsApp());
@@ -27,6 +28,7 @@ class SettingsApp extends StatelessWidget {
 		'/loggedin': (context) => LoggedInApp(),
 		'/transfer': (context) => TransferApp(),
 		'/deposit': (context) => DepositApp(),
+		'/history': (context) => HistoryApp(),
 		'/contact': (context) => ContactApp(),
       },
     );

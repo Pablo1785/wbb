@@ -10,6 +10,7 @@ import 'deposit.dart';
 import 'contact.dart';
 import 'signin.dart';
 import 'signup.dart';
+import 'history.dart';
 import 'globals.dart';
 
 void main() => runApp(ContactApp());
@@ -29,6 +30,7 @@ class ContactApp extends StatelessWidget {
         '/loggedin': (context) => LoggedInApp(),
         '/transfer': (context) => TransferApp(),
         '/deposit': (context) => DepositApp(),
+		'/history': (context) => HistoryApp(),
 		'/contact': (context) => ContactApp(),
         '/signin': (context) => SignInApp(),
         '/signup': (context) => SignUpApp(),

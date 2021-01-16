@@ -67,7 +67,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/history');},
                           child: Text('Historia',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
