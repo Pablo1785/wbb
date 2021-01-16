@@ -40,7 +40,7 @@ class Requestor {
 
   Future<TokenData> login(String username, String password) async {
     final http.Response response = await http.post(
-      '${this.serverAddress}:${this.serverPort}/api/subacc/',
+      '${this.serverAddress}:${this.serverPort}/auth/jwt/create',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8'
       },
@@ -53,9 +53,46 @@ class Requestor {
     if (response.statusCode == 200) {
       this.tokenData = TokenData.fromJson(jsonDecode(response.body));
       return this.tokenData;
-      
+
     } else {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');
+    }
+  }
+
+  Future<bool> isValidAccessToken() async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/jwt/verify',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: <String, String>{
+        'token': this.tokenData.access,
+      },
+    );
+
+    if (response.statusCode == 200) return true; 
+    return false;
+  }
+
+  Future<TokenData> refreshAccessToken() async {
+    // On success return modified tokenData object, on failure throw "log in again" exception
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/jwt/refresh',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: <String, String>{
+        'refresh': this.tokenData.refresh,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var tokenData = TokenData.fromJson(jsonDecode(response.body));
+      this.tokenData.access = tokenData.access;
+      return this.tokenData;
+
+    } else {
+      throw Exception("Tokens expired. Log in again.");
     }
   }
 
