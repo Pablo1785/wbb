@@ -36,9 +36,7 @@ class Requestor {
   // Ths class doesn't handle logging in, it should be initialized with atuhToken and refreshToken on first login
   TokenData tokenData;
 
-  Requestor(TokenData tokenData, {this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'}) {
-    this.tokenData = tokenData;
-  }
+  Requestor({this.tokenData, this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'});
 
   Future<TokenData> login(String username, String password) {
     
@@ -81,5 +79,23 @@ class Requestor {
       throw Exception('Błąd przy pobieraniu rachunków.\n\n${response.body}');
     }
   }
+
+  Future<List<LoginRecord>> fetchLoginRecords() async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/api/login_history/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      List<Map<String, dynamic>> results = jsonDecode(response.body);
+      return List.from(results.map((model) => LoginRecord.fromJson(model)));
+    } else {
+      throw Exception('Błąd przy pobieraniu historii logowania.\n\n${response.body}');
+    }
+  }
+
 }
 
