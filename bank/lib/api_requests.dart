@@ -147,8 +147,7 @@ class Requestor {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/users/',
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'JWT ${this.tokenData.access}'
+        'Content-Type': 'application/json; charset=UTF-8'
       },
       body: jsonEncode(<String, String>{
         'username': username,
@@ -177,7 +176,7 @@ class Requestor {
 
     this.lastResponse = response;
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return UserProfile.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Błąd przy pobieraniu konta.\n\n${response.body}');
@@ -185,17 +184,25 @@ class Requestor {
   }
 
   Future<UserProfile> updateUser(String username, {String email, String firstname, String lastname}) async {
+    Map<String, dynamic> body = {
+      username == null ? "" : "username": username == null ? "" : username,
+      email == null ? "" :"email": email == null ? "" : email,
+      firstname == null ? "" : "first_name" : firstname == null ? "" : firstname,
+      lastname == null ? "" :"last_name": lastname == null ? "" : lastname,
+    };
+    print(body);
     final http.Response response = await http.put(
-      '${this.serverAddress}:${this.serverPort}/api/user/$username',
+      '${this.serverAddress}:${this.serverPort}/api/user/$username/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'JWT ${this.tokenData.access}'
       },
+      body: jsonEncode(body),
     );
 
     this.lastResponse = response;
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return UserProfile.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Błąd przy aktualizacji konta.\n\n${response.body}');

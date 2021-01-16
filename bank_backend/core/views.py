@@ -45,7 +45,7 @@ class UserDetailView(APIView):
         user = UserSerializer(user)
         return Response(user.data)
 
-    def put(self, request, username, format=None):
+    def put(self, request, username, format=None, partial=True):
         user = self.get_object(username)
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
