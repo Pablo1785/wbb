@@ -9,28 +9,17 @@ from datetime import timedelta
 DEFAULT_SLUG_LENGTH = 15
 
 
-class Profile(models.Model):
+class Wallet(models.Model):
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
     private_key = models.CharField(max_length=52)  # WIF format
     wallet_address = models.CharField(max_length=34)
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(owner=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
-
 class SubAccount(models.Model):
     sub_address = models.SlugField(max_length=DEFAULT_SLUG_LENGTH, default='')
 
-    # Having a Profile object you can access its SubAccounts with Profile.subaccount_set.all()
+    # Having a Wallet object you can access its SubAccounts with Wallet.subaccount_set.all()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
