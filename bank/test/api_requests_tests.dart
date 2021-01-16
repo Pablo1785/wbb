@@ -42,14 +42,12 @@ void main() {
     var requestor = Requestor();
     TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
     UserProfile up = await requestor.fetchUser(username);
-    print(up.toRawJson());
     expect(up.username == "test1", true);
   });
 
   test("Should create and return UserProfile", () async {
     var requestor = Requestor();
     UserProfile up = await requestor.createUser("uname", "unameqazxswedc", "uname@c.com");
-    print(up.toRawJson());
     expect(up.username == "uname", true);
     TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
   });
@@ -58,9 +56,8 @@ void main() {
     var requestor = Requestor();
     TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
     UserProfile up = await requestor.updateUser("uname", email: "new@mail.com");
-    print(up.toRawJson());
     expect(up.username == "uname", true);
-
+    expect(up.email == "new@mail.com", true);
   });
 
 }
