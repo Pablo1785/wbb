@@ -190,6 +190,8 @@ class TransactionListView(APIView):
             request.data["target"] = SubAccount.objects.get(sub_address=request.data["target"]).id
         except KeyError:
             return Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
+        except SubAccount.DoesNotExist:
+            return Response("Account does not exist", status=status.HTTP_404_NOT_FOUND)
 
         serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():

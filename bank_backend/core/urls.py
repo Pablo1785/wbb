@@ -11,5 +11,5 @@ urlpatterns = [
     path('deposit/<sub_address>/', views.BankDepositDetailView.as_view()),
     path('trans/', views.TransactionListView.as_view()),
     path('trans/<transaction_hash>/', views.TransactionDetailView.as_view()),
-    path(r'login_history/$', views.LoginRecordListView.as_view()),
+    path('login_history/', views.LoginRecordListView.as_view()),
 ]

@@ -57,15 +57,21 @@ class TransactionSerializer(serializers.ModelSerializer):
             source_acc = data["source"]
             target_acc = data["target"]
         except SubAccount.DoesNotExist:
-            raise serializers.ValidationError
+            raise serializers.ValidationError("Account does not exist.")
+        except KeyError:
+            raise serializers.ValidationError("Account address not provided.")
+
+        # Ensure source is not a BankDeposit
+        if hasattr(self.source, "bankdeposit") and self.source.bankdeposit is not None:
+            raise serializers.ValidationError("Your account is locked under deposit.")
         
         # Ensure both accounts use the same currency and Transaction has the correct currency
         if not (source_acc.currency == target_acc.currency):
-            raise serializers.ValidationError
+            raise serializers.ValidationError("Your account uses a different currency than the receiving account.")
 
         # Ensure sender has enough money
-        if float(data["amount"]) > source_acc.balance:
-            raise serializers.ValidationError
+        if float(data["amount"]) + 0 if "fee" not in data.keys() else float(data["fee"]) > source_acc.balance:
+            raise serializers.ValidationError("Not enough funds for the transaction.")
         
         # OK
         return data

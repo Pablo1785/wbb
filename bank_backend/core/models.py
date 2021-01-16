@@ -42,10 +42,10 @@ class SubAccount(models.Model):
         super(SubAccount, self).save(*args, **kwargs)
 
 
-def slug_save(obj):
-    """ A function to generate a DEFAULT_SLUG_LENGTH character slug and see if it has been used and contains naughty words."""
+def slug_save(obj, slug_len=DEFAULT_SLUG_LENGTH, allowed_chars="0123456789"):
+    """ A function to generate a slug_len character slug and see if it has been used and contains naughty words."""
     if not obj.sub_address: # if there isn't a slug
-        obj.sub_address = get_random_string(DEFAULT_SLUG_LENGTH, allowed_chars="0123456789") # create one
+        obj.sub_address = get_random_string(slug_len, allowed_chars=allowed_chars) # create one
         slug_is_wrong = True  
         while slug_is_wrong: # keep checking until we have a valid slug
             slug_is_wrong = False
@@ -55,7 +55,7 @@ def slug_save(obj):
                 slug_is_wrong = True
             if slug_is_wrong:
                 # create another slug and check it again
-                obj.sub_address = get_random_string(DEFAULT_SLUG_LENGTH, allowed_chars="0123456789")
+                obj.sub_address = get_random_string(slug_len, allowed_chars=allowed_chars)
 
 
 class BankDeposit(models.Model):
@@ -75,9 +75,9 @@ class BankDeposit(models.Model):
 
 class Transaction(models.Model):
 
-    # Having a SubAccount objects you can access its related transactions with SubAccount.(outgoing/incoming)_set.all()
-    source = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing', blank=True, null=True)
-    target = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming', blank=True, null=True)
+    # Having a SubAccount objects you can access its related transactions with SubAccount.(outgoing/incoming)_transactions.all()
+    source = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing_transactions', blank=True, null=True)
+    target = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming_transactions', blank=True, null=True)
 
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
@@ -87,6 +87,40 @@ class Transaction(models.Model):
     title = models.CharField(max_length=256)
     fee = models.DecimalField(max_digits=22, decimal_places=15, blank=True, null=True)  # Nullable, miner/bank fee for the transaction
     transaction_hash = models.CharField(max_length=256, blank=True, null=True)  # Nullable, blockchain ID of the transaction
+
+    def save(self, *args, **kwargs):
+        """
+        If Transaction is not BTC, then we need to create a unique identifier for it.
+        If Transaction is BTC, then we identify it by its tx hash.
+        """
+        if self.currency.lower() != 'btc':
+            trans_slug_save(self, allowed_chars="abcdefghijklmnoqprstuvwxyz0123456789")
+        else:
+            # TODO: Get actual tx hash
+            trans_slug_save(self, allowed_chars="bitcoinsuperwaluta")
+
+        # THE ACTUAL MONEY TRANSFER HAPPENS HERE <===========================================================================
+        self.source.balance -= self.amount + 0 if self.fee is None else self.fee
+        self.target.balance += self.amount
+        # THE ACTUAL MONEY TRANSFER HAPPENED HERE <==========================================================================
+
+        super(Transaction, self).save(*args, **kwargs)
+
+
+def trans_slug_save(obj, slug_len=DEFAULT_SLUG_LENGTH, allowed_chars="0123456789"):
+    """ A function to generate a slug_len character slug and see if it has been used and contains naughty words."""
+    if not obj.transaction_hash: # if there isn't a slug
+        obj.transaction_hash = get_random_string(slug_len, allowed_chars=allowed_chars) # create one
+        slug_is_wrong = True  
+        while slug_is_wrong: # keep checking until we have a valid slug
+            slug_is_wrong = False
+            other_objs_with_slug = type(obj).objects.filter(transaction_hash=obj.transaction_hash)
+            if len(other_objs_with_slug) > 0:
+                # if any other objects have current slug
+                slug_is_wrong = True
+            if slug_is_wrong:
+                # create another slug and check it again
+                obj.transaction_hash = get_random_string(slug_len, allowed_chars=allowed_chars)
 
 
 class LoginRecord(models.Model):
