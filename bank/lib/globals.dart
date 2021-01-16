@@ -49,7 +49,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/subaccounts');},
                           child: Text('Rachunki',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
@@ -58,7 +58,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/receivers');},
                           child: Text('Odbiorcy',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,
@@ -85,7 +85,7 @@ class Menu extends StatelessWidget {
                         ),
                         SizedBox(width: screenSize.width / 50),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {Navigator.of(context).pushNamed('/securityevents');},
                           child: Text('Zdarzenia',
                               style: GoogleFonts.montserrat(
                                   fontSize: 15,

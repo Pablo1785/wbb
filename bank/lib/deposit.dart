@@ -9,6 +9,9 @@ import 'settings.dart';
 import 'transfer.dart';
 import 'history.dart';
 import 'contact.dart';
+import 'subaccounts.dart';
+import 'receivers.dart';
+import 'security_events.dart';
 import 'globals.dart';
 
 void main() => runApp(DepositApp());
@@ -31,6 +34,9 @@ class DepositApp extends StatelessWidget {
         '/deposit': (context) => DepositApp(),
 		'/history': (context) => HistoryApp(),
         '/contact': (context) => ContactApp(),
+		'/subaccounts': (context) => SubaccountsApp(),
+		'/receivers': (context) => ReceiversApp(),
+		'/securityevents': (context) => SecurityEventsApp(),
       },
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
       supportedLocales: [

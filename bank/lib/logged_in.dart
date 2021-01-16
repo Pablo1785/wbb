@@ -7,6 +7,9 @@ import 'settings.dart';
 import 'transfer.dart';
 import 'deposit.dart';
 import 'history.dart';
+import 'subaccounts.dart';
+import 'receivers.dart';
+import 'security_events.dart';
 import 'globals.dart';
 
 void main() => runApp(LoggedInApp());
@@ -30,6 +33,9 @@ class LoggedInApp extends StatelessWidget {
 		'/transfer': (context) => TransferApp(),
 		'/deposit': (context) => DepositApp(),
 		'/history': (context) => HistoryApp(),
+		'/subaccounts': (context) => SubaccountsApp(),
+		'/receivers': (context) => ReceiversApp(),
+		'/securityevents': (context) => SecurityEventsApp(),
       },
     );
   }
