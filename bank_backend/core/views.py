@@ -1,5 +1,5 @@
-from .serializers import UserSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer, LoginRecordSerializer
-from .models import SubAccount, BankDeposit, Transaction, LoginRecord
+from .serializers import UserSerializer, WalletSerializer, FullWalletSerializer, SubAccountSerializer, BankDepositSerializer, TransactionSerializer, LoginRecordSerializer
+from .models import Wallet, SubAccount, BankDeposit, Transaction, LoginRecord
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,7 +13,7 @@ from django.db.models import Q
 
 class UserListView(APIView):
     """
-    List all users and profiles, or create a new user with profile.
+    List all users, or create a new user.
     """
 
     def get(self, request, format=None):
@@ -57,6 +57,30 @@ class UserDetailView(APIView):
         user = self.get_object(username)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class WalletListView(APIView):
+    def get(self, request, format=None):
+        wallet = Wallet.objects.get(owner=request.user)
+        wallet = WalletSerializer(wallet)
+        return Response(wallet.data)
+
+    def post(self, request, format=None):
+        # TODO: generate proper private key (if needed) and wallet 
+        # address based on the key using bit library
+        if Wallet.objects.filter(owner=request.user).exists():
+            return Response("User already has private key assigned", status=status.HTTP_400_BAD_REQUEST)
+        if 'private_key' not in request.data:
+            request.data['private_key'] = request.user.username + 'pk'
+        if Wallet.objects.filter(private_key=request.data["private_key"]).exists():
+            return Response("This private key is already registered", status=status.HTTP_400_BAD_REQUEST)
+        request.data['wallet_address'] = request.user.username + 'wa'
+        request.data['owner'] = request.user.id
+        serializer = FullWalletSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SubAccountListView(APIView):
