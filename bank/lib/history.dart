@@ -321,7 +321,22 @@ pw.Image(pw.ImageProxy(imageE)),
 				  
 				  if (_get_selected_count() != 1)
 					  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Należy wybrać dokładnie jeden przelew do powtórzenia.'),),);
-				  // else powtórz przelew
+				  
+				  if (_get_selected_count() == 1)
+				  {
+					  final _transfers = _transferDataSource.get_selected();
+					  if (_transfers[0].amount >= 0)
+					  {
+						  Scaffold.of(context).showSnackBar(SnackBar(content: Text('Nie można powtórzyć operacji przychodzącej.'),),);
+					  }
+					  else
+					  {
+						  final _previous = [_transfers[0].title, _transfers[0].amount.toString(), _transfers[0].address];
+						  Navigator.of(context).pushNamed('/transfer', arguments: _previous);		  
+					  }
+
+				  }
+					  
 
 			  },
 			  icon: Icon(Icons.settings_backup_restore),
