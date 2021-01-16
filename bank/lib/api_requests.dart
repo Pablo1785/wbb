@@ -38,8 +38,25 @@ class Requestor {
 
   Requestor({this.tokenData, this.serverAddress = 'http://127.0.0.1', this.serverPort = '8000'});
 
-  Future<TokenData> login(String username, String password) {
-    
+  Future<TokenData> login(String username, String password) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/api/subacc/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      this.tokenData = TokenData.fromJson(jsonDecode(response.body));
+      return this.tokenData;
+      
+    } else {
+      throw Exception('Błąd przy logowaniu.\n\n${response.body}');
+    }
   }
 
 
