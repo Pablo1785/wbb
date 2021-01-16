@@ -23,6 +23,7 @@ void main() {
     var requestor = Requestor();
     TokenData td = await requestor.login("UserTest", "wbb12345").catchError((Object error, StackTrace st) => {expect(true, false)});
 
-    
+    TokenData refreshedTd = await requestor.refreshAccessToken();
+    expect(refreshedTd.access == td.access, false);
   });
 }
