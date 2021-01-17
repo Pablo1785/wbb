@@ -6,6 +6,7 @@ import 'logged_in.dart';
 import 'signup.dart';
 import 'contact.dart';
 import 'main.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(SignInApp());
@@ -68,21 +69,19 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
-    Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
+    Future<TokenData> futureToken = ModalRoute.of(context).settings.arguments;
 
     return Scaffold(
       body: Center(
       child: 		
-		FutureBuilder<Album>(
-		  future: futureAlbum,
+		FutureBuilder<TokenData>(
+		  future: futureToken,
 		  builder: (context, snapshot) {
 			if (snapshot.hasData) {
 				Timer(const Duration(seconds: 3), () {
-				//Navigator.of(context).pushNamed('/loggedin', arguments: snapshot.data.auth_token);}); //auth_token is now global
-				auth_token = snapshot.data.auth_token;
 				Navigator.of(context).pushNamed('/loggedin');});
 					
-			  return Text("Zalogowano, token: ${snapshot.data.auth_token}", style: Theme.of(context).textTheme.headline2);
+			  return Text("Zalogowano, token: ${snapshot.data.access}", style: Theme.of(context).textTheme.headline2);
 			} else if (snapshot.hasError) {
 				Timer(const Duration(seconds: 5), () {
 				Navigator.of(context).pushNamed('/');});
@@ -128,9 +127,7 @@ class _SignIpFormState extends State<SignIpForm> {
   }
 
   void _showWelcomeScreen(String username, String password) {
-    Future<Album> futureAlbum = createAlbum(username,password);
-	// get and set user theme from backend
-    Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
+    Navigator.of(context).pushNamed('/welcome', arguments: requestor.login(username,password));
   }
 
   @override
@@ -243,38 +240,6 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
         valueColor: _colorAnimation,
         backgroundColor: _colorAnimation.value.withOpacity(0.4),
       ),
-    );
-  }
-}
-
-//Sending data to server and getting response:
-Future<Album> createAlbum(String username, String password) async {
-  final http.Response response = await http.post(
-    'http://127.0.0.1:8000/auth/token/login',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'username': username,
-      'password': password,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    return Album.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Błąd przy logowaniu.\n\n${response.body}');
-  }
-}
-
-class Album {
-  final String auth_token;
-
-  Album({this.auth_token});
-
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      auth_token: json['auth_token'],
     );
   }
 }
