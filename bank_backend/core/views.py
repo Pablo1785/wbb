@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import Http404, HttpResponse
 from django.contrib.auth.models import User
 from django.db.models import Q
+# we are using testnet, for mainnet replace with 'from bit import Key'
+from bit import PrivateKeyTestnet as Key
 
 # Create your views here.
 
@@ -45,7 +47,7 @@ class UserDetailView(APIView):
         user = UserSerializer(user)
         return Response(user.data)
 
-    def put(self, request, username, format=None):
+    def put(self, request, username, format=None, partial=True):
         user = self.get_object(username)
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
@@ -61,20 +63,31 @@ class UserDetailView(APIView):
 
 class WalletListView(APIView):
     def get(self, request, format=None):
-        wallet = Wallet.objects.get(owner=request.user)
+        try:
+            wallet = Wallet.objects.get(owner=request.user)
+        except Wallet.DoesNotExist:
+            raise Http404
         wallet = WalletSerializer(wallet)
         return Response(wallet.data)
 
     def post(self, request, format=None):
-        # TODO: generate proper private key (if needed) and wallet 
-        # address based on the key using bit library
         if Wallet.objects.filter(owner=request.user).exists():
             return Response("User already has private key assigned", status=status.HTTP_400_BAD_REQUEST)
+        
         if 'private_key' not in request.data:
-            request.data['private_key'] = request.user.username + 'pk'
+            key = Key()
+            request.data['private_key'] = key.to_wif()
+        else:
+            try:
+                key = Key(request.data['private_key'])
+            except ValueError:
+                return Response("Private key provided is not valid", status=status.HTTP_400_BAD_REQUEST)
+
+        
         if Wallet.objects.filter(private_key=request.data["private_key"]).exists():
             return Response("This private key is already registered", status=status.HTTP_400_BAD_REQUEST)
-        request.data['wallet_address'] = request.user.username + 'wa'
+        
+        request.data['wallet_address'] = key.address
         request.data['owner'] = request.user.id
         serializer = FullWalletSerializer(data=request.data)
         if serializer.is_valid():
@@ -91,7 +104,10 @@ class SubAccountListView(APIView):
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.filter(owner=request.user)
         serializer = SubAccountSerializer(subaccounts, many=True)
-        return Response(serializer.data)
+        modified_data = serializer.data
+        for ordered_dict in modified_data:  # return usernames instead of ids
+            ordered_dict["owner"] = str(request.user)
+        return Response(modified_data)
 
     def post(self, request, format=None):
         request.data['owner'] = request.user.id
@@ -99,7 +115,7 @@ class SubAccountListView(APIView):
         if serializer.is_valid():
             serializer.save()
             modified_data = serializer.data
-            modified_data['owner'] = str(request.user)
+            modified_data['owner'] = str(request.user)  # return username instead of id
             return Response(modified_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
