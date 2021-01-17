@@ -63,7 +63,10 @@ class UserDetailView(APIView):
 
 class WalletListView(APIView):
     def get(self, request, format=None):
-        wallet = Wallet.objects.get(owner=request.user)
+        try:
+            wallet = Wallet.objects.get(owner=request.user)
+        except Wallet.DoesNotExist:
+            raise Http404
         wallet = WalletSerializer(wallet)
         return Response(wallet.data)
 
