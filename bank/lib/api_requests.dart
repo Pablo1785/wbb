@@ -251,4 +251,44 @@ class Requestor {
       throw Exception('Błąd przy aktualizacji konta.\n\n${response.body}');
     }
   }
+
+  Future<Wallet> createWallet([String privateKey]) async {
+    Map<String, dynamic> body = {
+      privateKey == null ? "" : "private_key": privateKey == null ? "" : privateKey,
+    };
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/api/wallet/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(body),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return Wallet.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy tworzeniu portfela.\n\n${response.body}');
+    }
+  }
+
+  Future<Wallet> fetchWallet() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/wallet/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return Wallet.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy pobieraniu portfela.\n\n${response.body}');
+    }
+  }
 }

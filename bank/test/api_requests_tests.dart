@@ -59,4 +59,18 @@ void main() {
     expect(up.username == "uname", true);
     expect(up.email == "new@mail.com", true);
   });
+
+  test("Should fetch and return Wallet", () async {
+    var requestor = Requestor();
+    TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    Wallet w = await requestor.fetchWallet();
+    expect(w.walletAddress.isNotEmpty, true);
+  });
+
+  test("Should create and return Wallet", () async {
+    var requestor = Requestor();
+    TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
+    Wallet w = await requestor.createWallet("testprivatekey");
+    expect(w.walletAddress.isNotEmpty, true);
+  });
 }

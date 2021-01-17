@@ -230,3 +230,24 @@ class TokenData {
         "access": access == null ? null : access,
     };
 }
+
+
+class Wallet {
+    Wallet({
+        this.walletAddress,
+    });
+
+    String walletAddress;
+
+    factory Wallet.fromRawJson(String str) => Wallet.fromJson(json.decode(str));
+
+    String toRawJson() => json.encode(toJson());
+
+    factory Wallet.fromJson(Map<String, dynamic> json) => Wallet(
+        walletAddress: json["wallet_address"] == null ? null : json["wallet_address"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "wallet_address": walletAddress == null ? null : walletAddress,
+    };
+}
