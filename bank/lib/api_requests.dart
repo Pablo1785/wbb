@@ -254,9 +254,9 @@ class Requestor {
   }
 
   Future<Wallet> createWallet([String privateKey]) async {
-    Map<String, dynamic> body = {
-      privateKey == null ? "" : "private_key": privateKey == null ? "" : privateKey,
-    };
+    Map<String, dynamic> body = new Map();
+    if (privateKey != null) body["private_key"] = privateKey;
+    
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/wallet/',
       headers: <String, String>{
