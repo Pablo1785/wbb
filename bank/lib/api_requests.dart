@@ -43,29 +43,6 @@ class Requestor {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');
     }
   }
-
-  Future<UserProfile> createUser(
-    String username, String password, String email) async {
-  final http.Response response = await http.post(
-    '${this.serverAddress}:${this.serverPort}/auth/users/',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'username': username,
-      'password': password,
-      'email': email,
-    }),
-  );
-
-  this.lastResponse = response;
-  
-  if (response.statusCode == 201) {
-    return UserProfile.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
-  }
-}
   
   Future<bool> isValidAccessToken() async {
     final http.Response response = await http.post(
