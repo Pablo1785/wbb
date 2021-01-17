@@ -23,7 +23,6 @@ class SubAccount(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
-    currency = models.CharField(max_length=3)
 
     def save(self, *args, **kwargs):
         """ Add Slug creating/checking to save method. """
@@ -70,7 +69,6 @@ class Transaction(models.Model):
 
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
-    currency = models.CharField(max_length=3)
     send_time = models.DateTimeField(auto_now=True)
     confirmation_time = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=256)
@@ -82,6 +80,7 @@ class Transaction(models.Model):
         If Transaction is not BTC, then we need to create a unique identifier for it.
         If Transaction is BTC, then we identify it by its tx hash.
         """
+        ###############
         if self.currency.lower() != 'btc':
             trans_slug_save(self, allowed_chars="abcdefghijklmnoqprstuvwxyz0123456789")
         else:
