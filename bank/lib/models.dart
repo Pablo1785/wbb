@@ -252,11 +252,6 @@ class Wallet {
     };
 }
 
-// To parse this JSON data, do
-//
-//     final btcExchange = btcExchangeFromJson(jsonString);
-
-import 'dart:convert';
 
 class BtcExchange {
     BtcExchange({
