@@ -23,7 +23,7 @@ class FullWalletSerializer(serializers.ModelSerializer):
 class SubAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubAccount
-        fields = ('owner', 'balance', 'currency',
+        fields = ('owner', 'balance',
                   'sub_address')
 
 
@@ -54,10 +54,6 @@ class TransactionSerializer(serializers.ModelSerializer):
         if hasattr(self.source, "bankdeposit") and self.source.bankdeposit is not None:
             raise serializers.ValidationError("Your account is locked under deposit.")
         
-        # Ensure both accounts use the same currency and Transaction has the correct currency
-        if not (source_acc.currency == target_acc.currency):
-            raise serializers.ValidationError("Your account uses a different currency than the receiving account.")
-
         # Ensure sender has enough money
         if float(data["amount"]) + 0 if "fee" not in data.keys() else float(data["fee"]) > source_acc.balance:
             raise serializers.ValidationError("Not enough funds for the transaction.")
@@ -69,7 +65,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ('source',
-                  'target', 'amount', 'currency',  'send_time', 'confirmation_time', 'title', 'fee', 'transaction_hash')
+                  'target', 'amount',  'send_time', 'confirmation_time', 'title', 'fee', 'transaction_hash')
 
 
 class LoginRecordSerializer(serializers.ModelSerializer):
