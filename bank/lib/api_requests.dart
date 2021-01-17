@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bank/models.dart';
 
-const String server_port = '8000';
+const String server_port = '8080';
 const String server_address = 'http://127.0.0.1';
 
 //Sending data to server and getting response:
@@ -19,7 +19,7 @@ class Requestor {
   Requestor(
       {this.tokenData,
       this.serverAddress = 'http://127.0.0.1',
-      this.serverPort = '8000'});
+      this.serverPort = '8080'});
 
   Future<TokenData> login(String username, String password) async {
     final http.Response response = await http.post(
@@ -117,7 +117,9 @@ class Requestor {
     this.lastResponse = response;
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      return List<SubAccount>.from(json.decode(response.body).map((model) => SubAccount.fromJson(model)));
+      return List<SubAccount>.from(json
+          .decode(response.body)
+          .map((model) => SubAccount.fromJson(model)));
     } else {
       throw Exception('Błąd przy pobieraniu rachunków.\n\n${response.body}');
     }
@@ -135,14 +137,17 @@ class Requestor {
     this.lastResponse = response;
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      return List<LoginRecord>.from(json.decode(response.body).map((model) => LoginRecord.fromJson(model)));
+      return List<LoginRecord>.from(json
+          .decode(response.body)
+          .map((model) => LoginRecord.fromJson(model)));
     } else {
       throw Exception(
           'Błąd przy pobieraniu historii logowania.\n\n${response.body}');
     }
   }
 
-  Future<Transaction> createTransaction(int source, int target, String amount, String currency, String title, double fee) async {
+  Future<Transaction> createTransaction(
+      int source, int target, String amount, String title, double fee) async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/trans/',
       headers: <String, String>{
@@ -153,12 +158,12 @@ class Requestor {
         'source': source,
         'target': target,
         'amount': amount,
-        'currency': currency,
+        // 'currency': currency,
         'title': title,
         'fee': fee,
       }),
     );
-    
+
     this.lastResponse = response;
 
     if (response.statusCode == 201) {
@@ -166,8 +171,8 @@ class Requestor {
     } else {
       throw Exception('Błąd przy tworzeniu transakcji.\n\n${response.body}');
     }
-  }  
-  
+  }
+
   Future<List<Transaction>> fetchTransactions() async {
     final http.Response response = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/trans/',
@@ -180,25 +185,28 @@ class Requestor {
     this.lastResponse = response;
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      return List<Transaction>.from(json.decode(response.body).map((model) => Transaction.fromJson(model)));
+      return List<Transaction>.from(json
+          .decode(response.body)
+          .map((model) => Transaction.fromJson(model)));
     } else {
-      throw Exception('Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
+      throw Exception(
+          'Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
     }
   }
 
   Future<UserProfile> createUser(
-    String username, String password, String email) async {
-  final http.Response response = await http.post(
-    '${this.serverAddress}:${this.serverPort}/auth/users/',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8'
-    },
-    body: jsonEncode(<String, String>{
-      'username': username,
-      'password': password,
-      'email': email,
-    }),
-  );
+      String username, String password, String email) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/users/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+        'email': email,
+      }),
+    );
 
     this.lastResponse = response;
 
@@ -227,12 +235,13 @@ class Requestor {
     }
   }
 
-  Future<UserProfile> updateUser(String username, {String email, String firstname, String lastname}) async {
+  Future<UserProfile> updateUser(String username,
+      {String email, String firstname, String lastname}) async {
     Map<String, dynamic> body = {
       username == null ? "" : "username": username == null ? "" : username,
-      email == null ? "" :"email": email == null ? "" : email,
-      firstname == null ? "" : "first_name" : firstname == null ? "" : firstname,
-      lastname == null ? "" :"last_name": lastname == null ? "" : lastname,
+      email == null ? "" : "email": email == null ? "" : email,
+      firstname == null ? "" : "first_name": firstname == null ? "" : firstname,
+      lastname == null ? "" : "last_name": lastname == null ? "" : lastname,
     };
     final http.Response response = await http.put(
       '${this.serverAddress}:${this.serverPort}/api/user/$username/',
@@ -254,7 +263,8 @@ class Requestor {
 
   Future<Wallet> createWallet([String privateKey]) async {
     Map<String, dynamic> body = {
-      privateKey == null ? "" : "private_key": privateKey == null ? "" : privateKey,
+      privateKey == null ? "" : "private_key":
+          privateKey == null ? "" : privateKey,
     };
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/wallet/',
