@@ -2,11 +2,18 @@ import 'package:bank/models.dart';
 import 'package:test/test.dart';
 import 'package:bank/api_requests.dart';
 
-String username = "test1";
-String password = "test1";
+String username = "UserTest1";
+String password = "wbb12345";
 
 
 void main() {
+  test("Should create and return UserProfile", () async {
+    var requestor = Requestor();
+    UserProfile up = await requestor.createUser(username, password, "uname@c.com");
+    expect(up.username == username, true);
+    TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+  });
+
   test("Should return TokenData object", () async {
     var requestor = Requestor();
     TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
@@ -42,14 +49,7 @@ void main() {
     var requestor = Requestor();
     TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
     UserProfile up = await requestor.fetchUser(username);
-    expect(up.username == "test1", true);
-  });
-
-  test("Should create and return UserProfile", () async {
-    var requestor = Requestor();
-    UserProfile up = await requestor.createUser("uname", "unameqazxswedc", "uname@c.com");
-    expect(up.username == "uname", true);
-    TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
+    expect(up.username == username, true);
   });
 
   test("Should update and return UserProfile", () async {
@@ -60,17 +60,25 @@ void main() {
     expect(up.email == "new@mail.com", true);
   });
 
-  test("Should fetch and return Wallet", () async {
-    var requestor = Requestor();
-    TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
-    Wallet w = await requestor.fetchWallet();
-    expect(w.walletAddress.isNotEmpty, true);
-  });
+  // test("Should fetch and return Wallet", () async {
+  //   var requestor = Requestor();
+  //   TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+  //   Wallet w = await requestor.fetchWallet();
+  //   expect(w.walletAddress.isNotEmpty, true);
+  // });
 
-  test("Should create and return Wallet", () async {
+  // test("Should create and return Wallet", () async {
+  //   var requestor = Requestor();
+  //   TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
+  //   Wallet w = await requestor.createWallet("testprivatekey");
+  //   expect(w.walletAddress.isNotEmpty, true);
+  // });
+
+  test("Should return BTC exchange rate in given currency", () async {
     var requestor = Requestor();
-    TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
-    Wallet w = await requestor.createWallet("testprivatekey");
-    expect(w.walletAddress.isNotEmpty, true);
+    var be = await requestor.fetchBtcExchangePrice("EUR");
+
+    expect(requestor.lastResponse.statusCode, 200);
+    expect(be is BtcExchange, true);
   });
 }

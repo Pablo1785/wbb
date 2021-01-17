@@ -263,10 +263,16 @@ class Requestor {
   }
 
   Future<Wallet> createWallet([String privateKey]) async {
+<<<<<<< HEAD
     Map<String, dynamic> body = {
       privateKey == null ? "" : "private_key":
           privateKey == null ? "" : privateKey,
     };
+=======
+    Map<String, dynamic> body = new Map();
+    if (privateKey != null) body["private_key"] = privateKey;
+    
+>>>>>>> f8e32d8ca8745c789d7ca033d2c745169872317a
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/wallet/',
       headers: <String, String>{
@@ -300,6 +306,23 @@ class Requestor {
       return Wallet.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Błąd przy pobieraniu portfela.\n\n${response.body}');
+    }
+  }
+
+  Future<BtcExchange> fetchBtcExchangePrice(String currency) async {
+    final http.Response response = await http.get(
+      'https://api.blockchain.com/v3/exchange/tickers/BTC-' + currency,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return BtcExchange.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Błąd przy pobieraniu danych walut.\n\n${response.body}');
     }
   }
 }

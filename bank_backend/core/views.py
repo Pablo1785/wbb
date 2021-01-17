@@ -175,7 +175,9 @@ class BankDepositListView(APIView):
         serializer = BankDepositSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            modified_data = serializer.data
+            modified_data["account"] = str(SubAccount.objects.get(id=serializer.data["account"]).sub_address)
+            return Response(modified_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, transaction_hash, format=None):
@@ -227,13 +229,8 @@ class TransactionListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        try:
-            request.data["source"] = SubAccount.objects.get(sub_address=request.data["source"]).id
-            request.data["target"] = SubAccount.objects.get(sub_address=request.data["target"]).id
-        except KeyError:
-            return Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
-        except SubAccount.DoesNotExist:
-            return Response("Account does not exist", status=status.HTTP_404_NOT_FOUND)
+        if not SubAccount.objects.filter(sub_address=request.data["source"], owner=request.user).exists():
+            return Response("Source account is not owned by current user", status=status.HTTP_403_FORBIDDEN)
 
         serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
