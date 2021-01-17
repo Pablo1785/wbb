@@ -182,15 +182,9 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
 
     for (final subaccounts in _subaccountss)
       _subaccountssStrings.add([
-        subaccounts.title,
-        subaccounts.amount.toString(),
-        subaccounts.id.toString(),
-        subaccounts.interest_rate.toString(),
-        subaccounts.account,
-        subaccounts.start_date,
-        subaccounts.subaccounts_period,
-        subaccounts.capitalization_period,
-        subaccounts.last_capitalization
+        subaccounts.subAddress,
+        subaccounts.balance,
+        subaccounts.currency,
       ]);
 
     final imageE = PdfImage.file(
@@ -228,7 +222,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
 
     for (final subaccounts in _subaccountss)
       result +=
-          '\n${subaccounts.title},${subaccounts.amount},${subaccounts.id},${subaccounts.interest_rate},${subaccounts.account},${subaccounts.start_date},${subaccounts.subaccounts_period},${subaccounts.capitalization_period},${subaccounts.last_capitalization}';
+          '\n${subaccounts.subAddress},${subaccounts.balance},${subaccounts.currency}';
 
     return utf8.encode(result);
   }
@@ -269,7 +263,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
   void initState() {
     _subaccountsDataSource = _SubaccountsDataSource(context);
     _names = _subaccountsDataSource.get_names();
-    _sort<String>((d) => d.start_date, _sortColumnIndex, _sortAscending);
+    _sort<String>((d) => d.subAddress, _sortColumnIndex, _sortAscending);
   }
 
   @override
@@ -366,50 +360,17 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
               DataColumn(
                 label: Text(_names[0]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.title, columnIndex, ascending),
+                    _sort<String>((d) => d.subAddress, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[1]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.amount, columnIndex, ascending),
+                    _sort<String>((d) => d.balance, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[2]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.id, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[3]),
-                numeric: true,
-                onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.interest_rate, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[4]),
-                onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.account, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[5]),
-                onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.start_date, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[6]),
-                onSort: (columnIndex, ascending) => _sort<String>(
-                    (d) => d.subaccounts_period, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[7]),
-                onSort: (columnIndex, ascending) => _sort<String>(
-                    (d) => d.capitalization_period, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[8]),
-                onSort: (columnIndex, ascending) => _sort<String>(
-                    (d) => d.last_capitalization, columnIndex, ascending),
+                    _sort<String>((d) => d.currency, columnIndex, ascending),
               ),
             ],
             source: _subaccountsDataSource,
@@ -454,7 +415,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
 
                                   // usunac podkonto
                                   print(
-                                      'removing subaccount: ${_subaccountsDataSource.get_selected()[0].title}');
+                                      'removing subaccount: ${_subaccountsDataSource.get_selected()[0].subAddress}');
 
                                   showPopup2(context);
                                 },
@@ -599,46 +560,35 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
 
 class _Subaccounts {
   _Subaccounts(
-      this.title,
-      this.amount,
-      this.id,
-      this.interest_rate,
-      this.account,
-      this.start_date,
-      this.subaccounts_period,
-      this.capitalization_period,
-      this.last_capitalization);
-  final String title;
-  final double amount;
-  final int id;
-  final double interest_rate;
-  final String account;
-  final String start_date;
-  final String subaccounts_period;
-  final String capitalization_period;
-  final String last_capitalization;
+      this.owner,
+      this.balance,
+      this.currency,
+      this.subAddress,
+	  );
+	final String owner;
+	final String balance;
+	final String currency;
+	final String subAddress;
 
   bool selected = false;
 }
 
 class _SubaccountsDataSource extends DataTableSource {
   _SubaccountsDataSource(this.context) {
-    _subaccountss = <_Subaccounts>[
-      _Subaccounts('Lokata A', 7.14, 0, 2.8, 'Glowne', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-      _Subaccounts('Lokata B', 7.14, 0, 2.8, 'Nowe konto', '2021-12-01',
-          '3 dni', '1 dzien', '2021-14-01'),
-      _Subaccounts('Lokata C', 7.14, 0, 2.8, 'Konto na specjalne okazje',
-          '2021-12-01', '3 dni', '1 dzien', '2021-14-01'),
-      _Subaccounts('Lokata D', 7.14, 0, 2.8, 'Glowne', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-      _Subaccounts('Lokata E', 7.14, 0, 2.8, 'Glowne', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-    ];
+    _subaccountss = [];
+	
+	_getData();
   }
 
   final BuildContext context;
   List<_Subaccounts> _subaccountss;
+  
+    void _getData() async {
+    _subaccountss = List<_Subaccounts>.from(
+        (await requestor.fetchSubaccounts()).map((subaccount) =>
+            _Subaccounts(subaccount.owner, subaccount.balance, subaccount.currency, subaccount.subAddress)));
+    notifyListeners();
+  }
 
   void _sort<T>(
       Comparable<T> Function(_Subaccounts d) getField, bool ascending) {
@@ -663,15 +613,9 @@ class _SubaccountsDataSource extends DataTableSource {
   }
 
   List<String> get_names() => [
-        'Tytuł',
-        'Kwota',
-        'Id',
-        'Oprocentowanie',
-        'Konto',
-        'Początek',
-        'Czas trwania',
-        'Okres kapitalizacji',
-        'Ostatnia kapitalizacja'
+        'Adres',
+        'Saldo',
+        'Waluta',
       ];
 
   int _selectedCount = 0;
@@ -694,22 +638,11 @@ class _SubaccountsDataSource extends DataTableSource {
         }
       },
       cells: [
-        DataCell(Text(subaccounts.title, style: TextStyle(color: text_color))),
-        DataCell(Text(subaccounts.amount.toString(),
+        DataCell(Text(subaccounts.subAddress,
             style: TextStyle(color: text_color))),
-        DataCell(Text(subaccounts.id.toString(),
+        DataCell(Text(subaccounts.balance,
             style: TextStyle(color: text_color))),
-        DataCell(Text(subaccounts.interest_rate.toString(),
-            style: TextStyle(color: text_color))),
-        DataCell(
-            Text(subaccounts.account, style: TextStyle(color: text_color))),
-        DataCell(
-            Text(subaccounts.start_date, style: TextStyle(color: text_color))),
-        DataCell(Text(subaccounts.subaccounts_period,
-            style: TextStyle(color: text_color))),
-        DataCell(Text(subaccounts.capitalization_period,
-            style: TextStyle(color: text_color))),
-        DataCell(Text(subaccounts.last_capitalization,
+        DataCell(Text(subaccounts.currency,
             style: TextStyle(color: text_color))),
       ],
     );
