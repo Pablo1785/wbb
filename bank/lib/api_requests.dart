@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bank/models.dart';
 
-const String server_port = '8080';
+const String server_port = '8000';
 const String server_address = 'http://127.0.0.1';
 
 //Sending data to server and getting response:
@@ -19,8 +19,8 @@ class Requestor {
 
   Requestor(
       {this.tokenData,
-      this.serverAddress = 'http://127.0.0.1',
-      this.serverPort = '8080'});
+      this.serverAddress = server_address,
+      this.serverPort = server_port});
 
   Future<TokenData> login(String username, String password) async {
     final http.Response response = await http.post(
@@ -37,7 +37,7 @@ class Requestor {
     this.lastResponse = response;
 
     if (response.statusCode == 200) {
-      this.tokenData = TokenData.fromJson(jsonDecode(response.body));
+      this.tokenData = TokenData.fromJson(json.decode(response.body));
       return this.tokenData;
     } else {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');

@@ -2,7 +2,7 @@ import 'package:bank/models.dart';
 import 'package:test/test.dart';
 import 'package:bank/api_requests.dart';
 
-String username = "UserTest1";
+String username = "UserTest2";
 String password = "wbb12345";
 
 
@@ -54,9 +54,9 @@ void main() {
 
   test("Should update and return UserProfile", () async {
     var requestor = Requestor();
-    TokenData td = await requestor.login("uname", "unameqazxswedc").catchError((Object error, StackTrace st) => {print(st.toString())});
-    UserProfile up = await requestor.updateUser("uname", email: "new@mail.com");
-    expect(up.username == "uname", true);
+    TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    UserProfile up = await requestor.updateUser(username, email: "new@mail.com");
+    expect(up.username == username, true);
     expect(up.email == "new@mail.com", true);
   });
 
