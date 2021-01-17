@@ -376,14 +376,21 @@ class _Securityevents {
 
 class _SecurityeventsDataSource extends DataTableSource {
   _SecurityeventsDataSource(this.context) {
-    _securityeventss = <_Securityevents>[
-      _Securityevents('Logowanie', '2021-12-01', '8.8.8.8'),
-      _Securityevents('Logowanie', '2021-12-03', '9.9.9.9'),
-    ];
+    _securityeventss = [];
+
+    _getData();
   }
 
   final BuildContext context;
   List<_Securityevents> _securityeventss;
+
+  void _getData() async {
+    _securityeventss = List<_Securityevents>.from(
+        (await requestor.fetchLoginRecords()).map((loginRecord) =>
+            _Securityevents(loginRecord.action,
+                loginRecord.date.toIso8601String(), loginRecord.ipAddress)));
+    notifyListeners();
+  }
 
   void _sort<T>(
       Comparable<T> Function(_Securityevents d) getField, bool ascending) {

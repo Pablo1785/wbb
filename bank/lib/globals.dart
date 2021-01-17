@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'api_requests.dart';
 
 String auth_token = "empty";
+Requestor requestor = new Requestor();
+
 bool light_theme = true;
 
 class Menu extends StatelessWidget {
