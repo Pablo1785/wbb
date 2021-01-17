@@ -1,3 +1,6 @@
 .idea/
 .vscode/
 __pycache__/
+/celerybeat-schedule*
+/logfile
+/core/migrations/*
