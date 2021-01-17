@@ -41,13 +41,16 @@ class TransactionSerializer(serializers.ModelSerializer):
         Make sure transaction is possible.
         data["source"] should be SubAccount object.
         """
-        # Ensure source and target accounts exist
+        # Ensure source account exist
         try:
             source_acc = SubAccount.objects.get(sub_address=data['source'])
         except SubAccount.DoesNotExist:
             raise serializers.ValidationError("Source account does not exist.")
         except KeyError:
             raise serializers.ValidationError("Source account address not provided.")
+
+        if "target" not in data.keys():
+            raise serializers.ValidationError("Target account address not provided.")
 
         # Ensure source is not a BankDeposit
         if hasattr(source_acc, "bankdeposit") and source_acc.bankdeposit is not None:
