@@ -99,20 +99,15 @@ class Transaction(models.Model):
 
         # THE ACTUAL MONEY TRANSFER HAPPENS HERE <===========================================================================
         source_acc.balance -= self.amount + 0 if self.fee is None else self.fee
+        source_acc.save()
         try:
             target_acc.balance += self.amount
+            target_acc.save()
         except UnboundLocalError:
             pass
         # THE ACTUAL MONEY TRANSFER HAPPENED HERE <==========================================================================
 
         super(Transaction, self).save(*args, **kwargs)
-
-"""try:
-            target_acc = data["target"]
-        except SubAccount.DoesNotExist:
-            raise serializers.ValidationError("Account does not exist.")
-        except KeyError:
-            raise serializers.ValidationError("Account address not provided.")"""
 
 def trans_slug_save(obj, slug_len=DEFAULT_SLUG_LENGTH, allowed_chars="0123456789"):
     """ A function to generate a slug_len character slug and see if it has been used and contains naughty words."""
