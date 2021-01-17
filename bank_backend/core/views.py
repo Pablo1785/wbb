@@ -229,15 +229,7 @@ class TransactionListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        try:
-            request.data["source"] = SubAccount.objects.get(sub_address=request.data["source"]).id
-            request.data["target"] = SubAccount.objects.get(sub_address=request.data["target"]).id
-        except KeyError:
-            return Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
-        except SubAccount.DoesNotExist:
-            return Response("Account does not exist", status=status.HTTP_404_NOT_FOUND)
-
-        if not SubAccount.objects.filter(pk=request.data["source"], owner=request.user).exists():
+        if not SubAccount.objects.filter(sub_address=request.data["source"], owner=request.user).exists():
             return Response("Source account is not owned by current user", status=status.HTTP_403_FORBIDDEN)
 
         serializer = TransactionSerializer(data=request.data)

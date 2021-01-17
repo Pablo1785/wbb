@@ -66,8 +66,11 @@ class BankDeposit(models.Model):
 class Transaction(models.Model):
 
     # Having a SubAccount objects you can access its related transactions with SubAccount.(outgoing/incoming)_transactions.all()
-    source = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing_transactions', blank=True, null=True)
-    target = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming_transactions', blank=True, null=True)
+    #source = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing_transactions', blank=True, null=True)
+    #target = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming_transactions', blank=True, null=True)
+    
+    source = models.CharField(max_length=34, blank=True, null=True)
+    target = models.CharField(max_length=34, blank=True, null=True)
 
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
@@ -81,19 +84,35 @@ class Transaction(models.Model):
         if self.source == self.target:
             trans_slug_save(self, allowed_chars="abcdefghijklmnoqprstuvwxyz0123456789")
         else:
-            source_wallet = Wallet.objects.get(owner=self.source.owner)
+            source_acc = SubAccount.objects.get(sub_address=self.source)
+            source_wallet = Wallet.objects.get(owner=source_acc.owner)
             source_key = Key(source_wallet.private_key)
-            target_address = Wallet.objects.get(owner=self.target.owner).wallet_address
+
+            try:
+                target_acc = SubAccount.objects.get(sub_address=self.target)
+                target_address = Wallet.objects.get(owner=target_acc.owner).wallet_address
+            except SubAccount.DoesNotExist:
+                target_address = self.target
+            
             fee = None if self.fee is None else self.fee * 10**8 # fee needs to be in satoshis
             self.transaction_hash = source_key.send([(target_address, self.amount, 'btc')], fee=int(fee))
 
         # THE ACTUAL MONEY TRANSFER HAPPENS HERE <===========================================================================
-        self.source.balance -= self.amount + 0 if self.fee is None else self.fee
-        self.target.balance += self.amount
+        source_acc.balance -= self.amount + 0 if self.fee is None else self.fee
+        try:
+            target_acc.balance += self.amount
+        except UnboundLocalError:
+            pass
         # THE ACTUAL MONEY TRANSFER HAPPENED HERE <==========================================================================
 
         super(Transaction, self).save(*args, **kwargs)
 
+"""try:
+            target_acc = data["target"]
+        except SubAccount.DoesNotExist:
+            raise serializers.ValidationError("Account does not exist.")
+        except KeyError:
+            raise serializers.ValidationError("Account address not provided.")"""
 
 def trans_slug_save(obj, slug_len=DEFAULT_SLUG_LENGTH, allowed_chars="0123456789"):
     """ A function to generate a slug_len character slug and see if it has been used and contains naughty words."""
