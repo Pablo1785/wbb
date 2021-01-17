@@ -7,6 +7,7 @@ const String server_port = '8000';
 const String server_address = 'http://127.0.0.1';
 
 //Sending data to server and getting response:
+
 class Requestor {
   final String serverAddress;
   final String serverPort;
@@ -43,6 +44,29 @@ class Requestor {
     }
   }
 
+  Future<UserProfile> createUser(
+    String username, String password, String email) async {
+  final http.Response response = await http.post(
+    '${this.serverAddress}:${this.serverPort}/auth/users/',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'username': username,
+      'password': password,
+      'email': email,
+    }),
+  );
+
+  this.lastResponse = response;
+  
+  if (response.statusCode == 201) {
+    return UserProfile.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
+  }
+}
+  
   Future<bool> isValidAccessToken() async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/jwt/verify',
