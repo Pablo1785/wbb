@@ -10,6 +10,7 @@ import 'history.dart';
 import 'subaccounts.dart';
 import 'receivers.dart';
 import 'security_events.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(LoggedInApp());
@@ -46,10 +47,45 @@ class LoggedInPage extends StatefulWidget {
   _LoggedInPageState createState() => _LoggedInPageState();
 }
 
+class DataTables
+{
+	List<SubAccount> subAccounts;
+	List<BankDeposit> deposits;
+	List<Transaction> transactions;
+	List<LoginRecord> loginRecords;
+	Map sums = {"subaccounts": 0, 'transactions': 0, 'deposits': 0};
+}
+
+Future<DataTables> getDataTables() async {
+	DataTables d = new DataTables();
+	
+
+	d.subAccounts = await requestor.fetchSubaccounts();
+	for(final subaccount in d.subAccounts)
+		d.sums["subaccounts"] += double.parse(subaccount.balance);
+
+	d.transactions = await requestor.fetchTransactions();
+	for(final transaction in d.transactions)
+	{
+		transaction.amount = transaction.source != d.subAccounts[0].owner ? '${transaction.amount}' : '-${transaction.amount}';
+		d.sums["transactions"] += double.parse(transaction.amount);
+	}
+
+	//d.deposits = await requestor.fetchDeposits();
+	d.deposits = [];
+	for(final deposit in d.deposits)
+		d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);	
+
+	d.loginRecords = await requestor.fetchLoginRecords();
+	return d;
+}
+
 class _LoggedInPageState extends State<LoggedInPage> {
+  
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
+	var futureDataTables = getDataTables();
 
     return Scaffold(
         //extendBodyBehindAppBar: true,
@@ -58,7 +94,14 @@ class _LoggedInPageState extends State<LoggedInPage> {
           child: Menu(),
         ),
         body: Center(
-          child: Container(
+          child: 
+		  
+		  
+		  FutureBuilder<DataTables>(
+		  future: futureDataTables,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {					
+			  return 		  Container(
             //color: Colors.white,
             //height: 520,
             margin: const EdgeInsets.only(top: 50.0),
@@ -76,53 +119,43 @@ class _LoggedInPageState extends State<LoggedInPage> {
                       ),
                     ),
                     Text(
-                      '17.41 BTC',
+                      '${snapshot.data.sums["subaccounts"]} BTC',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.montserrat(
                         fontSize: 30,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
-                          label: Text('Nazwa'),
-                        ),
-                        DataColumn(
-                          label: Text('Numer'),
+                          label: Text('Adres'),
                         ),
                         DataColumn(
                           label: Text('Saldo'),
                         ),
-                      ],
-                      rows: <DataRow>[
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
+                        DataColumn(
+                          label: Text('Waluta'),
                         ),
                       ],
-                    ),
+                      rows: snapshot.data.subAccounts.map((subAccount) => DataRow(
+						cells: [
+						  DataCell(
+							Text(subAccount.subAddress),
+						  ),
+						  DataCell(
+							Text(subAccount.balance),
+						  ),
+						  DataCell(
+							Text(subAccount.currency),
+						  ),
+						]),
+						).toList(),
+                    ))),
                     SizedBox(
                         width: 285,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {Navigator.of(context).pushNamed('/subaccounts');},
                           child: Text('Zobacz więcej',
                               style: TextStyle(color: Colors.black)),
                         ))
@@ -140,53 +173,45 @@ class _LoggedInPageState extends State<LoggedInPage> {
                       ),
                     ),
                     Text(
-                      '18.26 BTC',
+                      '${snapshot.data.sums["transactions"]} BTC',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.montserrat(
                         fontSize: 30,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Nazwa'),
                         ),
                         DataColumn(
-                          label: Text('Data'),
-                        ),
-                        DataColumn(
                           label: Text('Kwota'),
                         ),
+                        DataColumn(
+                          label: Text('Data wysłania'),
+                        ),
+
                       ],
-                      rows: <DataRow>[
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                      ],
-                    ),
+                      rows: snapshot.data.transactions.map((transfer) => DataRow(
+						cells: [
+						  DataCell(
+							Text(transfer.title),
+						  ),
+						  DataCell(
+							Text(transfer.amount),
+						  ),
+						  DataCell(
+							Text(transfer.sendTime.toIso8601String()),
+						  ),
+
+						]),
+						).toList(),
+                    ))),
                     SizedBox(
                         width: 285,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {Navigator.of(context).pushNamed('/transfer');},
                           child: Text('Zobacz więcej',
                               style: TextStyle(color: Colors.black)),
                         ))
@@ -204,53 +229,44 @@ class _LoggedInPageState extends State<LoggedInPage> {
                       ),
                     ),
                     Text(
-                      '16.03 BTC',
+                      '${snapshot.data.sums["deposits"]} BTC',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.montserrat(
                         fontSize: 30,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Nazwa'),
                         ),
                         DataColumn(
-                          label: Text('Do końca'),
+                          label: Text('Od'),
                         ),
                         DataColumn(
-                          label: Text('Kwota'),
+                          label: Text('Czas trwania'),
                         ),
                       ],
-                      rows: <DataRow>[
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                        DataRow(
-                          cells: <DataCell>[
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                            DataCell(Text('Data')),
-                          ],
-                        ),
-                      ],
-                    ),
+                      rows: snapshot.data.deposits.map((deposit) => DataRow(
+						cells: [
+						  DataCell(
+							Text(deposit.title),
+						  ),
+						  DataCell(
+							Text(deposit.startDate.toIso8601String()),
+						  ),
+						  DataCell(
+							Text(deposit.depositPeriod),
+						  ),
+
+						]),
+						).toList(),
+                    ))),
                     SizedBox(
                         width: 285,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {Navigator.of(context).pushNamed('/deposit');},
                           child: Text('Zobacz więcej',
                               style: TextStyle(color: Colors.black)),
                         ))
@@ -269,7 +285,6 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   SelectableText(
-                    //'1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
                     auth_token,
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
@@ -289,7 +304,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   Text(
-                    '10.12.2020 19:17',
+                    snapshot.data.loginRecords.last.date.toIso8601String(),
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
@@ -299,7 +314,17 @@ class _LoggedInPageState extends State<LoggedInPage> {
                 ]),
               )
             ]),
-          ),
+          );
+			} else if (snapshot.hasError) {
+			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			}
+
+			return CircularProgressIndicator();
+		  },
+		),
+		  
+		  
+
         ));
   }
 }
