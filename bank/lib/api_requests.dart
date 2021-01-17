@@ -7,6 +7,7 @@ const String server_port = '8080';
 const String server_address = 'http://127.0.0.1';
 
 //Sending data to server and getting response:
+
 class Requestor {
   final String serverAddress;
   final String serverPort;
@@ -42,7 +43,7 @@ class Requestor {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');
     }
   }
-
+  
   Future<bool> isValidAccessToken() async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/jwt/verify',

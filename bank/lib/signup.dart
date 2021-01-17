@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'signin.dart';
 import 'contact.dart';
 import 'main.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(SignUpApp());
@@ -63,14 +64,14 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  //Future<Album> futureAlbum = createAlbum("uzytkownik","haslouzytkownika","uzytkownik@email.pl");
 
   @override
   Widget build(BuildContext context) {
-    Future<Album> futureAlbum = ModalRoute.of(context).settings.arguments;
+    Future<UserProfile> futureUser = ModalRoute.of(context).settings.arguments;
 
     return Scaffold(
       body: Center(
+<<<<<<< HEAD
         child: FutureBuilder<Album>(
           future: futureAlbum,
           builder: (context, snapshot) {
@@ -94,6 +95,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             return CircularProgressIndicator();
           },
         ),
+=======
+        child: 		
+		FutureBuilder<UserProfile>(
+                  future: futureUser,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+						Timer(const Duration(seconds: 5), () {
+						Navigator.of(context).pushNamed('/signin');});
+							
+                      return Text("Założono konto użytkownika: ${snapshot.data.username}", style: Theme.of(context).textTheme.headline2);
+                    } else if (snapshot.hasError) {
+						Timer(const Duration(seconds: 5), () {
+						Navigator.of(context).pushNamed('/');});
+						
+                      return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+                    }
+
+                    return CircularProgressIndicator();
+                  },
+                ),
+>>>>>>> 0f922588dff2e196d6cffb76183222d4b2763d46
       ),
     );
   }
@@ -131,8 +153,7 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   void _showWelcomeScreen(String username, String password, String email) {
-    Future<Album> futureAlbum = createAlbum(username, password, email);
-    Navigator.of(context).pushNamed('/welcome', arguments: futureAlbum);
+    Navigator.of(context).pushNamed('/welcome', arguments: requestor.createUser(username,password,email));
   }
 
   @override
@@ -255,6 +276,7 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
     );
   }
 }
+<<<<<<< HEAD
 
 //Sending data to server and getting response:
 Future<Album> createAlbum(
@@ -293,3 +315,5 @@ class Album {
     );
   }
 }
+=======
+>>>>>>> 0f922588dff2e196d6cffb76183222d4b2763d46
