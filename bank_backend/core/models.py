@@ -5,6 +5,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
 from datetime import timedelta
+# we are using testnet, for mainnet replace with 'from bit import Key'
+from bit import PrivateKeyTestnet as Key
 
 DEFAULT_SLUG_LENGTH = 15
 
@@ -23,7 +25,6 @@ class SubAccount(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     balance = models.DecimalField(max_digits=22, decimal_places=9, blank=True, default=0)
-    currency = models.CharField(max_length=3)
 
     def save(self, *args, **kwargs):
         """ Add Slug creating/checking to save method. """
@@ -70,23 +71,21 @@ class Transaction(models.Model):
 
     amount = models.DecimalField(max_digits=22, decimal_places=9)
 
-    currency = models.CharField(max_length=3)
     send_time = models.DateTimeField(auto_now=True)
     confirmation_time = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=256)
     fee = models.DecimalField(max_digits=22, decimal_places=15, blank=True, null=True)  # Nullable, miner/bank fee for the transaction
-    transaction_hash = models.CharField(max_length=256, blank=True, null=True)  # Nullable, blockchain ID of the transaction
+    transaction_hash = models.CharField(max_length=64, blank=True, null=True)  # Nullable, blockchain ID of the transaction
 
     def save(self, *args, **kwargs):
-        """
-        If Transaction is not BTC, then we need to create a unique identifier for it.
-        If Transaction is BTC, then we identify it by its tx hash.
-        """
-        if self.currency.lower() != 'btc':
+        if self.source == self.target:
             trans_slug_save(self, allowed_chars="abcdefghijklmnoqprstuvwxyz0123456789")
         else:
-            # TODO: Get actual tx hash
-            trans_slug_save(self, allowed_chars="bitcoinsuperwaluta")
+            source_wallet = Wallet.objects.get(owner=self.source.owner)
+            source_key = Key(source_wallet.private_key)
+            target_address = Wallet.objects.get(owner=self.target.owner).wallet_address
+            fee = None if self.fee is None else self.fee * 10**8 # fee needs to be in satoshis
+            self.transaction_hash = source_key.send([(target_address, self.amount, 'btc')], fee=int(fee))
 
         # THE ACTUAL MONEY TRANSFER HAPPENS HERE <===========================================================================
         self.source.balance -= self.amount + 0 if self.fee is None else self.fee
