@@ -224,7 +224,7 @@ class TransactionListView(APIView):
 
     def get(self, request, format=None):
         user = request.user
-        transactions = Transaction.objects.filter(Q(source__owner=user) | Q(target__owner=user))
+        transactions = Transaction.objects.filter(Q(source_id__owner=user) | Q(target_id__owner=user))
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data)
 
@@ -243,6 +243,27 @@ class TransactionListView(APIView):
         transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class TransactionOutgoingListView(APIView):
+    """
+    List all outgoing transactions of logged in User.
+    """
+
+    def get(self, request, format=None):
+        user = request.user
+        transactions = Transaction.objects.filter(source_id__owner=user)
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
+
+class TransactionIncomingListView(APIView):
+    """
+    List all incoming transactions of logged in User.
+    """
+
+    def get(self, request, format=None):
+        user = request.user
+        transactions = Transaction.objects.filter(target_id__owner=user)
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
 
 class TransactionDetailView(APIView):
     """

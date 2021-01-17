@@ -66,8 +66,8 @@ class BankDeposit(models.Model):
 class Transaction(models.Model):
 
     # Having a SubAccount objects you can access its related transactions with SubAccount.(outgoing/incoming)_transactions.all()
-    #source = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing_transactions', blank=True, null=True)
-    #target = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming_transactions', blank=True, null=True)
+    source_id = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='outgoing_transactions', blank=True, null=True)
+    target_id = models.ForeignKey(SubAccount, on_delete=models.PROTECT, related_name='incoming_transactions', blank=True, null=True)
     
     source = models.CharField(max_length=34, blank=True, null=True)
     target = models.CharField(max_length=34, blank=True, null=True)
@@ -107,6 +107,11 @@ class Transaction(models.Model):
             pass
         # THE ACTUAL MONEY TRANSFER HAPPENED HERE <==========================================================================
 
+        self.source_id = source_acc
+        try:
+            self.target_id = target_acc
+        except UnboundLocalError:
+            pass
         super(Transaction, self).save(*args, **kwargs)
 
 def trans_slug_save(obj, slug_len=DEFAULT_SLUG_LENGTH, allowed_chars="0123456789"):
