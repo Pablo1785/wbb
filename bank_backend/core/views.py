@@ -224,18 +224,13 @@ class TransactionListView(APIView):
 
     def get(self, request, format=None):
         user = request.user
-        transactions = Transaction.objects.filter(Q(source__owner=user) | Q(target__owner=user))
+        transactions = Transaction.objects.filter(Q(source_id__owner=user) | Q(target_id__owner=user))
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        try:
-            request.data["source"] = SubAccount.objects.get(sub_address=request.data["source"]).id
-            request.data["target"] = SubAccount.objects.get(sub_address=request.data["target"]).id
-        except KeyError:
-            return Response("Missing source and/or target field", status=status.HTTP_400_BAD_REQUEST)
-        except SubAccount.DoesNotExist:
-            return Response("Account does not exist", status=status.HTTP_404_NOT_FOUND)
+        if not SubAccount.objects.filter(sub_address=request.data["source"], owner=request.user).exists():
+            return Response("Source account is not owned by current user", status=status.HTTP_403_FORBIDDEN)
 
         serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
@@ -248,6 +243,27 @@ class TransactionListView(APIView):
         transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class TransactionOutgoingListView(APIView):
+    """
+    List all outgoing transactions of logged in User.
+    """
+
+    def get(self, request, format=None):
+        user = request.user
+        transactions = Transaction.objects.filter(source_id__owner=user)
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
+
+class TransactionIncomingListView(APIView):
+    """
+    List all incoming transactions of logged in User.
+    """
+
+    def get(self, request, format=None):
+        user = request.user
+        transactions = Transaction.objects.filter(target_id__owner=user)
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
 
 class TransactionDetailView(APIView):
     """

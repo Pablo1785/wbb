@@ -17,15 +17,15 @@ class SignUpApp extends StatelessWidget {
       title: 'Wirtualny Bank Bitcoinów- zarejestruj się',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-		brightness: light_theme ? Brightness.light : Brightness.dark,
-        ),
+        brightness: light_theme ? Brightness.light : Brightness.dark,
+      ),
       routes: {
         '/': (context) => SignUpScreen(),
         '/welcome': (context) => WelcomeScreen(),
-		'/signin': (context) => SignInApp(),
-		'/signup': (context) => SignUpApp(),
-		'/main': (context) => MainApp(),
-		'/contact': (context) => ContactApp(),
+        '/signin': (context) => SignInApp(),
+        '/signup': (context) => SignUpApp(),
+        '/main': (context) => MainApp(),
+        '/contact': (context) => ContactApp(),
       },
     );
   }
@@ -34,14 +34,14 @@ class SignUpApp extends StatelessWidget {
 class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-	  var screenSize = MediaQuery.of(context).size;
-	  
+    var screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Colors.black38,
-	  appBar: PreferredSize(
-          preferredSize: Size(screenSize.width, 1000),
-          child: MenuNotLogged(),
-        ),
+      appBar: PreferredSize(
+        preferredSize: Size(screenSize.width, 1000),
+        child: MenuNotLogged(),
+      ),
       body: Center(
         child: SizedBox(
           width: 400,
@@ -71,6 +71,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     return Scaffold(
       body: Center(
+<<<<<<< HEAD
+        child: FutureBuilder<Album>(
+          future: futureAlbum,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Timer(const Duration(seconds: 5), () {
+                Navigator.of(context).pushNamed('/signin');
+              });
+
+              return Text(
+                  "Założono konto użytkownika: ${snapshot.data.username}",
+                  style: Theme.of(context).textTheme.headline2);
+            } else if (snapshot.hasError) {
+              Timer(const Duration(seconds: 5), () {
+                Navigator.of(context).pushNamed('/');
+              });
+
+              return Text("${snapshot.error}",
+                  style: Theme.of(context).textTheme.headline2);
+            }
+
+            return CircularProgressIndicator();
+          },
+        ),
+=======
         child: 		
 		FutureBuilder<UserProfile>(
                   future: futureUser,
@@ -90,6 +115,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     return CircularProgressIndicator();
                   },
                 ),
+>>>>>>> 0f922588dff2e196d6cffb76183222d4b2763d46
       ),
     );
   }
@@ -250,3 +276,44 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
     );
   }
 }
+<<<<<<< HEAD
+
+//Sending data to server and getting response:
+Future<Album> createAlbum(
+    String username, String password, String email) async {
+  final http.Response response = await http.post(
+    'http://127.0.0.1:8080/auth/users/',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'username': username,
+      'password': password,
+      'email': email,
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    return Album.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Błąd przy tworzeniu konta.\n\n${response.body}');
+  }
+}
+
+class Album {
+  final int id;
+  final String username;
+  final String email;
+
+  Album({this.id, this.username, this.email});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
+      id: json['id'],
+      username: json['username'],
+      email: json['email'],
+    );
+  }
+}
+=======
+>>>>>>> 0f922588dff2e196d6cffb76183222d4b2763d46

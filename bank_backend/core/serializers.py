@@ -39,19 +39,18 @@ class TransactionSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """
         Make sure transaction is possible.
-        data["source"] and data["target"] should be SubAccount objects.
+        data["source"] should be SubAccount object.
         """
         # Ensure source and target accounts exist
         try:
-            source_acc = data["source"]
-            target_acc = data["target"]
+            source_acc = SubAccount.objects.get(sub_address=data['source'])
         except SubAccount.DoesNotExist:
-            raise serializers.ValidationError("Account does not exist.")
+            raise serializers.ValidationError("Source account does not exist.")
         except KeyError:
-            raise serializers.ValidationError("Account address not provided.")
+            raise serializers.ValidationError("Source account address not provided.")
 
         # Ensure source is not a BankDeposit
-        if hasattr(self.source, "bankdeposit") and self.source.bankdeposit is not None:
+        if hasattr(source_acc, "bankdeposit") and source_acc.bankdeposit is not None:
             raise serializers.ValidationError("Your account is locked under deposit.")
         
         # Ensure sender has enough money
