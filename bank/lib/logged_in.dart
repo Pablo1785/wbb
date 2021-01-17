@@ -211,7 +211,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     SizedBox(
                         width: 285,
                         child: OutlinedButton(
-                          onPressed: () {Navigator.of(context).pushNamed('/transfer');},
+                          onPressed: () {Navigator.of(context).pushNamed('/history');},
                           child: Text('Zobacz więcej',
                               style: TextStyle(color: Colors.black)),
                         ))
@@ -266,7 +266,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     SizedBox(
                         width: 285,
                         child: OutlinedButton(
-                          onPressed: () {Navigator.of(context).pushNamed('/deposit');},
+                          onPressed: () {Navigator.of(context).pushNamed('/history');},
                           child: Text('Zobacz więcej',
                               style: TextStyle(color: Colors.black)),
                         ))
