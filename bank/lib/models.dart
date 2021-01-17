@@ -251,3 +251,54 @@ class Wallet {
         "wallet_address": walletAddress == null ? null : walletAddress,
     };
 }
+
+// To parse this JSON data, do
+//
+//     final btcExchange = btcExchangeFromJson(jsonString);
+
+import 'dart:convert';
+
+class BtcExchange {
+    BtcExchange({
+        this.symbol,
+        this.price24H,
+        this.volume24H,
+        this.lastTradePrice,
+    });
+
+    String symbol;
+    double price24H;
+    double volume24H;
+    double lastTradePrice;
+
+    BtcExchange copyWith({
+        String symbol,
+        double price24H,
+        double volume24H,
+        double lastTradePrice,
+    }) => 
+        BtcExchange(
+            symbol: symbol ?? this.symbol,
+            price24H: price24H ?? this.price24H,
+            volume24H: volume24H ?? this.volume24H,
+            lastTradePrice: lastTradePrice ?? this.lastTradePrice,
+        );
+
+    factory BtcExchange.fromRawJson(String str) => BtcExchange.fromJson(json.decode(str));
+
+    String toRawJson() => json.encode(toJson());
+
+    factory BtcExchange.fromJson(Map<String, dynamic> json) => BtcExchange(
+        symbol: json["symbol"] == null ? null : json["symbol"],
+        price24H: json["price_24h"] == null ? null : json["price_24h"].toDouble(),
+        volume24H: json["volume_24h"] == null ? null : json["volume_24h"].toDouble(),
+        lastTradePrice: json["last_trade_price"] == null ? null : json["last_trade_price"].toDouble(),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "symbol": symbol == null ? null : symbol,
+        "price_24h": price24H == null ? null : price24H,
+        "volume_24h": volume24H == null ? null : volume24H,
+        "last_trade_price": lastTradePrice == null ? null : lastTradePrice,
+    };
+}

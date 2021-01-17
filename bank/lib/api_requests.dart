@@ -292,4 +292,21 @@ class Requestor {
       throw Exception('Błąd przy pobieraniu portfela.\n\n${response.body}');
     }
   }
+
+  Future<BtcExchange> fetchBtcExchangePrice(String currency) async {
+    final http.Response response = await http.get(
+      'https://api.blockchain.com/v3/exchange/tickers/BTC-' + currency,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return BtcExchange.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Błąd przy pobieraniu danych walut.\n\n${response.body}');
+    }
+  }
 }

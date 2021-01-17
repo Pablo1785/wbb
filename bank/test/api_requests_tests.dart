@@ -73,4 +73,13 @@ void main() {
     Wallet w = await requestor.createWallet("testprivatekey");
     expect(w.walletAddress.isNotEmpty, true);
   });
+
+  test("Should return BTC exchange rate in given currency", () async {
+    var requestor = Requestor();
+    var be = await requestor.fetchBtcExchangePrice("EUR");
+
+    expect(requestor.lastResponse.statusCode, 200);
+    expect(be is BtcExchange, true);
+    print(requestor.lastResponse.body);
+  });
 }
