@@ -237,6 +237,9 @@ class TransactionListView(APIView):
         except SubAccount.DoesNotExist:
             return Response("Account does not exist", status=status.HTTP_404_NOT_FOUND)
 
+        if not SubAccount.objects.filter(pk=request.data["source"], owner=request.user).exists():
+            return Response("Source account is not owned by current user", status=status.HTTP_403_FORBIDDEN)
+
         serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
