@@ -184,14 +184,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BEAT_SCHEDULE = {
-    'task-number-one': {
-        'task': 'core.tasks.task_number_one',
-        'schedule': timedelta(seconds=15),
-        'args': ()
-    },
-    'task-number-two': {
-        'task': 'core.tasks.task_number_two',
-        'schedule': timedelta(seconds=10),
-        'args': ()
+    'check-tx-confirmed': {
+        'task': 'core.tasks.check_transaction_confirmed',
     }
 }
