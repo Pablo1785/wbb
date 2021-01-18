@@ -12,6 +12,7 @@ import 'contact.dart';
 import 'subaccounts.dart';
 import 'receivers.dart';
 import 'security_events.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(DepositApp());
@@ -73,25 +74,26 @@ class Deposit {
   static const String TimeStamp = 'start_date';
   static const String Id = 'id';
 
-  var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
+  var account_names;
+  var result;
   int choice = 1;
 
   var data = new Map();
 
   Map D1 = {
-    "interest_rate": '3,2%',
+    "interest_rate": '0.10',
     "deposit_period": '3 dni',
     "capitalization_period": '1 dzień',
   };
 
   Map D2 = {
-    "interest_rate": '3,8%',
+    "interest_rate": '0.12',
     "deposit_period": '6 dni',
     "capitalization_period": '1 dzień',
   };
 
   Map D3 = {
-    "interest_rate": '4,2%',
+    "interest_rate": '0.314',
     "deposit_period": '14 dni',
     "capitalization_period": '1 dzień',
   };
@@ -118,6 +120,7 @@ class Deposit {
   send() {
     print('sending deposit data to backend');
     data.forEach((k, v) => print('${k}: ${v}'));
+	result = requestor.createDeposit(data["account"], data["interestRate"], data['title']);
   }
 }
 
@@ -437,9 +440,24 @@ class _FormDepositState extends State<FormDeposit> {
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: SelectableText('Miejsce na rezultat',
-                          style: TextStyle(fontSize: 14)),
-                    ),
+                      child: FutureBuilder<BankDeposit>(
+		  future: _deposit.result,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+				
+					
+			  return Text("Depozyt założony", style: Theme.of(context).textTheme.headline2);
+			} else if (snapshot.hasError) {
+	
+			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			}
+
+			return CircularProgressIndicator();
+		  },
+		),
+					  
+					  
+),
                     Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -480,14 +498,26 @@ class _DropDownListState extends State<DropDownList> {
   });
 
   final Deposit deposit;
+  
+      Future<List<String>> get_account_names() async{
+	List<String> account_names = (await requestor.fetchSubaccounts()).map((subaccount) => subaccount.subAddress).toList();	
+	return account_names;
+	  }
 
   @override
   Widget build(BuildContext context) {
-    dropdownValue = deposit.account_names[0];
+    var dropdownValue;
+	var account_names =  get_account_names();
 
-    return DropdownButtonFormField<String>(
+    return 		FutureBuilder<List<String>>(
+		  future: account_names,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+	dropdownValue = snapshot.data[0];
+	
+			  return DropdownButtonFormField<String>(
       decoration: InputDecoration(
-        labelText: 'Z Konta',
+        labelText: 'Konto',
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: TextStyle(
           fontSize: 24,
@@ -511,13 +541,24 @@ class _DropDownListState extends State<DropDownList> {
         });
       },
       items:
-          deposit.account_names.map<DropdownMenuItem<String>>((String value) {
+          snapshot.data.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
         );
       }).toList(),
     );
+			} else if (snapshot.hasError) {
+				
+			  return Text("${snapshot.error}");
+			}
+
+			return CircularProgressIndicator();
+		  },
+		);
+		
+		
+	
   }
 }
 
@@ -553,7 +594,7 @@ class _DepositButtonsState extends State<DepositButtons> {
                   ? Colors.blue
                   : Theme.of(context).buttonColor,
               onPressed: () {
-                setState(() => deposit.choice = i);
+                setState(() => deposit.data['interestRate']=deposit.deposit_options[i].interest_rate);
               },
               child: Text(
                 '${deposit.deposit_options[i]["interest_rate"]} (czas: ${deposit.deposit_options[i]["deposit_period"]}) (kapitalizacja: ${deposit.deposit_options[i]["capitalization_period"]})',

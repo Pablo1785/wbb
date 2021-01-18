@@ -12,6 +12,7 @@ import 'history.dart';
 import 'subaccounts.dart';
 import 'receivers.dart';
 import 'security_events.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(TransferApp());
@@ -88,8 +89,7 @@ class Transfer {
   send() {
     print('sending transfer data to backend');
     data.forEach((k, v) => print('${k}: ${v}'));
-	result = requestor.createTransaction(data["source"], data["targetAddress"], data["amount"], data["title"], data["fee"]);
-	result = requestor.lastResponse.body;
+	result = requestor.createTransaction(data["account"], data["targetAddress"], data["amount"], data["title"], data["fee"]);
   }
   
 
@@ -543,9 +543,26 @@ class _FormTransferState extends State<FormTransfer> {
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: SelectableText(_transfer.result,
-                          style: TextStyle(fontSize: 14)),
-                    ),
+                      child: 
+					  
+					  		FutureBuilder<Transaction>(
+		  future: _transfer.result,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+				
+					
+			  return Text("Transakcja wykonana", style: Theme.of(context).textTheme.headline2);
+			} else if (snapshot.hasError) {
+	
+			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			}
+
+			return CircularProgressIndicator();
+		  },
+		),
+					  
+					  
+),
                     Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -554,15 +571,7 @@ class _FormTransferState extends State<FormTransfer> {
                               RaisedButton(
                                 child: Text("Zamknij okno"),
                                 onPressed: () {
-                                  Navigator.of(context).pushNamed('/welcome',
-                                      arguments: requestor.createTransaction(
-                                          _transfer.data[Transfer.Account],
-                                          _transfer
-                                              .data[Transfer.TargetAddress],
-                                          txtAmount.text,
-                                          txtTitle.text,
-                                          _transfer.data[Transfer.Fee]));
-                                  // Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
                                 },
                               ),
                             ]))
