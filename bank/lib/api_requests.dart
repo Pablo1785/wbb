@@ -43,6 +43,27 @@ class Requestor {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');
     }
   }
+
+  Future<bool> loginNotify(String username, String password) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/token/login',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return true;
+    } 
+    return false;
+  }
+
   
   Future<bool> isValidAccessToken() async {
     final http.Response response = await http.post(
