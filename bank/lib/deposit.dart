@@ -446,10 +446,10 @@ class _FormDepositState extends State<FormDeposit> {
 			if (snapshot.hasData) {
 				
 					
-			  return Text("Depozyt założony", style: Theme.of(context).textTheme.headline2);
+			  return Text("Lokata założona", style: Theme.of(context).textTheme.headline2);
 			} else if (snapshot.hasError) {
 	
-			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			  return Text("Nie udało się założyć lokaty", style: Theme.of(context).textTheme.headline2);
 			}
 
 			return CircularProgressIndicator();

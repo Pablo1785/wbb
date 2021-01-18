@@ -53,6 +53,7 @@ class DataTables
 	List<BankDeposit> deposits;
 	List<Transaction> transactions;
 	List<LoginRecord> loginRecords;
+  bool noLogins = true;
 	Map sums = {"subaccounts": 0, 'transactions': 0, 'deposits': 0};
 	Wallet wallet;
 }
@@ -79,6 +80,9 @@ Future<DataTables> getDataTables() async {
 	}
 
 	d.wallet = await requestor.fetchWallet();
+
+  // Get last login:
+  d.loginRecords = await requestor.fetchLoginRecords();
 
 
 	//d.loginRecords = await requestor.fetchLoginRecords();
@@ -309,8 +313,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   Text(
-                    //snapshot.data.loginRecords.last.date.toIso8601String(),
-					'none', //endpoint moze zwrocic No previous logins to display
+                    snapshot.data.loginRecords is List<LoginRecord> && snapshot.data.loginRecords.length > 0 ? snapshot.data.loginRecords.last.date.toIso8601String() : "Witaj po raz pierwszy!", //endpoint moze zwrocic No previous logins to display
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 20,

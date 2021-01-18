@@ -21,6 +21,8 @@ import 'security_events.dart';
 import 'contact.dart';
 import 'globals.dart';
 
+import 'models.dart';
+
 void main() => runApp(SubaccountsApp());
 
 class SubaccountsApp extends StatelessWidget {
@@ -99,7 +101,7 @@ class _FormSubaccountsState extends State<FormSubaccounts> {
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 50, 0, 20),
                                   child: Text(
-                                    'Zarządzanie rachunkami',
+                                    'Zarządzanie kontami',
                                     style: TextStyle(
                                       fontSize: 24,
                                       color: Colors.black,
@@ -139,6 +141,8 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
   _SubaccountsDataSource _subaccountsDataSource;
   var _names; // names of columns
   var _newAccName;
+
+  Future<SubAccount> _subaccountCreationResult;
 
   void _sort<T>(
     Comparable<T> Function(_Subaccounts d) getField,
@@ -197,7 +201,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
             marginAll: 2.0 * PdfPageFormat.cm),
         build: (pw.Context context) {
           return pw.Column(children: [
-            pw.Text("Lista rachunków",
+            pw.Text("Lista kont",
                 style:
                     pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
             pw.Image(pw.ImageProxy(imageE)),
@@ -274,7 +278,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
         children: [
           PaginatedDataTable(
             header: Row(children: [
-              Text('Zarządzanie rachunkami'),
+              Text('Zarządzanie kontami'),
               SizedBox(
                 width: 50,
               ),
@@ -306,7 +310,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
                       Scaffold.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'Należy najpierw wybrać rachunki do eksportu.'),
+                              'Należy najpierw wybrać konta do eksportu.'),
                         ),
                       );
                     else {
@@ -326,7 +330,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
                       Scaffold.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'Należy najpierw wybrać lokaty do eksportu.'),
+                              'Należy najpierw wybrać konta do eksportu.'),
                         ),
                       );
                     else {
@@ -448,14 +452,38 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text('Rezultat',
+                      child: Text('Tworzenie konta...',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: SelectableText('Miejsce na rezultat',
-                          style: TextStyle(fontSize: 14)),
+                      child: FutureBuilder(
+                        future: _subaccountCreationResult,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return SelectableText(
+                              "Utworzono konto ${snapshot.data.sub_address}",
+                              textAlign: TextAlign.left,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return SelectableText(
+                              "Wystąpił błąd tworzenia konta",
+                              textAlign: TextAlign.left,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                          }
+                          return LinearProgressIndicator();
+                        },
+                      ),
                     ),
                     Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -494,31 +522,9 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
                     children: <Widget>[
                       Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text('Podaj dane dla nowego konta',
+                        child: Text('Założyć nowe konto?',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Nazwa',
-                            hintText: 'wpisz nazwę lokaty',
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelStyle: TextStyle(
-                              fontSize: 24,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'HelveticaNeue',
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Proszę wprowadzić poprawną nazwę.';
-                            }
-                          },
-                          onSaved: (val) => setState(() => _newAccName = val),
-                        ),
                       ),
                       Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -531,13 +537,11 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
                                   onPressed: () {
                                     if (_formKey.currentState.validate()) {
                                       _formKey.currentState.save();
+                                      
+                                      setState(() {
+                                        _subaccountCreationResult = requestor.createSubaccount();
+                                      });
                                       Navigator.of(context).pop();
-
-                                      // utworzyc podkonto
-                                      print(
-                                          'creating subaccount: ${_newAccName}');
-
-                                      showPopup2(context);
                                     }
                                   },
                                 ),

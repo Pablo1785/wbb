@@ -60,7 +60,7 @@ class Menu extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).pushNamed('/subaccounts');
                     },
-                    child: Text('Rachunki',
+                    child: Text('Konta',
                         style: GoogleFonts.montserrat(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
