@@ -96,6 +96,8 @@ class Transaction(models.Model):
             
             fee = None if self.fee is None else self.fee * 10**8 # fee needs to be in satoshis
             self.transaction_hash = source_key.send([(target_address, self.amount, 'btc')], fee=int(fee))
+            from core.tasks import check_transaction_confirmed
+            check_transaction_confirmed.delay(self.transaction_hash)
 
         self.source_id = source_acc
         try:
