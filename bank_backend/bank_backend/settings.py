@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 from datetime import timedelta
 import os
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,22 +39,29 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core.apps.CoreConfig',
 
     # REST
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+	
+	#CORS
+	'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'bank_backend.urls'
 
@@ -120,12 +129,25 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': False,
+    'SEND_CONFIRMATION_EMAIL': False,
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION': False,
+    'USER_ID_FIELD': 'username'
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=30),
-    'ROTATE_REFRESH_TOKENS': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=3),
 
     'AUTH_HEADER_TYPES': ('JWT',),
 }
@@ -149,3 +171,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Celery configuration
+# https://docs.celeryproject.org/en/v5.0.5/userguide/configuration.html
+
+# Uncomment to use redis as message broker:
+# CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'check-tx-confirmed': {
+        'task': 'core.tasks.check_transaction_confirmed',
+    }
+}

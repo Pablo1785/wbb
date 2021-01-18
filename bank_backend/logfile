@@ -1,0 +1,16 @@
+2020-12-13 12:47:48.526 CET [11136] LOG:  starting PostgreSQL 13.1, compiled by Visual C++ build 1914, 64-bit
+2020-12-13 12:47:48.534 CET [11136] LOG:  listening on IPv6 address "::1", port 5432
+2020-12-13 12:47:48.535 CET [11136] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2020-12-13 12:47:49.322 CET [2076] LOG:  database system was interrupted; last known up at 2020-12-12 23:13:57 CET
+2020-12-13 12:48:06.987 CET [2076] LOG:  database system was not properly shut down; automatic recovery in progress
+2020-12-13 12:48:07.122 CET [2076] LOG:  redo starts at 0/168E248
+2020-12-13 12:48:07.123 CET [2076] LOG:  invalid record length at 0/168E330: wanted 24, got 0
+2020-12-13 12:48:07.124 CET [2076] LOG:  redo done at 0/168E2F8
+2020-12-13 12:48:07.788 CET [11136] LOG:  database system is ready to accept connections
+2020-12-13 12:55:22.166 CET [11136] LOG:  received fast shutdown request
+2020-12-13 12:55:22.278 CET [11136] LOG:  aborting any active transactions
+2020-12-13 12:55:22.289 CET [12732] FATAL:  terminating connection due to administrator command
+2020-12-13 12:55:22.296 CET [8328] ERROR:  canceling statement due to user request
+2020-12-13 12:55:22.332 CET [11136] LOG:  background worker "logical replication launcher" (PID 8328) exited with exit code 1
+2020-12-13 12:55:22.342 CET [9840] LOG:  shutting down
+2020-12-13 12:55:22.768 CET [11136] LOG:  database system is shut down
