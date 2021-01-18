@@ -41,7 +41,7 @@ void main() {
     var requestor = Requestor();
     TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
 
-    var sa = await requestor.createSubaccount("BTC");
+    var sa = await requestor.createSubaccount();
     expect(sa.owner, username);
   });
 

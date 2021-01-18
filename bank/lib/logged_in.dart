@@ -54,6 +54,7 @@ class DataTables
 	List<Transaction> transactions;
 	List<LoginRecord> loginRecords;
 	Map sums = {"subaccounts": 0, 'transactions': 0, 'deposits': 0};
+	Wallet wallet;
 }
 
 Future<DataTables> getDataTables() async {
@@ -76,6 +77,8 @@ Future<DataTables> getDataTables() async {
 	{
 		//d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
 	}
+
+	d.wallet = await requestor.fetchWallet();
 
 
 	//d.loginRecords = await requestor.fetchLoginRecords();
@@ -128,7 +131,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Adres'),
@@ -182,7 +185,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Nazwa'),
@@ -238,7 +241,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Nazwa'),
@@ -287,7 +290,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   SelectableText(
-                    auth_token,
+                    snapshot.data.wallet.walletAddress,
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 30,
