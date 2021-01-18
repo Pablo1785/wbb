@@ -97,16 +97,6 @@ class Transaction(models.Model):
             fee = None if self.fee is None else self.fee * 10**8 # fee needs to be in satoshis
             self.transaction_hash = source_key.send([(target_address, self.amount, 'btc')], fee=int(fee))
 
-        # THE ACTUAL MONEY TRANSFER HAPPENS HERE <===========================================================================
-        source_acc.balance -= self.amount + 0 if self.fee is None else self.fee
-        source_acc.save()
-        try:
-            target_acc.balance += self.amount
-            target_acc.save()
-        except UnboundLocalError:
-            pass
-        # THE ACTUAL MONEY TRANSFER HAPPENED HERE <==========================================================================
-
         self.source_id = source_acc
         try:
             self.target_id = target_acc

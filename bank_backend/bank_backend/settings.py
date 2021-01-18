@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 from datetime import timedelta
 import os
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -169,3 +171,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Celery configuration
+# https://docs.celeryproject.org/en/v5.0.5/userguide/configuration.html
+
+# Uncomment to use redis as message broker:
+# CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'check-tx-confirmed': {
+        'task': 'core.tasks.check_transaction_confirmed',
+    }
+}
