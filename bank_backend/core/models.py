@@ -11,6 +11,16 @@ from bit import PrivateKeyTestnet as Key
 DEFAULT_SLUG_LENGTH = 15
 
 
+@receiver(post_save, sender=User)
+def create_wallet_and_subaccount_with_user(sender, instance, created, **kwargs):
+    if created:
+        key = Key()
+        pk = key.to_wif()
+        wa = key.address
+        Wallet.objects.create(owner=instance, private_key=pk, wallet_address=wa)
+        SubAccount.objects.create(owner=instance)
+
+
 class Wallet(models.Model):
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
