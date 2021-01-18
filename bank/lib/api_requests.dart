@@ -445,7 +445,7 @@ class Requestor {
     }
   }
 
-  Future<bool> changePassword(String newPassword, String rePassword, String currentPassword) async {
+  Future<bool> changePassword(String newPassword, String currentPassword) async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/auth/users/set_password/',
       headers: <String, String>{
@@ -454,7 +454,6 @@ class Requestor {
       },
       body: jsonEncode(<String, String>{
         "new_password": newPassword,
-        "re_password": rePassword,
         "current_password": currentPassword,
       }),
     );
