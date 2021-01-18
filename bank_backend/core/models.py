@@ -81,18 +81,23 @@ class Transaction(models.Model):
     transaction_hash = models.CharField(max_length=64, blank=True, null=True)  # Nullable, blockchain ID of the transaction
 
     def save(self, *args, **kwargs):
-        if self.source == self.target:
+        source_acc = SubAccount.objects.get(sub_address=self.source)
+        try:
+            target_acc = SubAccount.objects.get(sub_address=self.target)
+            flag = True
+            target_address = Wallet.objects.get(owner=target_acc.owner).wallet_address
+        except SubAccount.DoesNotExist:
+            flag = False
+            target_address = self.target
+        if flag and source_acc.owner == target_acc.owner:
             trans_slug_save(self, allowed_chars="abcdefghijklmnoqprstuvwxyz0123456789")
+            source_acc.balance -= self.amount
+            source_acc.save()
+            target_acc.balance += self.amount
+            target_acc.save()
         else:
-            source_acc = SubAccount.objects.get(sub_address=self.source)
             source_wallet = Wallet.objects.get(owner=source_acc.owner)
             source_key = Key(source_wallet.private_key)
-
-            try:
-                target_acc = SubAccount.objects.get(sub_address=self.target)
-                target_address = Wallet.objects.get(owner=target_acc.owner).wallet_address
-            except SubAccount.DoesNotExist:
-                target_address = self.target
             
             fee = None if self.fee is None else self.fee * 10**8 # fee needs to be in satoshis
             self.transaction_hash = source_key.send([(target_address, self.amount, 'btc')], fee=int(fee))
