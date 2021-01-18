@@ -69,12 +69,10 @@ def check_balance():
 @app.task
 def check_deposit():
     subaccounts = subaccounts = SubAccount.objects.all()
-    print("pyk")
     for s in subaccounts:
         try:
             d = s.bankdeposit
             if d.start_date + d.deposit_period < timezone.now() and d.last_capitalization is None:
-                print("myk")
                 try:
                     periods_number = d.deposit_period/d.capitalization_period
                 except TypeError:
