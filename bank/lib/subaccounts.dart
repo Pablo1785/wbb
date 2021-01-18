@@ -463,7 +463,7 @@ class _SubaccountsDataTableState extends State<SubaccountsDataTable> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return SelectableText(
-                              "Utworzono konto ${snapshot.data.sub_address}",
+                              "Utworzono konto ${snapshot.data.subAddress}",
                               textAlign: TextAlign.left,
                               style: GoogleFonts.montserrat(
                                 fontSize: 16,
