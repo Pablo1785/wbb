@@ -36,7 +36,6 @@ def check_transaction_confirmed(self, transaction_hash):
 
 @app.task
 def check_balance():
-    print("hejo")
     wallets = Wallet.objects.all()
     for w in wallets:
         subaccounts = SubAccount.objects.filter(owner=w.owner)
@@ -64,12 +63,3 @@ def check_balance():
                     balance_sum -= s.balance
                     s.balance = 0
                     s.save()
-    print("baj")
-
-"""
-Uruchomienie taska:
-
-from core.tasks import *
-
-task_func.delay(args=(transaction,))
-"""
