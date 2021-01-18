@@ -102,6 +102,11 @@ class WalletListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class FullWalletListView(APIView):
+    def get(self, request):
+        wallet = Wallet.objects.get(owner=request.user)
+        serializer = FullWalletSerializer(wallet)
+        return Response(serializer.data)
 
 class SubAccountListView(APIView):
     """
