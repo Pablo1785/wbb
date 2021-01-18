@@ -10,6 +10,13 @@ from django.db.models import Q
 # we are using testnet, for mainnet replace with 'from bit import Key'
 from bit import PrivateKeyTestnet as Key
 
+
+# Display static html
+import os
+from bank_backend.settings import BASE_DIR, STATIC_URL
+from django.shortcuts import render
+from django.views.decorators.clickjacking import xframe_options_exempt
+
 # Create your views here.
 
 
@@ -309,4 +316,8 @@ class LoginRecordListView(APIView):
             return HttpResponse('No previous logins to display', status=204)
         serializer = LoginRecordSerializer(login_records, many=True)
         return Response(serializer.data)
+
+@xframe_options_exempt
+def index(request):
+    return HttpResponse(render(request, "index.html"))
 
