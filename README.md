@@ -37,7 +37,7 @@ Serwer aplikacji WBB do poprawnego działania polega na zadaniach wykonywanych w
 - Następnie włącz drugie okno terminala, wykonaj te same kroki zaczynając od przejścia do folderu </i>../bank_backend</i>, tym razem wykonaj inną komendę:
  <code>celery -A bank_backend beat</code>
 
- # Na konic uruchom Fluttera
+ # Uruchamianie Fluttera
 
  Przejdź do folderu ../bank i wykonaj:
  <code>flutter channel beta</code>
