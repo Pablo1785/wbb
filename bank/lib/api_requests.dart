@@ -85,16 +85,13 @@ class Requestor {
   }
 
   // SubAccount REQUESTS:
-  Future<SubAccount> createSubaccount(String currency) async {
+  Future<SubAccount> createSubaccount() async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'JWT ${this.tokenData.access}'
       },
-      body: jsonEncode(<String, String>{
-        'currency': currency,
-      }),
     );
 
     this.lastResponse = response;
