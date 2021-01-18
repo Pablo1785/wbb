@@ -190,6 +190,6 @@ CELERY_BEAT_SCHEDULE = {
     },
     'check-deposit': {
         'task': 'core.tasks.check_deposit',
-        'schedule': 60.0
+        'schedule': 300.0
     }
 }
