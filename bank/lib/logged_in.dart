@@ -319,7 +319,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
             ]),
           );
 			} else if (snapshot.hasError) {
-			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			  return Text("Nie udało się pobrać danych", style: Theme.of(context).textTheme.headline2);
 			}
 
 			return CircularProgressIndicator();

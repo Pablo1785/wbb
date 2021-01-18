@@ -171,7 +171,10 @@ class BankDepositListView(APIView):
         subaccounts = SubAccount.objects.filter(owner=request.user)
         bank_deposits = BankDeposit.objects.filter(account__owner=request.user)
         serializer = BankDepositSerializer(bank_deposits, many=True)
-        return Response(serializer.data)
+        modified_data = serializer.data
+        for ordered_dict in modified_data:  # return sub_addresses instead of ids
+            ordered_dict["account"] = str(SubAccount.objects.get(id=ordered_dict["account"]).sub_address)
+        return Response(modified_data)
 
     def post(self, request, format=None):
         try:
