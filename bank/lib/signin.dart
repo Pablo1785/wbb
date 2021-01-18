@@ -131,6 +131,7 @@ class _SignIpFormState extends State<SignIpForm> {
   }
 
   void _showWelcomeScreen(String username, String password) {
+    requestor.loginNotify(username, password);
     Navigator.of(context).pushNamed('/welcome', arguments: requestor.login(username,password));
   }
 
