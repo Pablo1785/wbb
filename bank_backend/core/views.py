@@ -103,10 +103,6 @@ class SubAccountListView(APIView):
     
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.filter(owner=request.user)
-        key = Key(Wallet.objects.get(owner=request.user).private_key)
-        for s in subaccounts:
-            s.balance = key.get_balance('btc')
-            s.save()
         serializer = SubAccountSerializer(subaccounts, many=True)
         modified_data = serializer.data
         for ordered_dict in modified_data:  # return usernames instead of ids
@@ -114,6 +110,10 @@ class SubAccountListView(APIView):
         return Response(modified_data)
 
     def post(self, request, format=None):
+        if not SubAccount.objects.filter(owner=request.user).exists():
+            key = Key(Wallet.objects.get(owner=request.user).private_key)
+            request.data['balance'] = key.get_balance('btc')
+
         request.data['owner'] = request.user.id
         serializer = SubAccountSerializer(data=request.data)
         if serializer.is_valid():
@@ -142,9 +142,6 @@ class SubAccountDetailView(APIView):
 
     def get(self, request, sub_address, format=None):
         subaccount = self.get_object(sub_address)
-        key = Key(Wallet.objects.get(owner=request.user).private_key)
-        subaccount.balance = key.get_balance('btc')
-        subaccount.save()
         subaccount = SubAccountSerializer(subaccount)
         return Response(subaccount.data)
 
