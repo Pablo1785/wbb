@@ -53,7 +53,9 @@ class DataTables
 	List<BankDeposit> deposits;
 	List<Transaction> transactions;
 	List<LoginRecord> loginRecords;
+  bool noLogins = true;
 	Map sums = {"subaccounts": 0, 'transactions': 0, 'deposits': 0};
+	Wallet wallet;
 }
 
 Future<DataTables> getDataTables() async {
@@ -61,22 +63,32 @@ Future<DataTables> getDataTables() async {
 	
 
 	d.subAccounts = await requestor.fetchSubaccounts();
+	d.subAccounts = d.subAccounts.length > 5 ? d.subAccounts.take(5).toList() : d.subAccounts;
 	for(final subaccount in d.subAccounts)
 		d.sums["subaccounts"] += double.parse(subaccount.balance);
 
 	d.transactions = await requestor.fetchTransactions();
+	d.transactions = d.transactions.length > 5 ? d.transactions.take(5).toList() : d.transactions;
 	for(final transaction in d.transactions)
 	{
-		transaction.amount = transaction.source != d.subAccounts[0].owner ? '${transaction.amount}' : '-${transaction.amount}';
+		transaction.amount = d.subAccounts.any((subaccount) => subaccount.subAddress == transaction.target) ? '${transaction.amount}' : '-${transaction.amount}';
 		d.sums["transactions"] += double.parse(transaction.amount);
 	}
 
-	//d.deposits = await requestor.fetchDeposits();
-	d.deposits = [];
-	for(final deposit in d.deposits)
-		d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);	
+	d.deposits = await requestor.fetchDeposits();
+	d.deposits = d.deposits.length > 5 ? d.deposits.take(5).toList() : d.deposits;
+	//for(final deposit in d.deposits)
+	//{
+		//d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
+	//}
 
-	d.loginRecords = await requestor.fetchLoginRecords();
+	d.wallet = await requestor.fetchWallet();
+
+  // Get last login:
+  d.loginRecords = await requestor.fetchLoginRecords();
+
+
+	//d.loginRecords = await requestor.fetchLoginRecords();
 	return d;
 }
 
@@ -147,7 +159,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
 							Text(subAccount.balance),
 						  ),
 						  DataCell(
-							Text(subAccount.currency),
+							Text("BTC"),
 						  ),
 						]),
 						).toList(),
@@ -229,7 +241,8 @@ class _LoggedInPageState extends State<LoggedInPage> {
                       ),
                     ),
                     Text(
-                      '${snapshot.data.sums["deposits"]} BTC',
+                      //'${snapshot.data.sums["deposits"]} BTC',
+					  '~ BTC',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.montserrat(
                         fontSize: 30,
@@ -285,7 +298,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   SelectableText(
-                    auth_token,
+                    snapshot.data.wallet.walletAddress,
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 30,
@@ -304,7 +317,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   Text(
-                    snapshot.data.loginRecords.last.date.toIso8601String(),
+                    snapshot.data.loginRecords is List<LoginRecord> && snapshot.data.loginRecords.length > 0 ? snapshot.data.loginRecords.last.date.toIso8601String() : "Witaj po raz pierwszy!", //endpoint moze zwrocic No previous logins to display
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
@@ -316,7 +329,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
             ]),
           );
 			} else if (snapshot.hasError) {
-			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			  return Text("Nie udało się pobrać danych", style: Theme.of(context).textTheme.headline2);
 			}
 
 			return CircularProgressIndicator();

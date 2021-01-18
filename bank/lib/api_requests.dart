@@ -43,6 +43,27 @@ class Requestor {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');
     }
   }
+
+  Future<bool> loginNotify(String username, String password) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/token/login',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return true;
+    } 
+    return false;
+  }
+
   
   Future<bool> isValidAccessToken() async {
     final http.Response response = await http.post(
@@ -85,16 +106,13 @@ class Requestor {
   }
 
   // SubAccount REQUESTS:
-  Future<SubAccount> createSubaccount(String currency) async {
+  Future<SubAccount> createSubaccount() async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'JWT ${this.tokenData.access}'
       },
-      body: jsonEncode(<String, String>{
-        'currency': currency,
-      }),
     );
 
     this.lastResponse = response;
@@ -126,6 +144,26 @@ class Requestor {
     }
   }
 
+  Future<List<BankDeposit>> fetchDeposits() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/deposit/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<BankDeposit>.from(json
+          .decode(response.body)
+          .map((model) => BankDeposit.fromJson(model)));
+    } else {
+      throw Exception('Błąd przy pobieraniu rachunków.\n\n${response.body}');
+    }
+  }  
+  
   Future<List<LoginRecord>> fetchLoginRecords() async {
     final http.Response response = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/login_history/',
@@ -137,10 +175,12 @@ class Requestor {
 
     this.lastResponse = response;
 
-    if (response.statusCode == 200 || response.statusCode == 204) {
+    if (response.statusCode == 200) {
       return List<LoginRecord>.from(json
           .decode(response.body)
           .map((model) => LoginRecord.fromJson(model)));
+    } else if (response.statusCode == 204) {
+      return new List<LoginRecord>();
     } else {
       throw Exception(
           'Błąd przy pobieraniu historii logowania.\n\n${response.body}');
@@ -148,7 +188,7 @@ class Requestor {
   }
 
   Future<Transaction> createTransaction(
-      int source, int target, String amount, String title, double fee) async {
+      String source, String target, String amount, String title, String fee) async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/trans/',
       headers: <String, String>{
@@ -174,6 +214,30 @@ class Requestor {
     }
   }
 
+   Future<BankDeposit> createDeposit(
+      String account, String interestRate, String title) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/api/deposit/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(<String, dynamic>{
+        'account': account,
+        'interestRate': interestRate,
+        'title': title,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return BankDeposit.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy tworzeniu depozytu.\n\n${response.body}');
+    }
+  }
+ 
   Future<List<Transaction>> fetchTransactions() async {
     final http.Response response = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/trans/',
@@ -195,6 +259,48 @@ class Requestor {
     }
   }
 
+  Future<List<Transaction>> fetchTransactionsIn() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/trans/in/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<Transaction>.from(json
+          .decode(response.body)
+          .map((model) => Transaction.fromJson(model)));
+    } else {
+      throw Exception(
+          'Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
+    }
+  }
+  
+  Future<List<Transaction>> fetchTransactionsOut() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/trans/out/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<Transaction>.from(json
+          .decode(response.body)
+          .map((model) => Transaction.fromJson(model)));
+    } else {
+      throw Exception(
+          'Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
+    }
+  }
+  
   Future<UserProfile> createUser(
       String username, String password, String email) async {
     final http.Response response = await http.post(
@@ -360,4 +466,22 @@ class Requestor {
     }
   }
 
+  Future<bool> changePassword(String newPassword, String currentPassword) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/users/set_password/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(<String, String>{
+        "new_password": newPassword,
+        "current_password": currentPassword,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 204) return true;
+    return false;
+  }
 }

@@ -1,14 +1,13 @@
 # wbb
 Wirtualny Bank Bitcoinów
 
-![](https://res.cloudinary.com/practicaldev/image/fetch/s--80ZOUids--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://thepracticaldev.s3.amazonaws.com/i/gk3yk0u24k5849fplyy2.png)
-
 
 # Potrzebne narzędzia:
 
  <b>docker</b>
  <b>pip</b>
  <b>virtualenv</b>
+ <b>PostgreSQL</b>
 
  Należy stworzyć wirtualne środowisko dla serwera Django, uruchomić je komendą <code>source path/to/venv/bin/activate</code> (Linux) lub <code>path\to\venv\Scripts\activate.bat</code> (Windows), a następnie zainstalować konieczne pakiety z pliku <i>requirements.txt</i> komendą <code>pip install -r requirements.txt</code>.
 
@@ -37,6 +36,13 @@ Serwer aplikacji WBB do poprawnego działania polega na zadaniach wykonywanych w
 
 - Następnie włącz drugie okno terminala, wykonaj te same kroki zaczynając od przejścia do folderu </i>../bank_backend</i>, tym razem wykonaj inną komendę:
  <code>celery -A bank_backend beat</code>
+
+ # Uruchamianie Fluttera
+
+ Przejdź do folderu ../bank i wykonaj:
+ <code>flutter channel beta</code>
+ <code>flutter config --enable-web</code>
+ <code>flutter run -d chrome</code>
 
 
 

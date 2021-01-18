@@ -181,8 +181,7 @@ class _ReceiversDataTableState extends State<ReceiversDataTable> {
 
     for (final receivers in _receiverss)
       _receiverssStrings.add([
-        receivers.title,
-        receivers.address,
+        receivers.target,
       ]);
 
     final imageE = PdfImage.file(
@@ -219,7 +218,7 @@ class _ReceiversDataTableState extends State<ReceiversDataTable> {
     result = result.substring(0, result.length - 1); // remove trailing ,
 
     for (final receivers in _receiverss)
-      result += '\n${receivers.title},${receivers.address}';
+      result += '\n${receivers.target}';
 
     return utf8.encode(result);
   }
@@ -260,7 +259,7 @@ class _ReceiversDataTableState extends State<ReceiversDataTable> {
   void initState() {
     _receiversDataSource = _ReceiversDataSource(context);
     _names = _receiversDataSource.get_names();
-    _sort<String>((d) => d.title, _sortColumnIndex, _sortAscending);
+    _sort<String>((d) => d.target, _sortColumnIndex, _sortAscending);
   }
 
   @override
@@ -290,9 +289,9 @@ class _ReceiversDataTableState extends State<ReceiversDataTable> {
                     if (_get_selected_count() == 1) {
                       final _receivers = _receiversDataSource.get_selected();
                       final _previous = [
-                        _receivers[0].title,
+                        null, // title
                         null, // amount
-                        _receivers[0].address,
+                        _receivers[0].target,
                       ];
                       Navigator.of(context)
                           .pushNamed('/transfer', arguments: _previous);
@@ -360,12 +359,7 @@ class _ReceiversDataTableState extends State<ReceiversDataTable> {
               DataColumn(
                 label: Text(_names[0]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.title, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[1]),
-                onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.address, columnIndex, ascending),
+                    _sort<String>((d) => d.target, columnIndex, ascending),
               ),
             ],
             source: _receiversDataSource,
@@ -378,21 +372,30 @@ class _ReceiversDataTableState extends State<ReceiversDataTable> {
 
 class _Receivers {
   _Receivers(
-    this.title,
-    this.address,
+    this.target,
   );
-  final String title;
-  final String address;
+  final String target;
 
   bool selected = false;
 }
 
 class _ReceiversDataSource extends DataTableSource {
   _ReceiversDataSource(this.context) {
-    _receiverss = <_Receivers>[
-      _Receivers('Kontrahent 2', '1836NGficqz5cSHWdd1qcEuqaEmFAHJRwC'),
-      _Receivers('Kontrahent 1', 'kolega@wp.pl'),
-    ];
+    _receiverss = <_Receivers>[];
+    _getData();
+  }
+  
+  void _getData() async {
+    _receiverss = List<_Receivers>.from(
+        (await requestor.fetchTransactionsOut()).map((transaction) =>
+            _Receivers(transaction.target)));
+    Map<String, _Receivers> mp = {};
+    for (var item in _receiverss) {
+      mp[item.target] = item;
+    }
+    var filteredList = mp.values.toList();
+    _receiverss = filteredList;
+    notifyListeners();
   }
 
   final BuildContext context;
@@ -406,6 +409,17 @@ class _ReceiversDataSource extends DataTableSource {
           ? Comparable.compare(aValue, bValue)
           : Comparable.compare(bValue, aValue);
     });
+	
+	var receivers_strings = new List();
+	for (final receiver in _receiverss)
+		receivers_strings.add(receiver.target);
+	
+	receivers_strings = receivers_strings.toSet().toList();
+	
+	_receiverss = [];
+	for (final receiver in receivers_strings)
+		_receiverss.add(receiver);
+	
     notifyListeners();
   }
 
@@ -420,7 +434,6 @@ class _ReceiversDataSource extends DataTableSource {
   }
 
   List<String> get_names() => [
-        'Tytuł',
         'Adres',
       ];
 
@@ -444,8 +457,7 @@ class _ReceiversDataSource extends DataTableSource {
         }
       },
       cells: [
-        DataCell(Text(receivers.title, style: TextStyle(color: text_color))),
-        DataCell(Text(receivers.address, style: TextStyle(color: text_color))),
+        DataCell(Text(receivers.target, style: TextStyle(color: text_color))),
       ],
     );
   }

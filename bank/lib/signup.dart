@@ -83,8 +83,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     } else if (snapshot.hasError) {
 						Timer(const Duration(seconds: 5), () {
 						Navigator.of(context).pushNamed('/');});
-						
-                      return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+                      var errorMsg = "Błąd przy zakładaniu konta.";
+                      if (snapshot.error.toString().contains("already")) errorMsg += " Istnieje już konto o podanej nazwie użytkownika.";
+                      return Text(errorMsg, style: Theme.of(context).textTheme.headline2);
                     }
 
                     return CircularProgressIndicator();

@@ -10,6 +10,13 @@ from django.db.models import Q
 # we are using testnet, for mainnet replace with 'from bit import Key'
 from bit import PrivateKeyTestnet as Key
 
+
+# Display static html
+import os
+from bank_backend.settings import BASE_DIR, STATIC_URL
+from django.shortcuts import render
+from django.views.decorators.clickjacking import xframe_options_exempt
+
 # Create your views here.
 
 
@@ -103,10 +110,6 @@ class SubAccountListView(APIView):
     
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.filter(owner=request.user)
-        key = Key(Wallet.objects.get(owner=request.user).private_key)
-        for s in subaccounts:
-            s.balance = key.get_balance('btc')
-            s.save()
         serializer = SubAccountSerializer(subaccounts, many=True)
         modified_data = serializer.data
         for ordered_dict in modified_data:  # return usernames instead of ids
@@ -142,9 +145,6 @@ class SubAccountDetailView(APIView):
 
     def get(self, request, sub_address, format=None):
         subaccount = self.get_object(sub_address)
-        key = Key(Wallet.objects.get(owner=request.user).private_key)
-        subaccount.balance = key.get_balance('btc')
-        subaccount.save()
         subaccount = SubAccountSerializer(subaccount)
         return Response(subaccount.data)
 
@@ -171,7 +171,10 @@ class BankDepositListView(APIView):
         subaccounts = SubAccount.objects.filter(owner=request.user)
         bank_deposits = BankDeposit.objects.filter(account__owner=request.user)
         serializer = BankDepositSerializer(bank_deposits, many=True)
-        return Response(serializer.data)
+        modified_data = serializer.data
+        for ordered_dict in modified_data:  # return sub_addresses instead of ids
+            ordered_dict["account"] = str(SubAccount.objects.get(id=ordered_dict["account"]).sub_address)
+        return Response(modified_data)
 
     def post(self, request, format=None):
         try:
@@ -313,4 +316,8 @@ class LoginRecordListView(APIView):
             return HttpResponse('No previous logins to display', status=204)
         serializer = LoginRecordSerializer(login_records, many=True)
         return Response(serializer.data)
+
+@xframe_options_exempt
+def index(request):
+    return HttpResponse(render(request, "index.html"))
 

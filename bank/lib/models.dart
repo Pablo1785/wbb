@@ -88,7 +88,7 @@ class BankDeposit {
         this.title,
     });
 
-    int account;
+    String account;
     String interestRate;
     DateTime startDate;
     String depositPeriod;
@@ -135,14 +135,14 @@ class Transaction {
         this.transactionHash,
     });
 
-    int source;
-    int target;
+    String source;
+    String target;
     String amount;
     String currency;
     DateTime sendTime;
     DateTime confirmationTime;
     String title;
-    double fee;
+    String fee;
     String transactionHash;
 
     factory Transaction.fromRawJson(String str) => Transaction.fromJson(json.decode(str));

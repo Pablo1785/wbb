@@ -208,12 +208,12 @@ class _ExampleCarouselState extends State<ExampleCarousel> {
   int _current = 0;
 
   final List<String> images = [
-    'images/asia.jpg',
-    'images/africa.jpg',
-    'images/europe.jpg',
-    'images/south_america.jpg',
-    'images/australia.jpg',
-    'images/antarctica.jpg',
+    'images/screen_loggedin.jpg',
+    'images/screen_transfer.jpg',
+    'images/screen_deposit.jpg',
+    'images/screen_subaccounts.jpg',
+    'images/screen_history.jpg',
+    'images/screen_events.jpg',
   ];
 
   final List<String> titles = [
@@ -222,7 +222,7 @@ class _ExampleCarouselState extends State<ExampleCarousel> {
     'LOKATA',
     'RACHUNKI',
     'HISTORIA',
-    'USTAWIENIA',
+    'ZDARZENIA',
   ];
 
   List<Widget> generateImageTiles(screenSize) {
@@ -282,7 +282,7 @@ class _ExampleCarouselState extends State<ExampleCarousel> {
                   style: TextStyle(
                     letterSpacing: 8,
                     fontSize: screenSize.width / 25,
-                    color: Colors.white,
+                    color: Colors.blue,
                   ),
                 ),
               ),

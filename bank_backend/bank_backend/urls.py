@@ -16,11 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
+from core import views
 
 urlpatterns = [
+    path('', views.index, name='index'),
     path('admin/', admin.site.urls),
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^auth/', include('djoser.urls.jwt')),
-    path('api/', include('core.urls'))
+    path('api/', include('core.urls')),
 ]

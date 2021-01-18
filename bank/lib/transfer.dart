@@ -12,6 +12,7 @@ import 'history.dart';
 import 'subaccounts.dart';
 import 'receivers.dart';
 import 'security_events.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(TransferApp());
@@ -77,16 +78,22 @@ class Transfer {
   static const String Account = 'account';
   static const String Fee = 'fee';
 
-  var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
+  //var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
+	var account_names;
   double _currentSliderValue = 20;
 
   var data = new Map();
+  var result;
 
   // send data to backend
   send() {
     print('sending transfer data to backend');
     data.forEach((k, v) => print('${k}: ${v}'));
+	result = requestor.createTransaction(data["account"], data["targetAddress"], data["amount"], data["title"], data["fee"]);
+
   }
+  
+
 }
 
 class FormTransfer extends StatefulWidget {
@@ -537,9 +544,26 @@ class _FormTransferState extends State<FormTransfer> {
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: SelectableText('Miejsce na rezultat',
-                          style: TextStyle(fontSize: 14)),
-                    ),
+                      child: 
+					  
+					  		FutureBuilder<Transaction>(
+		  future: _transfer.result,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+				
+					
+			  return Text("Transakcja wykonana", style: Theme.of(context).textTheme.headline2);
+			} else if (snapshot.hasError) {
+	
+			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+			}
+
+			return CircularProgressIndicator();
+		  },
+		),
+					  
+					  
+),
                     Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -548,15 +572,7 @@ class _FormTransferState extends State<FormTransfer> {
                               RaisedButton(
                                 child: Text("Zamknij okno"),
                                 onPressed: () {
-                                  Navigator.of(context).pushNamed('/welcome',
-                                      arguments: requestor.createTransaction(
-                                          _transfer.data[Transfer.Account],
-                                          _transfer
-                                              .data[Transfer.TargetAddress],
-                                          txtAmount.text,
-                                          txtTitle.text,
-                                          _transfer.data[Transfer.Fee]));
-                                  // Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
                                 },
                               ),
                             ]))
@@ -589,11 +605,24 @@ class _DropDownListState extends State<DropDownList> {
 
   final Transfer transfer;
 
+    Future<List<String>> get_account_names() async{
+	List<String> account_names = (await requestor.fetchSubaccounts()).map((subaccount) => subaccount.subAddress).toList();	
+	return account_names;
+	
+  }
+  
   @override
   Widget build(BuildContext context) {
-    dropdownValue = transfer.account_names[0];
+    var dropdownValue;
+	var account_names =  get_account_names();
 
-    return DropdownButtonFormField<String>(
+    return 		FutureBuilder<List<String>>(
+		  future: account_names,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+	dropdownValue = snapshot.data[0];
+	
+			  return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         labelText: 'Konto',
         floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -619,13 +648,24 @@ class _DropDownListState extends State<DropDownList> {
         });
       },
       items:
-          transfer.account_names.map<DropdownMenuItem<String>>((String value) {
+          snapshot.data.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
         );
       }).toList(),
     );
+			} else if (snapshot.hasError) {
+				
+			  return Text("Nie udało się pobrać listy rachunków");
+			}
+
+			return CircularProgressIndicator();
+		  },
+		);
+		
+		
+	
   }
 }
 
