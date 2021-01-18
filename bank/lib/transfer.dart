@@ -77,16 +77,22 @@ class Transfer {
   static const String Account = 'account';
   static const String Fee = 'fee';
 
-  var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
+  //var account_names = ["Główne", "Dodatkowe", "Dodatkowe2"];
+	var account_names;
   double _currentSliderValue = 20;
 
   var data = new Map();
+  var result;
 
   // send data to backend
   send() {
     print('sending transfer data to backend');
     data.forEach((k, v) => print('${k}: ${v}'));
+	result = requestor.createTransaction(data["source"], data["targetAddress"], data["amount"], data["title"], data["fee"]);
+	result = requestor.lastResponse.body;
   }
+  
+
 }
 
 class FormTransfer extends StatefulWidget {
@@ -537,7 +543,7 @@ class _FormTransferState extends State<FormTransfer> {
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: SelectableText('Miejsce na rezultat',
+                      child: SelectableText(_transfer.result,
                           style: TextStyle(fontSize: 14)),
                     ),
                     Padding(
@@ -589,11 +595,24 @@ class _DropDownListState extends State<DropDownList> {
 
   final Transfer transfer;
 
+    Future<List<String>> get_account_names() async{
+	List<String> account_names = (await requestor.fetchSubaccounts()).map((subaccount) => subaccount.subAddress).toList();	
+	return account_names;
+	
+  }
+  
   @override
   Widget build(BuildContext context) {
-    dropdownValue = transfer.account_names[0];
+    var dropdownValue;
+	var account_names =  get_account_names();
 
-    return DropdownButtonFormField<String>(
+    return 		FutureBuilder<List<String>>(
+		  future: account_names,
+		  builder: (context, snapshot) {
+			if (snapshot.hasData) {
+	dropdownValue = snapshot.data[0];
+	
+			  return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         labelText: 'Konto',
         floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -619,13 +638,24 @@ class _DropDownListState extends State<DropDownList> {
         });
       },
       items:
-          transfer.account_names.map<DropdownMenuItem<String>>((String value) {
+          snapshot.data.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
         );
       }).toList(),
     );
+			} else if (snapshot.hasError) {
+				
+			  return Text("${snapshot.error}");
+			}
+
+			return CircularProgressIndicator();
+		  },
+		);
+		
+		
+	
   }
 }
 
