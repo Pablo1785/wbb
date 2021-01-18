@@ -63,10 +63,12 @@ Future<DataTables> getDataTables() async {
 	
 
 	d.subAccounts = await requestor.fetchSubaccounts();
+	d.subAccounts = d.subAccounts.length > 5 ? d.subAccounts.take(5) : d.subAccounts;
 	for(final subaccount in d.subAccounts)
 		d.sums["subaccounts"] += double.parse(subaccount.balance);
 
 	d.transactions = await requestor.fetchTransactions();
+	d.transactions = d.transactions.length > 5 ? d.transactions.take(5) : d.transactions;
 	for(final transaction in d.transactions)
 	{
 		transaction.amount = d.subAccounts.any((subaccount) => subaccount.subAddress == transaction.target) ? '${transaction.amount}' : '-${transaction.amount}';
@@ -74,9 +76,10 @@ Future<DataTables> getDataTables() async {
 	}
 
 	d.deposits = await requestor.fetchDeposits();
+	d.deposits = d.deposits.length > 5 ? d.deposits.take(5) : d.deposits;
 	for(final deposit in d.deposits)
 	{
-		//d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
+		d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
 	}
 
 	d.wallet = await requestor.fetchWallet();
@@ -135,7 +138,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Adres'),
@@ -189,7 +192,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Nazwa'),
@@ -245,7 +248,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: DataTable(
+                    Container(width: screenSize.width/4, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: DataTable(
                       columns: <DataColumn>[
                         DataColumn(
                           label: Text('Nazwa'),
