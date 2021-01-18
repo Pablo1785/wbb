@@ -63,12 +63,12 @@ Future<DataTables> getDataTables() async {
 	
 
 	d.subAccounts = await requestor.fetchSubaccounts();
-	d.subAccounts = d.subAccounts.length > 5 ? d.subAccounts.take(5) : d.subAccounts;
+	d.subAccounts = d.subAccounts.length < 5 ? d.subAccounts.take(5).toList() : d.subAccounts;
 	for(final subaccount in d.subAccounts)
 		d.sums["subaccounts"] += double.parse(subaccount.balance);
 
 	d.transactions = await requestor.fetchTransactions();
-	d.transactions = d.transactions.length > 5 ? d.transactions.take(5) : d.transactions;
+	d.transactions = d.transactions.length < 5 ? d.transactions.take(5).toList() : d.transactions;
 	for(final transaction in d.transactions)
 	{
 		transaction.amount = d.subAccounts.any((subaccount) => subaccount.subAddress == transaction.target) ? '${transaction.amount}' : '-${transaction.amount}';
@@ -76,11 +76,11 @@ Future<DataTables> getDataTables() async {
 	}
 
 	d.deposits = await requestor.fetchDeposits();
-	d.deposits = d.deposits.length > 5 ? d.deposits.take(5) : d.deposits;
-	for(final deposit in d.deposits)
-	{
-		d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
-	}
+	d.deposits = d.deposits.length < 5 ? d.deposits.take(5).toList() : d.deposits;
+	//for(final deposit in d.deposits)
+	//{
+		//d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
+	//}
 
 	d.wallet = await requestor.fetchWallet();
 
@@ -241,7 +241,8 @@ class _LoggedInPageState extends State<LoggedInPage> {
                       ),
                     ),
                     Text(
-                      '${snapshot.data.sums["deposits"]} BTC',
+                      //'${snapshot.data.sums["deposits"]} BTC',
+					  '~ BTC',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.montserrat(
                         fontSize: 30,
