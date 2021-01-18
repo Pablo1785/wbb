@@ -382,12 +382,19 @@ class _Receivers {
 class _ReceiversDataSource extends DataTableSource {
   _ReceiversDataSource(this.context) {
     _receiverss = <_Receivers>[];
+    _getData();
   }
   
   void _getData() async {
     _receiverss = List<_Receivers>.from(
         (await requestor.fetchTransactionsOut()).map((transaction) =>
             _Receivers(transaction.target)));
+    Map<String, _Receivers> mp = {};
+    for (var item in _receiverss) {
+      mp[item.target] = item;
+    }
+    var filteredList = mp.values.toList();
+    _receiverss = filteredList;
     notifyListeners();
   }
 
@@ -411,7 +418,7 @@ class _ReceiversDataSource extends DataTableSource {
 	
 	_receiverss = [];
 	for (final receiver in receivers_strings)
-		_receiverss.add(receiver);	
+		_receiverss.add(receiver);
 	
     notifyListeners();
   }
