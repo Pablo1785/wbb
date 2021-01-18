@@ -586,7 +586,7 @@ class _SubaccountsDataSource extends DataTableSource {
     void _getData() async {
     _subaccountss = List<_Subaccounts>.from(
         (await requestor.fetchSubaccounts()).map((subaccount) =>
-            _Subaccounts(subaccount.owner, subaccount.balance, subaccount.currency, subaccount.subAddress)));
+            _Subaccounts(subaccount.owner, subaccount.balance, "BTC", subaccount.subAddress)));
     notifyListeners();
   }
 

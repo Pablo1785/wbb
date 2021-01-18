@@ -67,16 +67,18 @@ Future<DataTables> getDataTables() async {
 	d.transactions = await requestor.fetchTransactions();
 	for(final transaction in d.transactions)
 	{
-		transaction.amount = transaction.source != d.subAccounts[0].owner ? '${transaction.amount}' : '-${transaction.amount}';
+		transaction.amount = d.subAccounts.any((subaccount) => subaccount.subAddress == transaction.target) ? '${transaction.amount}' : '-${transaction.amount}';
 		d.sums["transactions"] += double.parse(transaction.amount);
 	}
 
-	//d.deposits = await requestor.fetchDeposits();
-	d.deposits = [];
+	d.deposits = await requestor.fetchDeposits();
 	for(final deposit in d.deposits)
-		d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);	
+	{
+		//d.sums["deposits"] += double.parse(d.subAccounts.where((subaccount) => subaccount.subAddress == deposit.account.toString()).toList()[0].balance);			
+	}
 
-	d.loginRecords = await requestor.fetchLoginRecords();
+
+	//d.loginRecords = await requestor.fetchLoginRecords();
 	return d;
 }
 
@@ -147,7 +149,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
 							Text(subAccount.balance),
 						  ),
 						  DataCell(
-							Text(subAccount.currency),
+							Text("BTC"),
 						  ),
 						]),
 						).toList(),
@@ -304,7 +306,8 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   Text(
-                    snapshot.data.loginRecords.last.date.toIso8601String(),
+                    //snapshot.data.loginRecords.last.date.toIso8601String(),
+					'none', //endpoint moze zwrocic No previous logins to display
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 20,
