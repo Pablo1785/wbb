@@ -128,7 +128,7 @@ class Menu extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                http.post('http://localhost:8080/auth/token/logout',
+                http.post('${requestor.serverAddress}:${requestor.serverPort}/auth/token/logout',
                     headers: <String, String>{
                       'Authorization': 'JWT ${requestor.tokenData.access}',
                     });

@@ -1,8 +1,9 @@
 import 'package:bank/models.dart';
+import 'package:http/http.dart';
 import 'package:test/test.dart';
 import 'package:bank/api_requests.dart';
 
-String username = "UserTest2";
+String username = "UserTest233";
 String password = "wbb12345";
 
 
@@ -17,6 +18,30 @@ void main() {
   test("Should return TokenData object", () async {
     var requestor = Requestor();
     TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    expect(requestor.tokenData.access.isNotEmpty, true);
+    expect(requestor.tokenData.refresh.isNotEmpty, true);
+  });
+
+  test("Notify server about user login", () async {
+    var requestor = Requestor();
+    var loginSuccess = await requestor.loginNotify(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    expect(loginSuccess, true);
+  });
+
+  test("Create access tokens && notify server about login", () async {
+    var requestor = Requestor();
+    TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    var loginSuccess = await requestor.loginNotify(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    expect(loginSuccess, true);
+    expect(requestor.tokenData.access.isNotEmpty, true);
+    expect(requestor.tokenData.refresh.isNotEmpty, true);
+  });
+
+  test("REVERSED: Create access tokens && notify server about login", () async {
+    var requestor = Requestor();
+    var loginSuccess = await requestor.loginNotify(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    TokenData td = await requestor.login(username, password).catchError((Object error, StackTrace st) => {print(st.toString())});
+    expect(loginSuccess, true);
     expect(requestor.tokenData.access.isNotEmpty, true);
     expect(requestor.tokenData.refresh.isNotEmpty, true);
   });
