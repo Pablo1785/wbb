@@ -110,10 +110,6 @@ class SubAccountListView(APIView):
         return Response(modified_data)
 
     def post(self, request, format=None):
-        if not SubAccount.objects.filter(owner=request.user).exists():
-            key = Key(Wallet.objects.get(owner=request.user).private_key)
-            request.data['balance'] = key.get_balance('btc')
-
         request.data['owner'] = request.user.id
         serializer = SubAccountSerializer(data=request.data)
         if serializer.is_valid():

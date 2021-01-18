@@ -183,8 +183,9 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
-# CELERY_BEAT_SCHEDULE = {
-#     'check-tx-confirmed': {
-#         'task': 'core.tasks.check_transaction_confirmed',
-#     }
-# }
+CELERY_BEAT_SCHEDULE = {
+    'check-balance': {
+        'task': 'core.tasks.check_balance',
+        'schedule': 300.0
+    }
+}
