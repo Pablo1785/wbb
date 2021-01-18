@@ -14,7 +14,7 @@ class Menu extends StatelessWidget {
     var screenSize = MediaQuery.of(context).size;
 
     return Container(
-      color: Colors.blue,
+      color: light_theme ? Colors.blue : Colors.black,
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Row(
@@ -91,17 +91,6 @@ class Menu extends StatelessWidget {
                   SizedBox(width: screenSize.width / 50),
                   InkWell(
                     onTap: () {
-                      Navigator.of(context).pushNamed('/contact');
-                    },
-                    child: Text('Kontakt',
-                        style: GoogleFonts.montserrat(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white)),
-                  ),
-                  SizedBox(width: screenSize.width / 50),
-                  InkWell(
-                    onTap: () {
                       Navigator.of(context).pushNamed('/securityevents');
                     },
                     child: Text('Zdarzenia',
@@ -123,6 +112,17 @@ class Menu extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: Colors.white)),
             ),
+            SizedBox(width: screenSize.width / 50),
+            InkWell(
+              onTap: () {
+                Navigator.of(context).pushNamed('/contact');
+              },
+              child: Text('Kontakt',
+                  style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white)),
+            ),
             SizedBox(
               width: screenSize.width / 50,
             ),
@@ -130,9 +130,8 @@ class Menu extends StatelessWidget {
               onTap: () {
                 http.post('http://localhost:8080/auth/token/logout',
                     headers: <String, String>{
-                      'Authorization': 'Token ${auth_token}',
+                      'Authorization': 'JWT ${requestor.tokenData.access}',
                     });
-                auth_token = "empty";
                 Navigator.of(context).pushNamed('/main');
               },
               child: Text('Wyloguj',
@@ -152,15 +151,15 @@ class MenuNotLogged extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-
+    
     return Container(
-      color: Colors.blue,
+      color: light_theme ? Colors.blue : Colors.black,
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Row(
           children: [
             InkWell(
-              onTap: () {
+              onTap: () { 
                 Navigator.of(context).pushNamed('/main');
               },
               child: Text('WBB',
