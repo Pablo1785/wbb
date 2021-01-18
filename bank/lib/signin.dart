@@ -38,7 +38,7 @@ class SignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 	  var screenSize = MediaQuery.of(context).size;
 	  
-    return Scaffold(
+          return Scaffold(
       backgroundColor: Colors.black38,
 	  appBar: PreferredSize(
           preferredSize: Size(screenSize.width, 1000),
@@ -54,6 +54,7 @@ class SignInScreen extends StatelessWidget {
         ),
       ),
     );
+        
   }
 }
 
@@ -78,15 +79,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 		  future: futureToken,
 		  builder: (context, snapshot) {
 			if (snapshot.hasData) {
-				Timer(const Duration(seconds: 3), () {
+				Timer(const Duration(seconds: 2), () {
 				Navigator.of(context).pushNamed('/loggedin');});
 					
-			  return Text("Zalogowano, token: ${snapshot.data.access}", style: Theme.of(context).textTheme.headline2);
+			  return Text("Witaj w Wirtualnym Banku Bitcoinów!", style: Theme.of(context).textTheme.headline2);
 			} else if (snapshot.hasError) {
-				Timer(const Duration(seconds: 5), () {
+				Timer(const Duration(seconds: 2), () {
 				Navigator.of(context).pushNamed('/');});
 				
-			  return Text("${snapshot.error}", style: Theme.of(context).textTheme.headline2);
+        var userMessage = "Błąd logowania...";
+        if (requestor.lastResponse.statusCode == 401) userMessage = "Niepoprawna nazwa użytkownika lub hasło...";
+
+			  return Text(userMessage, style: Theme.of(context).textTheme.headline2);
 			}
 
 			return CircularProgressIndicator();

@@ -90,6 +90,7 @@ class Transfer {
     print('sending transfer data to backend');
     data.forEach((k, v) => print('${k}: ${v}'));
 	result = requestor.createTransaction(data["account"], data["targetAddress"], data["amount"], data["title"], data["fee"]);
+
   }
   
 
@@ -656,7 +657,7 @@ class _DropDownListState extends State<DropDownList> {
     );
 			} else if (snapshot.hasError) {
 				
-			  return Text("${snapshot.error}");
+			  return Text("Nie udało się pobrać listy rachunków");
 			}
 
 			return CircularProgressIndicator();

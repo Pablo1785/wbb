@@ -19,8 +19,8 @@ class Requestor {
 
   Requestor(
       {this.tokenData,
-      this.serverAddress = 'http://127.0.0.1',
-      this.serverPort = '8000'});
+      this.serverAddress = server_address,
+      this.serverPort = server_port});
 
   Future<TokenData> login(String username, String password) async {
     final http.Response response = await http.post(
@@ -37,7 +37,7 @@ class Requestor {
     this.lastResponse = response;
 
     if (response.statusCode == 200) {
-      this.tokenData = TokenData.fromJson(jsonDecode(response.body));
+      this.tokenData = TokenData.fromJson(json.decode(response.body));
       return this.tokenData;
     } else {
       throw Exception('Błąd przy logowaniu.\n\n${response.body}');
@@ -84,7 +84,7 @@ class Requestor {
     }
   }
 
-  // Subaccount creation:
+  // SubAccount REQUESTS:
   Future<SubAccount> createSubaccount(String currency) async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/subacc/',
@@ -403,4 +403,47 @@ class Requestor {
       throw Exception('Błąd przy pobieraniu danych walut.\n\n${response.body}');
     }
   }
+
+  // BankDeposit REQUESTS:
+  Future<BankDeposit> createBankDeposit(String currency) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/api/deposit/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(<String, String>{
+        'currency': currency,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return BankDeposit.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy tworzeniu rachunku.\n\n${response.body}');
+    }
+  }
+
+  Future<List<BankDeposit>> fetchBankDeposits() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/deposit/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<BankDeposit>.from(json
+          .decode(response.body)
+          .map((model) => BankDeposit.fromJson(model)));
+    } else {
+      throw Exception('Błąd przy pobieraniu rachunków.\n\n${response.body}');
+    }
+  }
+
 }

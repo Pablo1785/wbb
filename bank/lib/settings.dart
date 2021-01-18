@@ -190,9 +190,16 @@ class _FormSettingsState extends State<FormSettings> {
                                     fontFamily: 'HelveticaNeue',
                                   ),
                                 ),
-                                value: _user.data[User.Light_theme],
-                                onChanged: (bool val) => setState(
-                                    () => _user.data[User.Light_theme] = val)),
+                                value: light_theme,
+                                onChanged: (bool val) { 
+                                    setState(
+                                      () {
+                                        _user.data[User.Light_theme] = val;
+                                        light_theme = val;
+                                      });
+                                      Navigator.of(context).popAndPushNamed('/settings');
+                                    }
+                                    ),
                             Container(
                               padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
                               child: Text(

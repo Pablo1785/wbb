@@ -25,6 +25,7 @@ class ContactApp extends StatelessWidget {
       title: 'Wirtualny Bank Bitcoinów- kontakt',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        brightness: light_theme ? Brightness.light : Brightness.dark,
       ),
       routes: {
         '/': (context) => ContactScreen(),
