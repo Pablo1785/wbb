@@ -88,7 +88,7 @@ class BankDeposit {
         this.title,
     });
 
-    int account;
+    String account;
     String interestRate;
     DateTime startDate;
     String depositPeriod;
