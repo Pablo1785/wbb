@@ -154,11 +154,18 @@ class Requestor {
 
     this.lastResponse = response;
 
-    if (response.statusCode == 200 || response.statusCode == 204) {
+    if (response.statusCode == 200) {
       return List<LoginRecord>.from(json
           .decode(response.body)
           .map((model) => LoginRecord.fromJson(model)));
     } else {
+		if(response.statusCode == 204)
+		{
+			List<LoginRecord> emptyLogins = [LoginRecord(user:"null",action:"null",date:DateTime.parse("1970-01-01 00:00:00.000"),ipAddress:"null")];
+			return emptyLogins;			
+		}
+
+		else
       throw Exception(
           'Błąd przy pobieraniu historii logowania.\n\n${response.body}');
     }
