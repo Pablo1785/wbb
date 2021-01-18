@@ -9,6 +9,9 @@ import requests
 from decimal import Decimal
 # we are using testnet, for mainnet replace with 'from bit import Key'
 from bit import PrivateKeyTestnet as Key
+from django.db.models import ObjectDoesNotExist
+from django.utils import timezone
+
 
 class TxNotConfirmedException(Exception):
   pass
@@ -19,8 +22,6 @@ def check_transaction_confirmed(self, transaction_hash):
         fees = requests.get("https://api.blockcypher.com/v1/btc/test3/txs/"+transaction_hash).json()['fees']
     except KeyError:
         raise TxNotConfirmedException()  # task failed - raise exception
-
-    print("pyklo")
 
     transaction = Transaction.objects.get(transaction_hash=transaction_hash)
     source_account = SubAccount.objects.get(sub_address=transaction.source)
@@ -63,3 +64,25 @@ def check_balance():
                     balance_sum -= s.balance
                     s.balance = 0
                     s.save()
+
+
+@app.task
+def check_deposit():
+    subaccounts = subaccounts = SubAccount.objects.all()
+    print("pyk")
+    for s in subaccounts:
+        try:
+            d = s.bankdeposit
+            if d.start_date + d.deposit_period < timezone.now() and d.last_capitalization is None:
+                print("myk")
+                try:
+                    periods_number = d.deposit_period/d.capitalization_period
+                except TypeError:
+                    periods_number = 1
+                # TODO: proper bitcoin transaction
+                s.balance = s.balance * (1+d.interest_rate)**periods_number
+                d.last_capitalization = timezone.now()
+                s.save()
+                d.save()
+        except ObjectDoesNotExist:
+            pass
