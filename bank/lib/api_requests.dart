@@ -194,6 +194,30 @@ class Requestor {
     }
   }
 
+   Future<BankDeposit> createDeposit(
+      String account, String interestRate, String title) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/api/deposit/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(<String, dynamic>{
+        'account': account,
+        'interestRate': interestRate,
+        'title': title,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 201) {
+      return BankDeposit.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy tworzeniu depozytu.\n\n${response.body}');
+    }
+  }
+ 
   Future<List<Transaction>> fetchTransactions() async {
     final http.Response response = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/trans/',
