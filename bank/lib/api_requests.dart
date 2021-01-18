@@ -445,4 +445,23 @@ class Requestor {
     }
   }
 
+  Future<bool> changePassword(String newPassword, String rePassword, String currentPassword) async {
+    final http.Response response = await http.post(
+      '${this.serverAddress}:${this.serverPort}/auth/users/set_password/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+      body: jsonEncode(<String, String>{
+        "new_password": newPassword,
+        "re_password": rePassword,
+        "current_password": currentPassword,
+      }),
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 204) return true;
+    return false;
+  }
 }
