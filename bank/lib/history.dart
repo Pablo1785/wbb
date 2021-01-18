@@ -19,6 +19,7 @@ import 'contact.dart';
 import 'subaccounts.dart';
 import 'receivers.dart';
 import 'security_events.dart';
+import 'models.dart';
 import 'globals.dart';
 
 void main() => runApp(HistoryApp());
@@ -203,13 +204,14 @@ class _TransferDataTableState extends State<TransferDataTable> {
 
     for (final transfer in _transfers)
       _transfersStrings.add([
+        transfer.source,
+        transfer.target,
+        transfer.amount,
+        transfer.sendTime,
+        transfer.confirmationTime,
         transfer.title,
-        transfer.amount.toString(),
-        transfer.balance.toString(),
-        transfer.timestamp,
-        transfer.id.toString(),
-        transfer.tracking,
-        transfer.address
+        transfer.fee,
+        transfer.transactionHash,
       ]);
 
     final imageE = PdfImage.file(
@@ -247,7 +249,7 @@ class _TransferDataTableState extends State<TransferDataTable> {
 
     for (final transfer in _transfers)
       result +=
-          '\n${transfer.title},${transfer.amount},${transfer.balance},${transfer.timestamp},${transfer.id},${transfer.tracking},${transfer.address}';
+          '\n${transfer.source},${transfer.target},${transfer.amount},${transfer.sendTime},${transfer.confirmationTime},${transfer.title},${transfer.fee},${transfer.transactionHash}';
 
     return utf8.encode(result);
   }
@@ -288,7 +290,7 @@ class _TransferDataTableState extends State<TransferDataTable> {
   void initState() {
     _transferDataSource = _TransferDataSource(context);
     _names = _transferDataSource.get_names();
-    _sort<String>((d) => d.timestamp, _sortColumnIndex, _sortAscending);
+    _sort<String>((d) => d.sendTime, _sortColumnIndex, _sortAscending);
   }
 
   @override
@@ -342,7 +344,7 @@ class _TransferDataTableState extends State<TransferDataTable> {
 
                     if (_get_selected_count() == 1) {
                       final _transfers = _transferDataSource.get_selected();
-                      if (_transfers[0].amount >= 0) {
+                      if ((_transferDataSource._subAccounts.any((subaccount) => subaccount.subAddress == _transfers[0].target))) { 
                         Scaffold.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -352,8 +354,8 @@ class _TransferDataTableState extends State<TransferDataTable> {
                       } else {
                         final _previous = [
                           _transfers[0].title,
-                          _transfers[0].amount.toString(),
-                          _transfers[0].address
+                          _transfers[0].amount,
+                          _transfers[0].target
                         ];
                         Navigator.of(context)
                             .pushNamed('/transfer', arguments: _previous);
@@ -422,41 +424,42 @@ class _TransferDataTableState extends State<TransferDataTable> {
               DataColumn(
                 label: Text(_names[0]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.title, columnIndex, ascending),
+                    _sort<String>((d) => d.source, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[1]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.amount, columnIndex, ascending),
+                    _sort<String>((d) => d.target, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[2]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.balance, columnIndex, ascending),
+                    _sort<String>((d) => d.amount, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[3]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.timestamp, columnIndex, ascending),
+                    _sort<String>((d) => d.sendTime, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[4]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.id, columnIndex, ascending),
+                    _sort<String>((d) => d.confirmationTime, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[5]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.tracking, columnIndex, ascending),
+                    _sort<String>((d) => d.title, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[6]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.address, columnIndex, ascending),
+                    _sort<String>((d) => d.fee, columnIndex, ascending),
+              ),
+              DataColumn(
+                label: Text(_names[6]),
+                onSort: (columnIndex, ascending) =>
+                    _sort<String>((d) => d.transactionHash, columnIndex, ascending),
               ),
             ],
             source: _transferDataSource,
@@ -468,74 +471,40 @@ class _TransferDataTableState extends State<TransferDataTable> {
 }
 
 class _Transfer {
-  _Transfer(this.title, this.amount, this.balance, this.timestamp, this.id,
-      this.tracking, this.address);
+  _Transfer(this.source, this.target, this.amount, this.sendTime, this.confirmationTime,
+      this.title, this.fee, this.transactionHash);
+  final String source;
+  final String target;
+  final String amount;
+  final String sendTime;
+  final String confirmationTime;
   final String title;
-  final double amount;
-  final double balance;
-  final String timestamp;
-  final int id;
-  final String tracking;
-  final String address;
+  final String fee;
+  final String transactionHash;
+
 
   bool selected = false;
 }
 
 class _TransferDataSource extends DataTableSource {
   _TransferDataSource(this.context) {
-    _transfers = <_Transfer>[
-      _Transfer(
-        'Pizza z szynką i pieczarkami',
-        -7,
-        118.5,
-        "2021-14-11",
-        4,
-        "https://www.blockchain.com/btc/tx/172a8d141cb0861166b2eb766e6444544c267797b71939226802721ab2684df6",
-        '1836NGficqz5cSHWdd1qcEuqaEmFAHJRwC',
-      ),
-      _Transfer(
-        'Transfer',
-        -30,
-        125.5,
-        "2021-14-09",
-        3,
-        "https://www.blockchain.com/btc/tx/172a8d141cb0861166b2eb766e6444544c267797b71939226802721ab2684df6",
-        'kolega@wp.pl',
-      ),
-      _Transfer(
-        'Pizza z szynką i pieczarkami',
-        -7,
-        155.5,
-        "2021-14-05",
-        2,
-        "https://www.blockchain.com/btc/tx/172a8d141cb0861166b2eb766e6444544c267797b71939226802721ab2684df6",
-        '1836NGficqz5cSHWdd1qcEuqaEmFAHJRwC',
-      ),
-      _Transfer(
-        'Transfer środków',
-        3.5,
-        162.5,
-        "2021-14-02",
-        1,
-        "https://www.blockchain.com/btc/tx/172a8d141cb0861166b2eb766e6444544c267797b71939226802721ab2684df6",
-        '135ZNGficqz5cSHWdd1qcEuqaEmFAHJRwC',
-      ),
-      _Transfer(
-        'Zasilenie',
-        159,
-        159,
-        "2021-14-01",
-        0,
-        "https://www.blockchain.com/btc/tx/172a8d141cb0861166b2eb766e6444544c267797b71939226802721ab2684df6",
-        '135ZNGficqz5cSHWdd1qcEuqaEmFAHJRwC',
-      ),
-    ];
+    _transfers = [];
     _transfers_filtered = _transfers;
+	_getData();
   }
 
+    void _getData() async {
+    _transfers = List<_Transfer>.from(
+        (await requestor.fetchTransactions()).map((transfer) =>
+            _Transfer(transfer.source, transfer.target, transfer.amount, transfer.sendTime.toIso8601String(), transfer.confirmationTime != null? transfer.confirmationTime.toIso8601String() : "", transfer.title, transfer.fee, transfer.transactionHash != null ? transfer.transactionHash : "")));
+	_transfers_filtered = _transfers;
+	_subAccounts = await requestor.fetchSubaccounts();
+    notifyListeners();
+	}
   final BuildContext context;
   List<_Transfer> _transfers;
   List<_Transfer> _transfers_filtered;
+  List<SubAccount> _subAccounts;
 
   void _sort<T>(Comparable<T> Function(_Transfer d) getField, bool ascending) {
     _transfers_filtered.sort((a, b) {
@@ -553,11 +522,11 @@ class _TransferDataSource extends DataTableSource {
 
     if (incoming_selected)
       _transfers_filtered
-          .addAll(_transfers.where((u) => (u.amount >= 0)).toList());
+          .addAll(_transfers.where((u) => (_subAccounts.any((subaccount) => subaccount.subAddress == u.target))).toList());
 
     if (outcoming_selected)
       _transfers_filtered
-          .addAll(_transfers.where((u) => (u.amount < 0)).toList());
+          .addAll(_transfers.where((u) => (! _subAccounts.any((subaccount) => subaccount.subAddress == u.target))).toList());
 
     notifyListeners();
   }
@@ -573,13 +542,15 @@ class _TransferDataSource extends DataTableSource {
   }
 
   List<String> get_names() => [
-        'Tytuł',
-        'Kwota',
-        'Saldo po operacji',
-        'Data zlecenia',
-        'ID',
-        'Tracking',
-        'Adres'
+        'Od',
+		'Do',
+		'Kwota',
+		'Czas wysłania',
+		'Czas zatwieredzenia',
+		'Tytuł',
+		'Fee',
+		'Hash',
+
       ];
 
   int _selectedCount = 0;
@@ -589,7 +560,7 @@ class _TransferDataSource extends DataTableSource {
     assert(index >= 0);
     if (index >= _transfers_filtered.length) return null;
     final transfer = _transfers_filtered[index];
-    final text_color = transfer.amount >= 0 ? Colors.green : Colors.red;
+    final text_color = ((_subAccounts.any((subaccount) => subaccount.subAddress == _transfers[0].target)))? Colors.green : Colors.red;
     return DataRow.byIndex(
       index: index,
       selected: transfer.selected,
@@ -602,23 +573,22 @@ class _TransferDataSource extends DataTableSource {
         }
       },
       cells: [
+        DataCell(Text(transfer.source, style: TextStyle(color: text_color))),
+        DataCell(Text(transfer.target, style: TextStyle(color: text_color))),
+        DataCell(Text(transfer.amount, style: TextStyle(color: text_color))),
+        DataCell(Text(transfer.sendTime, style: TextStyle(color: text_color))),
+        DataCell(Text(transfer.confirmationTime, style: TextStyle(color: text_color))),
         DataCell(Text(transfer.title, style: TextStyle(color: text_color))),
-        DataCell(Text(transfer.amount.toString(),
-            style: TextStyle(color: text_color))),
-        DataCell(Text(transfer.balance.toString(),
-            style: TextStyle(color: text_color))),
-        DataCell(Text(transfer.timestamp, style: TextStyle(color: text_color))),
-        DataCell(
-            Text(transfer.id.toString(), style: TextStyle(color: text_color))),
+        DataCell(Text(transfer.fee, style: TextStyle(color: text_color))),
+	
         DataCell(
           IconButton(
               onPressed: () {
-                js.context.callMethod('open', ['${transfer.tracking}']);
+                js.context.callMethod('open', ['${transfer.transactionHash}']);
               },
               icon: Icon(Icons.outbond),
               tooltip: 'Zobacz transakcję na blockchainie'),
         ),
-        DataCell(Text(transfer.address, style: TextStyle(color: text_color))),
       ],
     );
   }
@@ -695,15 +665,13 @@ class _DepositDataTableState extends State<DepositDataTable> {
 
     for (final deposit in _deposits)
       _depositsStrings.add([
-        deposit.title,
-        deposit.amount.toString(),
-        deposit.id.toString(),
-        deposit.interest_rate.toString(),
-        deposit.account,
-        deposit.start_date,
-        deposit.deposit_period,
-        deposit.capitalization_period,
-        deposit.last_capitalization
+      deposit.account,
+      deposit.interestRate,
+      deposit.startDate,
+      deposit.depositPeriod,
+      deposit.capitalizationPeriod,
+      deposit.lastCapitalization,
+      deposit.title
       ]);
 
     final imageE = PdfImage.file(
@@ -741,8 +709,7 @@ class _DepositDataTableState extends State<DepositDataTable> {
 
     for (final deposit in _deposits)
       result +=
-          '\n${deposit.title},${deposit.amount},${deposit.id},${deposit.interest_rate},${deposit.account},${deposit.start_date},${deposit.deposit_period},${deposit.capitalization_period},${deposit.last_capitalization}';
-
+          '\n${deposit.account},${deposit.interestRate},${deposit.startDate},${deposit.depositPeriod},${deposit.capitalizationPeriod},${deposit.lastCapitalization},${deposit.title}';
     return utf8.encode(result);
   }
 
@@ -782,7 +749,7 @@ class _DepositDataTableState extends State<DepositDataTable> {
   void initState() {
     _depositDataSource = _DepositDataSource(context);
     _names = _depositDataSource.get_names();
-    _sort<String>((d) => d.start_date, _sortColumnIndex, _sortAscending);
+    _sort<String>((d) => d.startDate, _sortColumnIndex, _sortAscending);
   }
 
   @override
@@ -879,50 +846,37 @@ class _DepositDataTableState extends State<DepositDataTable> {
               DataColumn(
                 label: Text(_names[0]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.title, columnIndex, ascending),
+                    _sort<String>((d) => d.account, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[1]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.amount, columnIndex, ascending),
+                    _sort<String>((d) => d.interestRate, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[2]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.id, columnIndex, ascending),
+                    _sort<String>((d) => d.startDate, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[3]),
-                numeric: true,
                 onSort: (columnIndex, ascending) =>
-                    _sort<num>((d) => d.interest_rate, columnIndex, ascending),
+                    _sort<String>((d) => d.depositPeriod, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[4]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.account, columnIndex, ascending),
+                    _sort<String>((d) => d.capitalizationPeriod, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[5]),
                 onSort: (columnIndex, ascending) =>
-                    _sort<String>((d) => d.start_date, columnIndex, ascending),
+                    _sort<String>((d) => d.lastCapitalization, columnIndex, ascending),
               ),
               DataColumn(
                 label: Text(_names[6]),
                 onSort: (columnIndex, ascending) => _sort<String>(
-                    (d) => d.deposit_period, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[7]),
-                onSort: (columnIndex, ascending) => _sort<String>(
-                    (d) => d.capitalization_period, columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Text(_names[8]),
-                onSort: (columnIndex, ascending) => _sort<String>(
-                    (d) => d.last_capitalization, columnIndex, ascending),
+                    (d) => d.title, columnIndex, ascending),
               ),
             ],
             source: _depositDataSource,
@@ -1028,44 +982,39 @@ class _DepositDataTableState extends State<DepositDataTable> {
 
 class _Deposit {
   _Deposit(
-      this.title,
-      this.amount,
-      this.id,
-      this.interest_rate,
       this.account,
-      this.start_date,
-      this.deposit_period,
-      this.capitalization_period,
-      this.last_capitalization);
-  final String title;
-  final double amount;
-  final int id;
-  final double interest_rate;
+      this.interestRate,
+      this.startDate,
+      this.depositPeriod,
+      this.capitalizationPeriod,
+      this.lastCapitalization,
+      this.title);
   final String account;
-  final String start_date;
-  final String deposit_period;
-  final String capitalization_period;
-  final String last_capitalization;
+  final String interestRate;
+  final String startDate;
+  final String depositPeriod;
+  final String capitalizationPeriod;
+  final String lastCapitalization;
+  final String title;
 
   bool selected = false;
 }
 
 class _DepositDataSource extends DataTableSource {
   _DepositDataSource(this.context) {
-    _deposits = <_Deposit>[
-      _Deposit('Lokata A', 7.14, 0, 2.8, 'Glowne', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-      _Deposit('Lokata B', 7.14, 0, 2.8, 'Nowe konto', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-      _Deposit('Lokata C', 7.14, 0, 2.8, 'Konto na specjalne okazje',
-          '2021-12-01', '3 dni', '1 dzien', '2021-14-01'),
-      _Deposit('Lokata D', 7.14, 0, 2.8, 'Glowne', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-      _Deposit('Lokata E', 7.14, 0, 2.8, 'Glowne', '2021-12-01', '3 dni',
-          '1 dzien', '2021-14-01'),
-    ];
+    _deposits = [];
+	_getData();
   }
 
+  void _getData() async {
+	  	print(await requestor.fetchDeposits());
+    _deposits = List<_Deposit>.from(
+        (await requestor.fetchDeposits()).map((deposit) =>
+            _Deposit(deposit.account.toString(),deposit.interestRate,deposit.startDate.toIso8601String(), deposit.depositPeriod,deposit.capitalizationPeriod != null? deposit.capitalizationPeriod : "",deposit.lastCapitalization != null? deposit.lastCapitalization.toIso8601String() : "",deposit.title)));
+    notifyListeners();
+
+  }  
+  
   final BuildContext context;
   List<_Deposit> _deposits;
 
@@ -1091,15 +1040,13 @@ class _DepositDataSource extends DataTableSource {
   }
 
   List<String> get_names() => [
-        'Tytuł',
-        'Kwota',
-        'Id',
+        'Subkonto',
         'Oprocentowanie',
-        'Konto',
         'Początek',
         'Czas trwania',
         'Okres kapitalizacji',
-        'Ostatnia kapitalizacja'
+        'Ostatnia kapitalizacja',
+		'Tytuł',
       ];
 
   int _selectedCount = 0;
@@ -1122,21 +1069,14 @@ class _DepositDataSource extends DataTableSource {
         }
       },
       cells: [
-        DataCell(Text(deposit.title, style: TextStyle(color: text_color))),
-        DataCell(Text(deposit.amount.toString(),
-            style: TextStyle(color: text_color))),
-        DataCell(
-            Text(deposit.id.toString(), style: TextStyle(color: text_color))),
-        DataCell(Text(deposit.interest_rate.toString(),
-            style: TextStyle(color: text_color))),
         DataCell(Text(deposit.account, style: TextStyle(color: text_color))),
-        DataCell(Text(deposit.start_date, style: TextStyle(color: text_color))),
-        DataCell(
-            Text(deposit.deposit_period, style: TextStyle(color: text_color))),
-        DataCell(Text(deposit.capitalization_period,
-            style: TextStyle(color: text_color))),
-        DataCell(Text(deposit.last_capitalization,
-            style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.interestRate, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.startDate, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.depositPeriod, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.capitalizationPeriod, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.lastCapitalization, style: TextStyle(color: text_color))),
+		DataCell(Text(deposit.title, style: TextStyle(color: text_color))),
+
       ],
     );
   }

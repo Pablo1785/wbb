@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bank/models.dart';
 
-const String server_port = '8080';
+const String server_port = '8000';
 const String server_address = 'http://127.0.0.1';
 
 //Sending data to server and getting response:
@@ -20,7 +20,7 @@ class Requestor {
   Requestor(
       {this.tokenData,
       this.serverAddress = 'http://127.0.0.1',
-      this.serverPort = '8080'});
+      this.serverPort = '8000'});
 
   Future<TokenData> login(String username, String password) async {
     final http.Response response = await http.post(
@@ -126,6 +126,26 @@ class Requestor {
     }
   }
 
+  Future<List<BankDeposit>> fetchDeposits() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/deposit/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<BankDeposit>.from(json
+          .decode(response.body)
+          .map((model) => BankDeposit.fromJson(model)));
+    } else {
+      throw Exception('Błąd przy pobieraniu rachunków.\n\n${response.body}');
+    }
+  }  
+  
   Future<List<LoginRecord>> fetchLoginRecords() async {
     final http.Response response = await http.get(
       '${this.serverAddress}:${this.serverPort}/api/login_history/',
@@ -148,7 +168,7 @@ class Requestor {
   }
 
   Future<Transaction> createTransaction(
-      int source, int target, String amount, String title, double fee) async {
+      String source, String target, String amount, String title, String fee) async {
     final http.Response response = await http.post(
       '${this.serverAddress}:${this.serverPort}/api/trans/',
       headers: <String, String>{
@@ -195,6 +215,48 @@ class Requestor {
     }
   }
 
+  Future<List<Transaction>> fetchTransactionsIn() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/trans/in/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<Transaction>.from(json
+          .decode(response.body)
+          .map((model) => Transaction.fromJson(model)));
+    } else {
+      throw Exception(
+          'Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
+    }
+  }
+  
+  Future<List<Transaction>> fetchTransactionsOut() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/trans/out/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return List<Transaction>.from(json
+          .decode(response.body)
+          .map((model) => Transaction.fromJson(model)));
+    } else {
+      throw Exception(
+          'Błąd przy pobieraniu historii transakcji.\n\n${response.body}');
+    }
+  }
+  
   Future<UserProfile> createUser(
       String username, String password, String email) async {
     final http.Response response = await http.post(
