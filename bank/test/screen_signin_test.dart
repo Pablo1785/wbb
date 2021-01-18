@@ -14,7 +14,7 @@ void main() {
 	final login_button = find.text('Zaloguj');
 	
 	expect(fields,findsNWidgets(2));
-    expect(login, findsOneWidget);
+    expect(login, findsNWidgets(2));
 	expect(login_button, findsOneWidget);
   });
 	

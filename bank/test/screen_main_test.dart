@@ -7,7 +7,9 @@ void main() {
   group('Widgets Drawing', () {
 
   testWidgets('Visibility of Text', (WidgetTester tester) async {
-    await tester.pumpWidget(HomeApp());
+  tester.binding.window.physicalSizeTestValue = Size(1920, 1080);
+  tester.binding.window.devicePixelRatioTestValue = 1.0;
+    await tester.pumpWidget(MainApp());
 	
 	final login = find.text('Zaloguj się');
 	final register = find.text('Zarejestruj się');
@@ -23,7 +25,7 @@ void main() {
   group('Navigation', () {
 
   testWidgets('Go to sign-in page', (WidgetTester tester) async {
-	await tester.pumpWidget(HomeApp());
+	await tester.pumpWidget(MainApp());
 	
 	expect(find.text("Zaloguj"), findsNothing);
 	
@@ -34,7 +36,7 @@ void main() {
   });
 
   testWidgets('Go to sign-up page', (WidgetTester tester) async {
-	await tester.pumpWidget(HomeApp());
+	await tester.pumpWidget(MainApp());
 	
 	expect(find.text("Utwórz konto"), findsNothing);
 	
