@@ -103,7 +103,8 @@ class FormSettings extends StatefulWidget {
 }
 
 class _FormSettingsState extends State<FormSettings> {
-  final _formKey = GlobalKey<FormState>();
+  final _passwordFormKey = GlobalKey<FormState>();
+  final _emailFormKey = GlobalKey<FormState>();
   final _user = User();
   var futureProfile = requestor.fetchCurrentUser();
   var profile;
@@ -127,12 +128,12 @@ class _FormSettingsState extends State<FormSettings> {
                     if (snapshot.hasData) {
                       //_user.data[User.Email] = snapshot.data.email;
                       profile = snapshot.data;
-                      return Form(
-                          key: _formKey,
-                          child: Column(
+                      return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                TextFormField(
+                                Form(
+                          key: _emailFormKey,
+                          child: TextFormField(
                                   decoration: InputDecoration(
                                     labelText: 'E-mail',
                                     hintText: profile.email,
@@ -146,17 +147,16 @@ class _FormSettingsState extends State<FormSettings> {
                                     ),
                                   ),
                                   validator: (value) {
-                                    if (!value.isEmpty &&
-                                        !EmailValidator.validate(value)) {
+                                    if (!EmailValidator.validate(value)) {
                                       return 'Proszę wprowadzić poprawny adres email.';
                                     }
                                   },
                                   onSaved: (val) => setState(() =>
-                                      _user.data[User.Email] = !val.isEmpty
-                                          ? val
-                                          : _user.data[User.Email]),
-                                ),
-                                TextFormField(
+                                      _user.data[User.Email] = val),
+                                ),),
+                                Form(
+                          key: _passwordFormKey,
+                          child: Column(children:[TextFormField(
                                   decoration: InputDecoration(
                                     labelText: 'Obecne hasło',
                                     hintText:
@@ -172,14 +172,12 @@ class _FormSettingsState extends State<FormSettings> {
                                   ),
                                   obscureText: true,
                                   validator: (value) {
-                                    if (value.length > 0 && value.length < 8) {
+                                    if (value.length < 8) {
                                       return 'Proszę wprowadzić hasło o długości co najmniej 8 znaków.';
                                     }
                                   },
                                   onSaved: (val) => setState(() =>
-                                      _user.data[User.Password] = !val.isEmpty
-                                          ? val
-                                          : _user.data[User.Password]),
+                                      _user.data[User.Password] = val),
                                 ),
                                 TextFormField(
                                     decoration: InputDecoration(
@@ -197,16 +195,13 @@ class _FormSettingsState extends State<FormSettings> {
                                     ),
                                     obscureText: true,
                                     validator: (value) {
-                                      if (value.length > 0 &&
-                                          value.length < 8) {
+                                      if (value.length < 8) {
                                         return 'Proszę wprowadzić hasło o długości co najmniej 8 znaków.';
                                       }
                                     },
                                     onSaved: (val) => setState(() => _user
-                                            .data[User.NewPassword] =
-                                        !val.isEmpty
-                                            ? val
-                                            : _user.data[User.NewPassword])),
+                                            .data[User.NewPassword] = val)),
+											])),
                                 Container(
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 50, 0, 20),
@@ -320,18 +315,39 @@ class _FormSettingsState extends State<FormSettings> {
                                     child: RaisedButton(
                                         color: Colors.blue,
                                         onPressed: () {
-                                          if (_formKey.currentState
+                                          if (_emailFormKey.currentState
                                               .validate()) {
-                                            _formKey.currentState.save();
+                                            _emailFormKey.currentState.save();
                                             _user.send();
-                                            if (_user.data[User.Password] !=
-                                                null) showPopup4(context);
-                                            if (_user.data[User.Email] != null)
-                                              showPopup3(context);
+                                            showPopup3(context);
                                           }
                                         },
                                         child: Text(
-                                          'Zapisz',
+                                          'Zmień e-mail',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'HelveticaNeue',
+                                          ),
+                                        ))),
+                                Container(
+                                    height: 80,
+                                    // margin: EdgeInsets.only(left: 200, right: 200),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16.0, horizontal: 16.0),
+                                    child: RaisedButton(
+                                        color: Colors.blue,
+                                        onPressed: () {
+                                          if (_passwordFormKey.currentState
+                                              .validate()) {
+                                            _passwordFormKey.currentState.save();
+                                            _user.send();
+                                            showPopup4(context);
+                                          }
+                                        },
+                                        child: Text(
+                                          'Zmień hasło',
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: Colors.white,
@@ -358,7 +374,7 @@ class _FormSettingsState extends State<FormSettings> {
                                             fontFamily: 'HelveticaNeue',
                                           ),
                                         ))),
-                              ]));
+                              ]);
                     } else if (snapshot.hasError) {
                       return Text(
                           "Błąd przy pobieraniu danych użytkownika. ${snapshot.error}",
