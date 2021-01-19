@@ -30,6 +30,15 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# Needed for: Performance optimization
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+SILKY_PYTHON_PROFILER = True
+SILKY_PYTHON_PROFILER_BINARY = True
+SILKY_META = True
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,8 +55,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
 	
-	#CORS
+	# CORS
 	'corsheaders',
+
+    # Performance optimization
+    'debug_toolbar',
+    'silk'
 ]
 
 MIDDLEWARE = [
@@ -59,6 +72,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Performance optimization
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -172,6 +189,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "core/templates"),
 )

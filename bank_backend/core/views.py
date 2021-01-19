@@ -17,6 +17,9 @@ from bank_backend.settings import BASE_DIR, STATIC_URL
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 
+# Performance optimization
+from silk.profiling.profiler import silk_profile
+
 # Create your views here.
 
 
@@ -30,6 +33,7 @@ class UserListView(APIView):
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
+    @silk_profile(name="Create User")
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -102,17 +106,22 @@ class WalletListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class FullWalletListView(APIView):
+
+    @silk_profile(name="Get Wallet")
     def get(self, request):
         wallet = Wallet.objects.get(owner=request.user)
         serializer = FullWalletSerializer(wallet)
         return Response(serializer.data)
+
 
 class SubAccountListView(APIView):
     """
     List all subaccounts, or create a new subaccount.
     """
     
+    @silk_profile(name="Get All Subaccounts")
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.filter(owner=request.user)
         serializer = SubAccountSerializer(subaccounts, many=True)
@@ -121,6 +130,7 @@ class SubAccountListView(APIView):
             ordered_dict["owner"] = str(request.user)
         return Response(modified_data)
 
+    @silk_profile(name="Create Subaccount")
     def post(self, request, format=None):
         request.data['owner'] = request.user.id
         serializer = SubAccountSerializer(data=request.data)
@@ -172,6 +182,7 @@ class BankDepositListView(APIView):
     List all bank deposits, or create a new bank deposit.
     """
 
+    @silk_profile(name="Get All Deposits")
     def get(self, request, format=None):
         subaccounts = SubAccount.objects.filter(owner=request.user)
         bank_deposits = BankDeposit.objects.filter(account__owner=request.user)
@@ -181,6 +192,7 @@ class BankDepositListView(APIView):
             ordered_dict["account"] = str(SubAccount.objects.get(id=ordered_dict["account"]).sub_address)
         return Response(modified_data)
 
+    @silk_profile(name="Make Deposit")
     def post(self, request, format=None):
         try:
             request.data["account"] = SubAccount.objects.get(sub_address=request.data["account"]).id
@@ -237,6 +249,7 @@ class TransactionListView(APIView):
     List all transactions, or create a new transaction.
     """
 
+    @silk_profile(name="Get All Transactions")
     def get(self, request, format=None):
         user = request.user
         transactions = Transaction.objects.filter(Q(source_id__owner=user) | Q(target_id__owner=user))
@@ -263,6 +276,7 @@ class TransactionOutgoingListView(APIView):
     List all outgoing transactions of logged in User.
     """
 
+    @silk_profile(name="Get Outgoing Transactions")
     def get(self, request, format=None):
         user = request.user
         transactions = Transaction.objects.filter(source_id__owner=user)
@@ -274,6 +288,7 @@ class TransactionIncomingListView(APIView):
     List all incoming transactions of logged in User.
     """
 
+    @silk_profile(name='Get Incoming Transactions')
     def get(self, request, format=None):
         user = request.user
         transactions = Transaction.objects.filter(target_id__owner=user)
@@ -315,6 +330,7 @@ class LoginRecordListView(APIView):
     List all login_records of given user, they are created and deleted automatically by the server.
     """
     
+    @silk_profile(name='Get Login Records')
     def get(self, request, format=None):
         login_records = LoginRecord.objects.filter(user=request.user.id)
         if len(login_records) == 0:
@@ -322,6 +338,8 @@ class LoginRecordListView(APIView):
         serializer = LoginRecordSerializer(login_records, many=True)
         return Response(serializer.data)
 
+
+@silk_profile(name='View Home Page')
 @xframe_options_exempt
 def index(request):
     return HttpResponse(render(request, "index.html"))

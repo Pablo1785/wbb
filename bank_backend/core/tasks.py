@@ -12,10 +12,15 @@ from bit import PrivateKeyTestnet as Key
 from django.db.models import ObjectDoesNotExist
 from django.utils import timezone
 
+# Performance optimization
+from silk.profiling.profiler import silk_profile
+
 
 class TxNotConfirmedException(Exception):
   pass
 
+
+@silk_profile(name="Check If Transaction Confirmed")
 @app.task(bind=True, autoretry_for=(TxNotConfirmedException,), retry_kwargs={'max_retries': 7, 'countdown': 5})
 def check_transaction_confirmed(self, transaction_hash):
     try:
@@ -35,6 +40,7 @@ def check_transaction_confirmed(self, transaction_hash):
     except SubAccount.DoesNotExist:
         pass
 
+@silk_profile(name="Update Wallet Balance")
 @app.task
 def check_balance():
     wallets = Wallet.objects.all()
@@ -66,6 +72,7 @@ def check_balance():
                     s.save()
 
 
+@silk_profile(name="Update Bank Deposit Balance")
 @app.task
 def check_deposit():
     subaccounts = subaccounts = SubAccount.objects.all()

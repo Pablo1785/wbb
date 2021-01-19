@@ -16,7 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
+
+# App imports
 from core import views
+
+# Performance optimization
+import debug_toolbar
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -25,4 +30,8 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^auth/', include('djoser.urls.jwt')),
     path('api/', include('core.urls')),
+
+    # Performance optimization
+    path('__debug__/', include(debug_toolbar.urls)),
+    url(r'^silk/', include('silk.urls', namespace='silk'))
 ]
