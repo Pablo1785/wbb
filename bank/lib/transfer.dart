@@ -162,7 +162,7 @@ class _FormTransferState extends State<FormTransfer> {
                                         setState(() => type_btc = !type_btc);
                                       },
                                       child: Text(
-                                        'Na adres BTC',
+                                        'Na adres BTC / adres konta',
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.white,
@@ -208,8 +208,8 @@ class _FormTransferState extends State<FormTransfer> {
                               if (type_btc) {
                                 return TextFormField(
                                   decoration: InputDecoration(
-                                    labelText: 'Adres BTC',
-                                    hintText: 'wpisz adres BTC odbiorcy',
+                                    labelText: 'Adres BTC / Konta',
+                                    hintText: 'wpisz adres BTC lub adres konta odbiorcy',
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.always,
                                     labelStyle: TextStyle(
