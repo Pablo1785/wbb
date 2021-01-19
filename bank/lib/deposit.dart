@@ -594,7 +594,7 @@ class _DepositButtonsState extends State<DepositButtons> {
                   ? Colors.blue
                   : Theme.of(context).buttonColor,
               onPressed: () {
-                setState(() => deposit.data['interestRate']=deposit.deposit_options[i].interest_rate);
+                setState(() {deposit.data['interestRate']=deposit.deposit_options[i]["interest_rate"]; deposit.choice=i;});
               },
               child: Text(
                 '${deposit.deposit_options[i]["interest_rate"]} (czas: ${deposit.deposit_options[i]["deposit_period"]}) (kapitalizacja: ${deposit.deposit_options[i]["capitalization_period"]})',

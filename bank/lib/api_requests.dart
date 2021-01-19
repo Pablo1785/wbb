@@ -342,6 +342,24 @@ class Requestor {
     }
   }
 
+  Future<UserProfile> fetchCurrentUser() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/auth/users/me/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return UserProfile.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy pobieraniu konta.\n\n${response.body}');
+    }
+  }  
+  
   Future<UserProfile> updateUser(String username,
       {String email, String firstname, String lastname}) async {
     Map<String, dynamic> body = {
@@ -407,6 +425,24 @@ class Requestor {
     }
   }
 
+  Future<WalletFull> fetchWalletFull() async {
+    final http.Response response = await http.get(
+      '${this.serverAddress}:${this.serverPort}/api/wallet/full/',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'JWT ${this.tokenData.access}'
+      },
+    );
+
+    this.lastResponse = response;
+
+    if (response.statusCode == 200) {
+      return WalletFull.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Błąd przy pobieraniu portfela.\n\n${response.body}');
+    }
+  }  
+  
   Future<BtcExchange> fetchBtcExchangePrice(String currency) async {
     final http.Response response = await http.get(
       'https://api.blockchain.com/v3/exchange/tickers/BTC-' + currency,

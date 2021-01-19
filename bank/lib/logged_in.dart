@@ -242,7 +242,8 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                     Text(
                       //'${snapshot.data.sums["deposits"]} BTC',
-					  '~ BTC',
+					  '${snapshot.data.deposits.length}',
+					  //'~ BTC',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.montserrat(
                         fontSize: 30,

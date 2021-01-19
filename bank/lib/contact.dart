@@ -55,7 +55,7 @@ class ContactScreen extends StatelessWidget {
       backgroundColor: Colors.black38,
 	  appBar: PreferredSize(
 	  preferredSize: Size(screenSize.width, 1000),
-	  child: auth_token == "empty" ? MenuNotLogged() : Menu(),
+	  child: requestor.tokenData == null ? MenuNotLogged() : Menu(),
 	),
       body: Center(
         child: SizedBox(
