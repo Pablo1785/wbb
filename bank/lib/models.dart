@@ -252,6 +252,33 @@ class Wallet {
     };
 }
 
+class WalletFull {
+    WalletFull({
+        this.owner,
+        this.privateKey,
+        this.walletAddress,
+    });
+
+    int owner;
+    String privateKey;
+    String walletAddress;
+
+    factory WalletFull.fromRawJson(String str) => WalletFull.fromJson(json.decode(str));
+
+    String toRawJson() => json.encode(toJson());
+
+    factory WalletFull.fromJson(Map<String, dynamic> json) => WalletFull(
+        owner: json["owner"],
+        privateKey: json["private_key"],
+        walletAddress: json["wallet_address"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "owner": owner,
+        "private_key": privateKey,
+        "wallet_address": walletAddress,
+    };
+}
 
 class BtcExchange {
     BtcExchange({
