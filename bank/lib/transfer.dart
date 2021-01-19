@@ -687,13 +687,13 @@ class _FeeSliderState extends State<FeeSlider> {
   Widget build(BuildContext context) {
     return Slider(
       value: transfer._currentSliderValue,
-      min: 0,
-      max: 100,
+      min: 0.0,
+      max: 0.000003,
       divisions: 5,
-      label: transfer._currentSliderValue.round().toString() +
-          'BTC' +
+      label: transfer._currentSliderValue.toString() +
+          'BTC / byte' +
           ', szacowany czas: ' +
-          (1 / transfer._currentSliderValue).toStringAsFixed(2) +
+          (0.000001 / transfer._currentSliderValue).toStringAsFixed(2) +
           ' h',
       onChanged: (double value) {
         setState(() {

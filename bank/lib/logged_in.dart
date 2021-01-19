@@ -318,7 +318,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
                     ),
                   ),
                   Text(
-                    snapshot.data.loginRecords is List<LoginRecord> && snapshot.data.loginRecords.length > 0 ? snapshot.data.loginRecords.last.date.toIso8601String() : "Witaj po raz pierwszy!", //endpoint moze zwrocic No previous logins to display
+                    snapshot.data.loginRecords is List<LoginRecord> && snapshot.data.loginRecords.length > 0 ? snapshot.data.loginRecords.last.date.toString() : "Witaj po raz pierwszy!", //endpoint moze zwrocic No previous logins to display
                     textAlign: TextAlign.left,
                     style: GoogleFonts.montserrat(
                       fontSize: 20,

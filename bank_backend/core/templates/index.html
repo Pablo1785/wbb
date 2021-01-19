@@ -28,7 +28,7 @@
   <link rel="icon" type="image/png" href="{% static 'favicon.png' %}"/>
 
   <title>bank</title>
-<link rel="manifest" href="{% static 'manifest.json' %}">
+  <link rel="manifest" href="{% static 'manifest.json' %}">
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -37,11 +37,11 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register("{% static 'flutter_service_worker.js' %}?v=195316166");
+        navigator.serviceWorker.register('flutter_service_worker.js?v=920700066');
       });
     }
   </script>
   <script src="{% static 'main.dart.js' %}" type="application/javascript"></script>
-  
 </body>
 </html>
+

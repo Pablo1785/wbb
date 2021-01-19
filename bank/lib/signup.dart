@@ -171,11 +171,11 @@ class _SignUpFormState extends State<SignUpForm> {
                     ? null
                     : Colors.white;
               }),
-              backgroundColor:
+              backgroundColor: 
                   MaterialStateColor.resolveWith((Set<MaterialState> states) {
                 return states.contains(MaterialState.disabled)
                     ? null
-                    : Colors.black;
+                    : (light_theme ? Colors.blue : Colors.black);
               }),
             ),
             onPressed: _formProgress == 1

@@ -5,6 +5,7 @@ import 'package:email_validator/email_validator.dart';
 import 'main.dart';
 import 'logged_in.dart';
 import 'globals.dart';
+import 'main.dart';
 
 void main() => runApp(TransactionApp());
 
@@ -19,7 +20,7 @@ class TransactionApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => SettingsPage(),
-        '/main': (context) => HomeApp(),
+        '/main': (context) => MainApp(),
         '/settings': (context) => TransactionApp(),
         '/loggedin': (context) => LoggedInApp(),
       },
