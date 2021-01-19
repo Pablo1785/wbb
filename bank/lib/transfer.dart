@@ -155,11 +155,10 @@ class _FormTransferState extends State<FormTransfer> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 16.0),
                                   child: RaisedButton(
-                                      color: type_btc
+                                      color: true
                                           ? Colors.blue
                                           : Theme.of(context).buttonColor,
                                       onPressed: () {
-                                        setState(() => type_btc = !type_btc);
                                       },
                                       child: Text(
                                         'Na adres BTC / adres konta',
@@ -176,11 +175,10 @@ class _FormTransferState extends State<FormTransfer> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16.0, horizontal: 16.0),
                                   child: RaisedButton(
-                                      color: type_btc
+                                      color: true
                                           ? Theme.of(context).buttonColor
                                           : Colors.blue,
                                       onPressed: () {
-                                        setState(() => type_btc = !type_btc);
                                       },
                                       child: Text(
                                         'Na adres e-mail',

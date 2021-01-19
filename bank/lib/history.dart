@@ -560,7 +560,7 @@ class _TransferDataSource extends DataTableSource {
     assert(index >= 0);
     if (index >= _transfers_filtered.length) return null;
     final transfer = _transfers_filtered[index];
-    final text_color = ((_subAccounts.any((subaccount) => subaccount.subAddress == _transfers[0].target)))? Colors.green : Colors.red;
+    final text_color = ((_subAccounts.any((subaccount) => subaccount.subAddress == transfer.target)))? Colors.green : Colors.red;
     return DataRow.byIndex(
       index: index,
       selected: transfer.selected,
