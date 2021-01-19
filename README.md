@@ -9,7 +9,7 @@ Wirtualny Bank Bitcoinów
  <b>virtualenv</b>
  <b>PostgreSQL</b>
 
- Należy stworzyć wirtualne środowisko dla serwera Django, uruchomić je komendą <code>source path/to/venv/bin/activate</code> (Linux) lub <code>path\to\venv\Scripts\activate.bat</code> (Windows), a następnie zainstalować konieczne pakiety z pliku <i>requirements.txt</i> komendą <code>pip install -r requirements.txt</code>.
+ Należy stworzyć wirtualne środowisko dla serwera Django, uruchomić je komendą <code>source path/to/venv/bin/activate</code> (Linux) lub <code>path\to\venv\Scripts\activate.ps1</code> (Windows), a następnie zainstalować konieczne pakiety z pliku <i>requirements.txt</i> komendą <code>pip install -r requirements.txt</code>.
 
 
 # Uruchomienie obrazu RabbitMQ w dockerze
